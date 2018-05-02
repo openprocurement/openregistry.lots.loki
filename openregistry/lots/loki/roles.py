@@ -22,7 +22,37 @@ item_roles = {
     'view': item_view_role,
 }
 
-lot_create_role = (whitelist('status', 'auctions', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
+auction_create_role = blacklist('id', 'status', 'auctionID', 'procurementMethodType')
+auction_common_edit_role = blacklist('id', 'auctionID', 'procurementMethodType', 'tenderAttempts', 'status')
+auction_view_role = (schematics_default_role + blacklist())
+edit_first_english = (auction_common_edit_role + blacklist('tenderingDuration'))
+edit_second_english = (
+    auction_common_edit_role +
+    blacklist('value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod'))
+edit_insider = (
+    auction_common_edit_role +
+    blacklist('tenderingDuration', 'value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod')
+)
+
+auction_roles = {
+    'create': auction_create_role,
+    'edit': auction_common_edit_role,
+    'view': auction_view_role,
+    'edit_1.sellout.english': edit_first_english,
+    'edit_2.sellout.english': edit_second_english,
+    'edit_3.sellout.insider': edit_insider
+}
+
+english_auctionParameters_edit_role = blacklist('type', 'dutchSteps')
+insider_auctionParameters_edit_role = blacklist('type')
+auctionParameters_roles = {
+    'create': blacklist('type', 'dutchSteps'),
+    'edit_1.sellout.english': english_auctionParameters_edit_role,
+    'edit_2.sellout.english': english_auctionParameters_edit_role,
+    'edit_3.sellout.insider': insider_auctionParameters_edit_role
+}
+
+lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
 lot_edit_role = (blacklist('owner_token', 'owner', '_attachments',
                        'revisions', 'date', 'dateModified', 'documents', 'decisions',
                        'lotID', 'mode', 'doc_id', 'items', 'rectificationPeriod') + schematics_embedded_role)
@@ -47,13 +77,16 @@ lot_roles = {
     'edit_draft': whitelist('status'),
     # Composing role
     'composing': view_role,
-    'edit_composing': whitelist('status', 'auctions'),
+    'edit_composing': whitelist('status'),
     'verification': view_role,
     'edit_verification': whitelist(),
     # Pending role
     'pending': view_role,
     'edit_pending': lot_edit_role,
     'edit_pendingAfterRectificationPeriod': whitelist('status'),
+    # Pending.deleted role
+    'pending.deleted': view_role,
+    'edit_pending.deleted': whitelist(),
     # Deleted role
     'deleted': view_role,
     'edit_deleted': whitelist(),

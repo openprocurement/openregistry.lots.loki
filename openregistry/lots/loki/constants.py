@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 
+AUCTION_STATUSES = ['scheduled', 'deleted', 'active', 'complete',  'unsuccessful', 'cancelled']
 LOT_STATUSES = [
-    "draft", "composing", "verification",  "pending", "deleted", "active.salable", "active.awaiting", "active.auction",
-    "active.contracting", "pending.sold", "pending.dissolution", "sold", "dissolved", "invalid"]
+    "draft", "composing", "verification",  "pending", "pending.deleted", "deleted", "active.salable", "active.awaiting",
+    "active.auction", "active.contracting", "pending.sold", "pending.dissolution", "sold", "dissolved", "invalid"]
+
+ITEM_EDITING_STATUSES = ['draft', 'composing', 'pending']
 
 STATUS_CHANGES = {
     "draft": {
@@ -28,8 +31,14 @@ STATUS_CHANGES = {
     "pending": {
         "editing_permissions": ["lot_owner", "Administrator"],
         "next_status": {
-            "deleted": ["lot_owner", "Administrator"],
+            "pending.deleted": ["lot_owner", "Administrator"],
             "active.salable": ["lot_owner", "Administrator"],
+        }
+    },
+    "pending.deleted": {
+        "editing_permissions": ["concierge", "Administrator"],
+        "next_status": {
+            "deleted": ["concierge", "Administrator"],
         }
     },
     "deleted": {

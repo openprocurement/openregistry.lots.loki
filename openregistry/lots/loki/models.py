@@ -8,7 +8,7 @@ from schematics.types.compound import ModelType, ListType
 from schematics.types.serializable import serializable
 from zope.interface import implementer
 from openregistry.lots.core.constants import (
-    SANDBOX_MODE
+    SANDBOX_MODE,
 )
 
 from openregistry.lots.core.models import (
@@ -35,10 +35,12 @@ from openregistry.lots.core.utils import (
 
 from .constants import (
     LOT_STATUSES,
-    RECTIFICATION_PERIOD_DURATION,
+    AUCTION_STATUSES
 )
 from .roles import (
     lot_roles,
+    auction_roles,
+    auctionParameters_roles
 )
 
 
@@ -62,25 +64,46 @@ class AccountDetails(Model):
 
 
 class AuctionParameters(Model):
+    class Options:
+        roles = auctionParameters_roles
+
     type = StringType(choices=['english', 'insider'])
     dutchSteps = IntType(default=None, min_value=1, max_value=100)
-    if SANDBOX_MODE:
-        procurementMethodDetails = StringType()
 
 
 class Auction(Model):
-    id = StringType()
+    class Options:
+        roles = auction_roles
+
+    id = StringType(required=True, min_length=1, default=lambda: uuid4().hex)
     auctionID = StringType()
-    procurementMethodType = StringType(choices=['Loki.english', 'Loki.insider'])
-    auctionPeriod = ModelType(StartDateRequiredPeriod, required=True)
-    tenderingDuration = IsoDurationType()
-    documents = ListType(ModelType(Document))
-    value = ModelType(Value, required=True)
-    minimalStep = ModelType(Value, required=True)
-    guarantee = ModelType(Guarantee, required=True)
+    status = StringType(choices=AUCTION_STATUSES)
+    procurementMethodType = StringType(choices=['sellout.english', 'sellout.insider'])
+    tenderAttempts = IntType(min_value=1, max_value=3)
+    auctionPeriod = ModelType(StartDateRequiredPeriod)
+    value = ModelType(Value)
+    minimalStep = ModelType(Value)
+    guarantee = ModelType(Guarantee)
     registrationFee = ModelType(Guarantee)
     accountDetails = ModelType(AccountDetails)
     auctionParameters = ModelType(AuctionParameters)
+    tenderingDuration = IsoDurationType()
+    submissionMethodDetails = StringType()
+    submissionMethodDetails_en = StringType()
+    submissionMethodDetails_ru = StringType()
+    if SANDBOX_MODE:
+        procurementMethodDetails = StringType()
+
+    def get_role(self):
+        root = self.__parent__.__parent__
+        request = root.request
+        if request.authenticated_role == 'Administrator':
+            role = 'Administrator'
+        elif request.authenticated_role == 'convoy':
+            role = 'convoy'
+        else:
+            role = 'edit_{}.{}'.format(request.context.tenderAttempts, request.context.procurementMethodType)
+        return role
 
 
 @implementer(ILokiLot)
@@ -100,7 +123,7 @@ class Lot(BaseLot):
     documents = ListType(ModelType(Document), default=list())
     decisions = ListType(ModelType(Decision), default=list(), min_size=1, max_size=2, required=True)
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
-    auctions = ListType(ModelType(Auction), max_size=3, min_size=3, required=True)
+    auctions = ListType(ModelType(Auction), default=list(), max_size=3)
 
     def get_role(self):
         root = self.__parent__
@@ -160,11 +183,31 @@ class Lot(BaseLot):
             self.rectificationPeriod.endDate = calculate_business_date(self.rectificationPeriod.startDate,
                                                                        RECTIFICATION_PERIOD_DURATION,
                                                                        None)
+    @serializable(serialize_when_none=False, serialized_name='auctions', type=ListType(ModelType(Auction)))
+    def auctions_serialize(self):
+        if self.auctions:
+            auto_calculated_fields = ['value', 'minimalStep', 'registrationFee', 'guarantee']
+            auctions = sorted(self.auctions, key=lambda a: a.tenderAttempts)
+            english = auctions[0]
+            second_english = auctions[1]
+            insider = auctions[2]
+            auto_calculated_fields = filter(
+                lambda f: getattr(english, f, None), auto_calculated_fields
+            )
+            for auction in (second_english, insider):
+                for key in auto_calculated_fields:
+                    object_class = getattr(self.__class__.auctions.model_class, key)
+                    auction[key] = object_class(english[key].serialize())
+                    auction[key]['amount'] = english[key]['amount'] / 2
+
+            insider.tenderingDuration = second_english.tenderingDuration
+        return self.auctions
 
     def __acl__(self):
         acl = [
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'edit_lot'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_documents'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_items'),
+            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auctions'),
         ]
         return acl

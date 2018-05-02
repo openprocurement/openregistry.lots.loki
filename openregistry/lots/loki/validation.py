@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from schematics.exceptions import ValidationError
+
 from openregistry.lots.core.utils import (
     raise_operation_error,
     update_logging_context,
@@ -8,9 +10,10 @@ from openregistry.lots.core.validation import (
     validate_data
 )
 
+
 def validate_document_operation_in_not_allowed_lot_status(request, error_handler, **kwargs):
     status = request.validated['lot_status']
-    if status != 'pending':
+    if status not in  ['pending', 'composing']:
         raise_operation_error(request, error_handler,
                               'Can\'t update document in current ({}) lot status'.format(status))
 
@@ -77,7 +80,7 @@ def rectificationPeriod_document_validation(request, error_handler, **kwargs):
 
 def validate_deleted_status(request, error_handler, **kwargs):
     can_be_deleted = any([doc.documentType == 'cancellationDetails' for doc in request.context['documents']])
-    if request.json['data'].get('status') == 'deleted' and not can_be_deleted:
+    if request.json['data'].get('status') == 'pending.deleted' and not can_be_deleted:
         request.errors.add(
             'body',
             'mode',
@@ -85,3 +88,59 @@ def validate_deleted_status(request, error_handler, **kwargs):
             "only when asset have at least one document with \'cancellationDetails\' documentType")
         request.errors.status = 403
         raise error_handler(request)
+
+
+def rectificationPeriod_auction_validation(request, error_handler, **kwargs):
+    is_rectificationPeriod_finished = bool(
+        request.validated['lot'].rectificationPeriod and
+        request.validated['lot'].rectificationPeriod.endDate < get_now()
+    )
+    if request.authenticated_role != 'convoy' and is_rectificationPeriod_finished:
+        request.errors.add('body', 'mode', 'You can\'t change auctions after rectification period')
+        request.errors.status = 403
+        raise error_handler(request)
+
+
+def validate_auction_data(request, error_handler, **kwargs):
+    update_logging_context(request, {'auction_id': '__new__'})
+    context = request.context if 'auctions' in request.context else request.context.__parent__
+    model = type(context).auctions.model_class
+    validate_data(request, model, partial=True)
+
+
+def validate_update_auction_in_not_allowed_status(request, error_handler, **kwargs):
+    is_convoy = bool(request.authenticated_role == 'convoy')
+    if not is_convoy and request.validated['lot_status'] not in ['draft', 'composing', 'pending']:
+            raise_operation_error(request, error_handler,
+                                  'Can\'t update item in current ({}) lot status'.format(request.validated['lot_status']))
+
+
+def validate_verification_status(request, error_handler, **kwargs):
+    if request.validated['data'].get('status') == 'verification' and request.context.status == 'composing':
+        lot = request.validated['lot']
+        auctions = sorted(lot.auctions, key=lambda a: a.tenderAttempts)
+        english = auctions[0]
+        second_english = auctions[1]
+
+        required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee',]
+        if not all(english[field] for field in required_fields):
+            request.errors.add(
+                'body',
+                'data',
+                'Can\'t switch lot to verification status from pending until '
+                'this fields are not filled {} in auctions'.format(required_fields)
+            )
+            request.errors.status = 422
+
+        required_fields = ['tenderingDuration']
+        if not all(second_english[field] for field in required_fields):
+            request.errors.add(
+                'body',
+                'data',
+                'Can\'t switch lot to verification status from pending until '
+                'this fields are not filled {} in second english auction'.format(required_fields)
+            )
+            request.errors.status = 422
+
+        if request.errors:
+            raise error_handler(request)

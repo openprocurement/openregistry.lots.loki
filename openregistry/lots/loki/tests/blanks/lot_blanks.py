@@ -1,20 +1,23 @@
  # -*- coding: utf-8 -*-
-import unittest
-
 from copy import deepcopy
 from uuid import uuid4
 from datetime import timedelta
+from isodate import parse_datetime
 
 from openregistry.lots.core.utils import get_now, calculate_business_date
 from openregistry.lots.core.models import Period
-from openregistry.lots.core.constants import ROUTE_PREFIX, SANDBOX_MODE
 from openregistry.lots.core.tests.base import create_blacklist
 
 from openregistry.lots.loki.models import Lot
+from openregistry.lots.loki.tests.json_data import (
+    auction_english_data,
+    auction_second_english_data
+)
 from openregistry.lots.loki.constants import (
     STATUS_CHANGES,
     LOT_STATUSES,
-    DEFAULT_DUTCH_STEPS
+    DEFAULT_DUTCH_STEPS,
+    RECTIFICATION_PERIOD_DURATION
 )
 
 
@@ -81,14 +84,33 @@ def add_decisions(self, lot):
         }
     data_with_decisions = {
         "decisions": [
-            lot['decisions'][0],
-            asset_decision
+            lot['decisions'][0],asset_decision
         ]
     }
     response = self.app.patch_json('/{}'.format(lot['id']), params={'data': data_with_decisions})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['decisions'], data_with_decisions['decisions'])
+
+
+def add_auctions(self, lot, access_header):
+    response = self.app.get('/{}/auctions'.format(lot['id']))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    second_english = auctions[1]
+
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], english['id']),
+        params={'data': auction_english_data}, headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], second_english['id']),
+        params={'data': auction_second_english_data}, headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
 
 
 def check_patch_status_200(self, path, lot_status, headers=None):
@@ -118,6 +140,7 @@ def create_single_lot(self, data, status=None):
     self.assertEqual(response.status, '201 Created')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'draft')
+    self.assertEqual(len(response.json['data']['auctions']), 3)
     token = response.json['access']['token']
     lot_id = response.json['data']['id']
 
@@ -139,48 +162,103 @@ def create_single_lot(self, data, status=None):
     return response
 
 
-@unittest.skipIf(not SANDBOX_MODE, 'If sandbox mode is enabled auctionParameters has additional field procurementMethodDetails')
-def procurementMethodDetails_check_with_sandbox(self):
-    data = deepcopy(self.initial_data)
-    data['auctions'][0]['auctionParameters'] = {'procurementMethodDetails': 'quick'}
-    response = create_single_lot(self, data)
-    self.assertEqual(
-        response.json['data']['auctions'][0]['auctionParameters']['procurementMethodDetails'],
-        data['auctions'][0]['auctionParameters']['procurementMethodDetails']
-    )
-    self.assertEqual(
-        response.json['data']['auctions'][1]['auctionParameters']['procurementMethodDetails'],
-        data['auctions'][0]['auctionParameters']['procurementMethodDetails']
-    )
-    self.assertEqual(
-        response.json['data']['auctions'][2]['auctionParameters']['procurementMethodDetails'],
-        data['auctions'][0]['auctionParameters']['procurementMethodDetails']
-    )
-
-
-@unittest.skipIf(SANDBOX_MODE, 'If sandbox mode is disabled auctionParameters has not procurementMethodDetails field')
-def procurementMethodDetails_check_without_sandbox(self):
-    data = deepcopy(self.initial_data)
-    data['auctions'][0]['auctionParameters'] = {'procurementMethodDetails': 'quick'}
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
+def auction_autocreation(self):
+    response = self.app.post_json('/', {"data": self.initial_data})
+    self.assertEqual(response.status, '201 Created')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['errors'][0]['description']['auctionParameters']['procurementMethodDetails'], u'Rogue field')
+    self.assertEqual(response.json['data']['status'], 'draft')
+    self.assertEqual(len(response.json['data']['auctions']), 3)
+    auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    second_english = auctions[1]
+    insider = auctions[2]
 
-    response = create_single_lot(self, self.initial_data)
+    self.assertEqual(english['procurementMethodType'], 'sellout.english')
+    self.assertEqual(english['tenderAttempts'], 1)
+    self.assertEqual(english['status'], 'scheduled')
+    self.assertEqual(english['auctionParameters']['type'], 'english')
+
+    self.assertEqual(second_english['procurementMethodType'], 'sellout.english')
+    self.assertEqual(second_english['tenderAttempts'], 2)
+    self.assertEqual(second_english['status'], 'scheduled')
+    self.assertEqual(second_english['auctionParameters']['type'], 'english')
+
+    self.assertEqual(insider['procurementMethodType'], 'sellout.insider')
+    self.assertEqual(insider['tenderAttempts'], 3)
+    self.assertEqual(insider['status'], 'scheduled')
+    self.assertEqual(insider['auctionParameters']['type'], 'insider')
+    self.assertEqual(insider['auctionParameters']['dutchSteps'], DEFAULT_DUTCH_STEPS)
+
+
+def check_change_to_verification(self):
+    # Create lot in 'draft' status
+    draft_lot = deepcopy(self.initial_data)
+    draft_lot['assets'] = [uuid4().hex]
+    response = create_single_lot(self, draft_lot)
     lot = response.json['data']
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
+    self.assertEqual(lot['status'], 'draft')
+
+    response = self.app.get('/{}/auctions'.format(lot['id']))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    second_english = auctions[1]
+
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data'], lot)
+
+    # Move from 'draft' to 'draft' status
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'draft', access_header)
+
+    # Move from 'draft' to 'composing' status
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
     response = self.app.patch_json(
         '/{}'.format(lot['id']),
-        params={'data': data},
-        headers=access_header,
-        status=422
+        {"data": {'status': 'verification'}},
+        status=422,
+        headers=access_header
     )
     self.assertEqual(response.status, '422 Unprocessable Entity')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['errors'][0]['description']['auctionParameters']['procurementMethodDetails'], u'Rogue field')
+    self.assertEqual(
+        response.json['errors'][0]['description'],
+        "Can\'t switch lot to verification status from pending until "
+        "this fields are not filled ['value', 'minimalStep', 'auctionPeriod', 'guarantee'] in auctions"
+    )
+
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], english['id']),
+        params={'data': auction_english_data}, headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
+    response = self.app.patch_json(
+        '/{}'.format(lot['id']),
+        {"data": {'status': 'verification'}},
+        status=422,
+        headers=access_header
+    )
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'][0]['description'],
+        "Can\'t switch lot to verification status from pending until "
+        "this fields are not filled ['tenderingDuration'] in second english auction"
+    )
+
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], second_english['id']),
+        params={'data': auction_second_english_data}, headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+
 
 
 def check_lotIdentifier(self):
@@ -206,110 +284,6 @@ def check_lotIdentifier(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(set(response.json['data']), set(lot))
     self.assertEqual(response.json['data'], lot)
-
-
-def check_auctions(self):
-    self.app.authorization = ('Basic', ('broker', ''))
-    data = deepcopy(self.initial_data)
-    data['auctions'][0]['tenderingDuration'] = 'P25DT12H'
-
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'], ["First loki.english have no tenderingDuration."])
-
-    del data['auctions'][0]['tenderingDuration']
-    data['auctions'][1]['tenderingDuration'] = 'P30DT12H'
-
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'], ["tenderingDuration for second loki.english and loki.insider should be the same."])
-
-    duration = data['auctions'][2]['tenderingDuration']
-
-    # Delete tenderingDuration in second loki.english
-    del data['auctions'][1]['tenderingDuration']
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'], ["tenderingDuration is required for second loki.english and loki.insider."])
-
-    # Delete tenderingDuration in both second loki.english and loki.insider
-    del data['auctions'][2]['tenderingDuration']
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'], ["tenderingDuration is required for second loki.english and loki.insider."])
-
-    # Delete tenderingDuration in loki.insider
-    data['auctions'][1]['tenderingDuration'] = duration
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'], ["tenderingDuration is required for second loki.english and loki.insider."])
-
-    response = create_single_lot(self, self.initial_data)
-    lot = response.json['data']
-    self.assertEqual(len(lot['auctions']), 3)
-
-    # Test first Loki.english
-    self.assertEqual(lot['auctions'][0]['procurementMethodType'], 'Loki.english')
-    self.assertEqual(lot['auctions'][0]['value']['amount'], self.initial_data['auctions'][0]['value']['amount'])
-    self.assertEqual(lot['auctions'][0]['registrationFee']['amount'], self.initial_data['auctions'][0]['registrationFee']['amount'])
-    self.assertEqual(lot['auctions'][0]['minimalStep']['amount'], self.initial_data['auctions'][0]['minimalStep']['amount'])
-    self.assertEqual(lot['auctions'][0]['guarantee']['amount'], lot['auctions'][0]['guarantee']['amount'])
-    self.assertEqual(lot['auctions'][0]['auctionParameters']['type'], 'english')
-    self.assertNotIn('dutchSteps', lot['auctions'][0]['auctionParameters'])
-    self.assertNotIn('tenderingDuration', lot['auctions'][0])
-
-    # Test second Loki.english(half values)
-    self.assertEqual(lot['auctions'][1]['procurementMethodType'], 'Loki.english')
-    self.assertEqual(lot['auctions'][1]['value']['amount'], lot['auctions'][0]['value']['amount'] / 2)
-    self.assertEqual(lot['auctions'][1]['registrationFee']['amount'], lot['auctions'][0]['registrationFee']['amount'] / 2)
-    self.assertEqual(lot['auctions'][1]['minimalStep']['amount'], lot['auctions'][0]['minimalStep']['amount'] / 2)
-    self.assertEqual(lot['auctions'][1]['guarantee']['amount'], lot['auctions'][0]['guarantee']['amount'] / 2)
-    self.assertEqual(lot['auctions'][1]['auctionParameters']['type'], 'english')
-    self.assertNotIn('dutchSteps', lot['auctions'][1]['auctionParameters'])
-
-    # Test second Loki.insider(half values)
-    self.assertEqual(lot['auctions'][2]['procurementMethodType'], 'Loki.insider')
-    self.assertEqual(lot['auctions'][2]['value']['amount'], lot['auctions'][0]['value']['amount'] / 2)
-    self.assertEqual(lot['auctions'][2]['registrationFee']['amount'], lot['auctions'][0]['registrationFee']['amount'] / 2)
-    self.assertEqual(lot['auctions'][2]['minimalStep']['amount'], lot['auctions'][0]['minimalStep']['amount'] / 2)
-    self.assertEqual(lot['auctions'][2]['guarantee']['amount'], lot['auctions'][0]['guarantee']['amount'] / 2)
-    self.assertEqual(lot['auctions'][2]['auctionParameters']['type'], 'insider')
-    self.assertEqual(lot['auctions'][2]['auctionParameters']['dutchSteps'], DEFAULT_DUTCH_STEPS)
-
-    # Test dutch steps validation
-    data = deepcopy(self.initial_data)
-    data['auctions'][0]['auctionParameters'] = {'dutchSteps': 66}
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'], ["dutchSteps can be filled only when procurementMethodType is Loki.insider."])
-
-    data = deepcopy(self.initial_data)
-    data['auctions'][1]['auctionParameters'] = {'dutchSteps': 66}
-    response = self.app.post_json('/', {"data": data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'], ["dutchSteps can be filled only when procurementMethodType is Loki.insider."])
-
-    data = deepcopy(self.initial_data)
-    data['auctions'][2]['auctionParameters'] = {'dutchSteps': 66}
-    response = create_single_lot(self, data)
-    lot = response.json['data']
-    self.assertEqual(len(lot['auctions']), 3)
-
-    self.assertEqual(lot['auctions'][2]['auctionParameters']['dutchSteps'], data['auctions'][2]['auctionParameters']['dutchSteps'])
 
 
 def check_decisions(self):
@@ -338,6 +312,7 @@ def check_decisions(self):
     access_header = {'X-Access-Token': str(token)}
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
 
@@ -438,6 +413,36 @@ def check_decisions(self):
 
 
 def rectificationPeriod_workflow(self):
+    response = create_single_lot(self, self.initial_data)
+    lot = response.json['data']
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+
+    self.assertNotIn('rectificationPeriod', response.json['data'])
+
+    response = self.app.patch_json('/{}'.format(lot['id']),
+                                   headers=access_header,
+                                   params={'data': {'status': 'composing'}})
+    self.assertNotIn('rectificationPeriod', response.json['data'])
+
+    add_auctions(self, lot, access_header)
+    response = self.app.patch_json('/{}'.format(lot['id']),
+                                   headers=access_header,
+                                   params={'data': {'status': 'verification'}})
+    self.assertNotIn('rectificationPeriod', response.json['data'])
+
+    self.app.authorization = ('Basic', ('concierge', ''))
+    add_decisions(self, lot)
+    response = self.app.patch_json('/{}'.format(lot['id']),
+                                   params={'data': {'status': 'pending'}})
+    self.assertIn('rectificationPeriod', response.json['data'])
+    startDate = parse_datetime(response.json['data']['rectificationPeriod']['startDate'])
+    endDate = parse_datetime(response.json['data']['rectificationPeriod']['endDate'])
+    self.assertEqual(endDate - startDate, RECTIFICATION_PERIOD_DURATION)
+
+    self.app.authorization = ('Basic', ('broker', ''))
+
+
     rectificationPeriod = Period()
     rectificationPeriod.startDate = get_now() - timedelta(3)
     rectificationPeriod.endDate = calculate_business_date(rectificationPeriod.startDate,
@@ -485,7 +490,7 @@ def rectificationPeriod_workflow(self):
     self.assertEqual(lot['title'], response.json['data']['title'])
 
     add_cancellationDetails_document(self, lot, access_header)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted', access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending.deleted', access_header)
 
 
 def dateModified_resource(self):
@@ -540,6 +545,7 @@ def simple_patch(self):
     self.assertEqual(response.json['data'], lot)
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
 
@@ -695,6 +701,7 @@ def change_composing_lot(self):
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
     # Move from 'verification' to 'composing' status
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Create lot in 'draft' status
@@ -709,7 +716,7 @@ def change_composing_lot(self):
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
-    # Move from 'verification' to one of 'blacklist' status
+    # Move from 'composing' to one of 'blacklist' status
     for status in STATUS_BLACKLIST['composing']['lot_owner']:
         check_patch_status_403(self, '/{}'.format(lot['id']), status, access_header)
 
@@ -729,6 +736,12 @@ def change_composing_lot(self):
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
+
+    self.app.authorization = ('Basic', ('broker', ''))
+    add_auctions(self, lot, access_header)
+
+
+    self.app.authorization = ('Basic', ('administrator', ''))
     # Move from 'verification' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -778,6 +791,7 @@ def change_verification_lot(self):
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
     # Move from 'composing' to 'verification' status
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Move from 'verification' to one of 'blacklist' status
@@ -802,6 +816,7 @@ def change_verification_lot(self):
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Move from 'verification' to 'invalid' status
@@ -815,6 +830,7 @@ def change_verification_lot(self):
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Move from 'verification' to one of 'blacklist' status
@@ -854,6 +870,7 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'pending' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
 
@@ -871,7 +888,7 @@ def change_pending_lot(self):
     # Move status from Pending to Deleted 403
     response = self.app.patch_json('/{}'.format(lot['id']),
                                    headers=access_header,
-                                   params={'data': {'status': 'deleted'}},
+                                   params={'data': {'status': 'pending.deleted'}},
                                    status=403)
     self.assertEqual(response.status, '403 Forbidden')
     self.assertEqual(response.content_type, 'application/json')
@@ -883,7 +900,7 @@ def change_pending_lot(self):
 
     # Move from 'pending' to 'deleted' status
     add_cancellationDetails_document(self, lot, access_header)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted', access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending.deleted', access_header)
 
     # Create lot in 'draft' status and move it to 'pending'
     response = create_single_lot(self, deepcopy(lot_info))
@@ -893,6 +910,7 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
 
@@ -916,6 +934,7 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     self.app.authorization = ('Basic', ('concierge', ''))
@@ -954,7 +973,7 @@ def change_pending_lot(self):
 
     # Move status from Pending to Deleted 403
     response = self.app.patch_json('/{}'.format(lot['id']),
-                                   params={'data': {'status': 'deleted'}},
+                                   params={'data': {'status': 'pending.deleted'}},
                                    status=403)
     self.assertEqual(response.status, '403 Forbidden')
     self.assertEqual(response.content_type, 'application/json')
@@ -969,7 +988,7 @@ def change_pending_lot(self):
     add_cancellationDetails_document(self, lot, access_header)
     self.app.authorization = ('Basic', ('administrator', ''))
 
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending.deleted')
 
 
 def change_deleted_lot(self):
@@ -999,6 +1018,7 @@ def change_deleted_lot(self):
 
     # Move from 'draft' to 'composing'
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
 
@@ -1012,8 +1032,12 @@ def change_deleted_lot(self):
 
     # Move from 'pending' to 'deleted'
     add_cancellationDetails_document(self, lot, access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending.deleted', access_header)
+
+    self.app.authorization = ('Basic', ('concierge', ''))
     check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted', access_header)
 
+    self.app.authorization = ('Basic', ('broker', ''))
     # Move from 'deleted' to one of 'blacklist' status
     for status in STATUS_BLACKLIST['deleted']['lot_owner']:
         check_patch_status_403(self, '/{}'.format(lot['id']), status, access_header)
@@ -1585,3 +1609,74 @@ def change_invalid_lot(self):
     # Move from 'invalid' to one of 'blacklist' status
     for status in STATUS_BLACKLIST['invalid']['Administrator']:
         check_patch_status_403(self, '/{}'.format(lot['id']), status)
+
+
+def change_pending_deleted_lot(self):
+    response = self.app.get('/')
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(len(response.json['data']), 0)
+
+    self.app.authorization = ('Basic', ('broker', ''))
+
+    lot_info = self.initial_data
+
+    # Create new lot in 'pending.deleted' status
+    json = create_single_lot(self, lot_info, 'verification')
+    lot = json['data']
+    token = json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+    self.app.authorization = ('Basic', ('concierge', ''))
+    add_decisions(self, lot)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    self.app.authorization = ('Basic', ('broker', ''))
+    add_cancellationDetails_document(self, lot, access_header)
+
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending.deleted', access_header)
+
+    # Move from 'pending.deleted' to one of 'blacklist' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    for status in STATUS_BLACKLIST['pending.deleted']['lot_owner']:
+        check_patch_status_403(self, '/{}'.format(lot['id']), status, access_header)
+
+    self.app.authorization = ('Basic', ('concierge', ''))
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted')
+
+    # Create new lot in 'pending.deleted' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'verification')
+    lot = json['data']
+    token = json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+    self.app.authorization = ('Basic', ('concierge', ''))
+    add_decisions(self, lot)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    self.app.authorization = ('Basic', ('broker', ''))
+    add_cancellationDetails_document(self, lot, access_header)
+
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending.deleted', access_header)
+
+    # Move from 'pending.deleted' to one of 'blacklist' status
+    self.app.authorization = ('Basic', ('concierge', ''))
+    for status in STATUS_BLACKLIST['pending.deleted']['concierge']:
+        check_patch_status_403(self, '/{}'.format(lot['id']), status)
+
+    # Move from 'pending.deleted' to one of 'blacklist' status
+    self.app.authorization = ('Basic', ('convoy', ''))
+    for status in STATUS_BLACKLIST['pending.deleted']['convoy']:
+        check_patch_status_403(self, '/{}'.format(lot['id']), status)
+
+    self.app.authorization = ('Basic', ('administrator', ''))
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted')
+
+    # Create new lot in 'pending.deleted' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'pending.deleted')
+    lot = json['data']
+    token = json['access']['token']
+    self.assertEqual(lot['status'], 'pending.deleted')
+
+    # Move from 'pending.deleted' to one of 'blacklist' status
+    self.app.authorization = ('Basic', ('administrator', ''))
+    for status in STATUS_BLACKLIST['pending.deleted']['Administrator']:
+        check_patch_status_403(self, '/{}'.format(lot['id']), status)
+

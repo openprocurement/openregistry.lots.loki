@@ -9,9 +9,23 @@ from openregistry.lots.core.utils import (
 from openregistry.lots.core.utils import (
     save_lot, oplotsresource, apply_patch,
 )
+from openregistry.lots.core.validation import (
+    validate_update_item_in_not_allowed_status
+)
 from openregistry.lots.loki.validation import (
     validate_item_data,
-    rectificationPeriod_item_validation
+    rectificationPeriod_item_validation,
+)
+
+post_validators = (
+    validate_item_data,
+    rectificationPeriod_item_validation,
+    validate_update_item_in_not_allowed_status
+)
+patch_validators = (
+    validate_item_data,
+    rectificationPeriod_item_validation,
+    validate_update_item_in_not_allowed_status
 )
 
 
@@ -34,7 +48,7 @@ class LotItemResource(APIResource):
             ]).values(), key=lambda i: i['dateModified'])
         return {'data': collection_data}
 
-    @json_view(content_type="application/json", permission='upload_lot_items', validators=(validate_item_data, rectificationPeriod_item_validation))
+    @json_view(content_type="application/json", permission='upload_lot_items', validators=(post_validators))
     def collection_post(self):
         """Lot Item Upload"""
         item = self.request.validated['item']
@@ -53,7 +67,7 @@ class LotItemResource(APIResource):
         item = self.request.validated['item']
         return {'data': item.serialize("view")}
 
-    @json_view(content_type="application/json", permission='upload_lot_items', validators=(validate_item_data, rectificationPeriod_item_validation))
+    @json_view(content_type="application/json", permission='upload_lot_items', validators=(patch_validators))
     def patch(self):
         """Lot Item Update"""
         if apply_patch(self.request, src=self.request.context.serialize()):
