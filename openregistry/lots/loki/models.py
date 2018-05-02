@@ -158,7 +158,8 @@ class Lot(BaseLot):
             self.rectificationPeriod = type(self).rectificationPeriod.model_class()
             self.rectificationPeriod.startDate = get_now()
             self.rectificationPeriod.endDate = calculate_business_date(self.rectificationPeriod.startDate,
-                                                                       RECTIFICATION_PERIOD_DURATION)
+                                                                       RECTIFICATION_PERIOD_DURATION,
+                                                                       None)
 
     def __acl__(self):
         acl = [
