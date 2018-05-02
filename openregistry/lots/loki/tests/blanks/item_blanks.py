@@ -65,7 +65,9 @@ def list_item_resource(self):
 def rectificationPeriod_item_workflow(self):
     rectificationPeriod = Period()
     rectificationPeriod.startDate = get_now() - timedelta(3)
-    rectificationPeriod.endDate = calculate_business_date(rectificationPeriod.startDate, timedelta(1))
+    rectificationPeriod.endDate = calculate_business_date(rectificationPeriod.startDate,
+                                                          timedelta(1),
+                                                          None)
 
     lot = self.create_resource()
 
