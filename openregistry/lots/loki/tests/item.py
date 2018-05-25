@@ -11,14 +11,22 @@ from openregistry.lots.core.tests.blanks.json_data import test_loki_item_data
 from openregistry.lots.loki.tests.blanks.item_blanks import (
     create_item_resource,
     patch_item,
-    rectificationPeriod_item_workflow
+    rectificationPeriod_item_workflow,
+    update_items_in_forbidden,
+    list_item_resource
 )
+from openregistry.lots.loki.constants import LOT_STATUSES
+
 
 class LotItemResourceTest(LotContentWebTest):
     initial_item_data = deepcopy(test_loki_item_data)
     test_create_item_resource = snitch(create_item_resource)
     test_patch_item_resource = snitch(patch_item)
     test_rectificationPeriod_item_workflow = snitch(rectificationPeriod_item_workflow)
+    test_list_item_resource = snitch(list_item_resource)
+    test_update_items_in_forbidden = snitch(update_items_in_forbidden)
+
+    forbidden_item_statuses_modification = list(set(LOT_STATUSES) - {'draft', 'composing', 'pending'})
 
 
 def suite():
