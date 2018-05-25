@@ -9,6 +9,65 @@ from openregistry.lots.core.models import Period
 from openregistry.lots.loki.models import Lot
 
 
+def item_listing(self):
+    response = self.app.get('/{}/items'.format(self.resource_id))
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(len(response.json['data']), len(self.initial_data['items']))
+
+    response = self.app.post_json('/{}/items'.format(self.resource_id),
+                                  headers=self.access_header,
+                                  params={'data': self.initial_item_data})
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(response.content_type, 'application/json')
+    item_id = response.json["data"]['id']
+    self.assertIn(item_id, response.headers['Location'])
+    self.assertEqual(self.initial_item_data['description'], response.json["data"]["description"])
+    self.assertEqual(self.initial_item_data['quantity'], response.json["data"]["quantity"])
+    self.assertEqual(self.initial_item_data['address'], response.json["data"]["address"])
+
+    response = self.app.get('/{}/items'.format(self.resource_id))
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(len(response.json['data']), len(self.initial_data['items']) + 1)
+
+
+def update_items_in_forbidden(self):
+    response = self.app.post_json('/{}/items'.format(self.resource_id),
+                                  headers=self.access_header,
+                                  params={'data': self.initial_item_data})
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(response.content_type, 'application/json')
+    item_id = response.json["data"]['id']
+    self.assertIn(item_id, response.headers['Location'])
+    self.assertEqual(self.initial_item_data['description'], response.json["data"]["description"])
+    self.assertEqual(self.initial_item_data['quantity'], response.json["data"]["quantity"])
+    self.assertEqual(self.initial_item_data['address'], response.json["data"]["address"])
+
+    data = self.initial_item_data
+    data['quantity'] = 99.9999
+    for status in self.forbidden_item_statuses_modification:
+        self.set_status(status)
+        response = self.app.patch_json('/{}/items/{}'.format(self.resource_id, item_id),
+            headers=self.access_header, params={
+                "data": data}, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['errors'][0]["description"],
+                         "Can't update item in current ({}) {} status".format(status, self.resource_name[:-1]))
+
+    for status in self.forbidden_item_statuses_modification:
+        self.set_status(status)
+        response = self.app.post_json('/{}/items'.format(self.resource_id),
+            headers=self.access_header, params={
+                "data": self.initial_item_data
+            }, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['errors'][0]["description"],
+                         "Can't update item in current ({}) {} status".format(status, self.resource_name[:-1]))
+
+
 def create_item_resource(self):
     response = self.app.post_json('/{}/items'.format(self.resource_id),
                                   headers=self.access_header,
