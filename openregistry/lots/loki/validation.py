@@ -113,8 +113,8 @@ def validate_deleted_status(request, error_handler):
         request.errors.add(
             'body',
             'mode',
-            "You can set deleted status"
-            "only when asset have at least one document with \'cancellationDetails\' documentType")
+            "You can set deleted status "
+            "only when lot have at least one document with \'cancellationDetails\' documentType")
         request.errors.status = 403
         raise error_handler(request)
 
@@ -185,3 +185,32 @@ def validate_verification_status(request, error_handler):
 
         if request.errors:
             raise error_handler(request)
+
+
+def validate_update_item_document_in_not_allowed_status(request, error_handler, **kwargs):
+    if request.validated['lot_status'] not in ['draft', 'pending']:
+            raise_operation_error(
+                request,
+                error_handler,
+                'Can\'t update document of item in current ({}) lot status'.format(request.validated['lot_status'])
+            )
+
+
+def rectificationPeriod_item_document_validation(request, error_handler, **kwargs):
+    is_period_ended = bool(
+        request.validated['lot'].rectificationPeriod and
+        request.validated['lot'].rectificationPeriod.endDate < get_now()
+    )
+    if is_period_ended and request.method == 'POST':
+        request.errors.add(
+            'body',
+            'mode',
+            'You can\'t add documents to item after rectification period'
+        )
+        request.errors.status = 403
+        raise error_handler(request)
+
+    if is_period_ended and request.method in ['PUT', 'PATCH']:
+        request.errors.add('body', 'mode', 'You can\'t change documents after rectification period')
+        request.errors.status = 403
+        raise error_handler(request)
