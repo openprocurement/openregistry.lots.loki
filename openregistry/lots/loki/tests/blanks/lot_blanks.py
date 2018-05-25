@@ -949,8 +949,8 @@ def change_pending_lot(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['status'], 'error')
     self.assertEqual(response.json['errors'][0]['description'],
-                    u"You can set deleted status"
-                    u"only when asset have at least one document with \'cancellationDetails\' documentType")
+                    u"You can set deleted status "
+                    u"only when lot have at least one document with \'cancellationDetails\' documentType")
 
 
     # Move from 'pending' to 'deleted' status
@@ -1021,8 +1021,8 @@ def change_pending_lot(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['status'], 'error')
     self.assertEqual(response.json['errors'][0]['description'],
-                    u"You can set deleted status"
-                    u"only when asset have at least one document with \'cancellationDetails\' documentType")
+                    u"You can set deleted status "
+                    u"only when lot have at least one document with \'cancellationDetails\' documentType")
 
 
     # Move from 'pending' to 'deleted'
