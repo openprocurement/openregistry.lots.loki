@@ -46,7 +46,7 @@ auction_roles = {
 lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
 lot_edit_role = (blacklist(
     'owner_token', 'owner', '_attachments',
-    'revisions', 'date', 'dateModified', 'documents', 'decisions',
+    'revisions', 'date', 'dateModified', 'documents',
     'lotID', 'mode', 'doc_id', 'items', 'rectificationPeriod') + schematics_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
