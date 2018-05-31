@@ -12,15 +12,21 @@ def check_lot_status(request, lot, now=None):
     if not now:
         now = get_now()
 
+    if lot.status == 'pending' and lot.rectificationPeriod.endDate <= now:
+        LOGGER.info('Switched lot %s to %s', lot.id, 'active.salable',
+                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.salable'}))
+        lot.status = 'active.salable'
+
+
+def process_auction_result(request):
+    lot = request.validated['lot']
+
     is_lot_need_to_be_dissolved = bool(
         check_auction_status(lot, 'cancelled') or
         check_auction_status(lot, 'unsuccessful', check_all=True)
     )
-    if lot.status == 'pending' and lot.next_check <= now:
-        LOGGER.info('Switched lot %s to %s', lot.id, 'active.salable',
-                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.salable'}))
-        lot.status = 'active.salable'
-    elif lot.status == 'active.auction' and check_auction_status(lot, 'unsuccessful'):
+
+    if lot.status == 'active.auction' and check_auction_status(lot, 'unsuccessful'):
         LOGGER.info('Switched lot %s to %s', lot.id, 'active.salable',
                     extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.salable'}))
         lot.status = 'active.salable'
