@@ -56,6 +56,12 @@ concierge_role = (blacklist(
     'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified',
     'lotID', 'mode', 'doc_id') + schematics_embedded_role)
 
+decision_roles = {
+    'create': blacklist('decisionOf', 'relatedItem'),
+    'edit': blacklist('decisionOf', 'relatedItem'),
+    'edit_pending': blacklist('decisionOf', 'relatedItem'),
+}
+
 lot_roles = {
     'create': lot_create_role,
     'plain': plain_role,

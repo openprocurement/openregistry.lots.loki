@@ -77,6 +77,7 @@ class LokiLotManagerAdapter(LotManagerAdapter):
     def create_lot(self, request):
         self._validate(request, self.create_validation)
         self._create_auctions(request)
+        request.validated['lot']['decisions'][0]['decisionOf'] = 'lot'
 
     def change_lot(self, request):
         self._validate(request, self.change_validation)

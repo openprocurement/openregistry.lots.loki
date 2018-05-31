@@ -38,6 +38,7 @@ from .constants import (
 from .roles import (
     lot_roles,
     auction_roles,
+    decision_roles
 )
 
 
@@ -52,6 +53,11 @@ class StartDateRequiredPeriod(Period):
 class AuctionDocument(Document):
     documentType = StringType(choices=AUCTION_DOCUMENT_TYPES, required=True)
     documentOf = StringType(choices=['auction'])
+
+
+class Decision(Decision):
+    class Options:
+        roles = decision_roles
 
 
 class Auction(Model):
