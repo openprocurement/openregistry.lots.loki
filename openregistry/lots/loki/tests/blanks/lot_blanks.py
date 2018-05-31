@@ -228,7 +228,9 @@ def check_decisions(self):
 
     asset_decision = {
             'decisionDate': get_now().isoformat(),
-            'decisionID': 'decisionAssetID'
+            'decisionID': 'decisionAssetID',
+            'decisionOf': 'asset',
+            'relatedItem': '1' * 32
         }
     data_with_decisions = {
         "decisions": [
@@ -297,6 +299,7 @@ def check_decisions(self):
     )
 
     lot_data_with_decisions['decisions'] = deepcopy(data_with_decisions['decisions'])
+    lot_data_with_decisions['decisions'][0]['relatedItem'] = '1' * 32
     response = self.app.patch_json(
         '/{}'.format(lot['id']),
         headers=access_header,
@@ -304,6 +307,8 @@ def check_decisions(self):
     )
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
+    self.assertNotIn('relatedItem', response.json['data']['decisions'][0])
+    del lot_data_with_decisions['decisions'][0]['relatedItem']
     self.assertEqual(response.json['data']['decisions'], lot_data_with_decisions['decisions'])
 
 
