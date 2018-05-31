@@ -1650,3 +1650,75 @@ def change_pending_deleted_lot(self):
     self.app.authorization = ('Basic', ('administrator', ''))
     for status in STATUS_BLACKLIST['pending.deleted']['Administrator']:
         check_patch_status_403(self, '/{}'.format(lot['id']), status)
+
+
+def check_auction_status_lot_workflow(self):
+    response = self.app.get('/')
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(len(response.json['data']), 0)
+
+
+    lot_info = self.initial_data
+
+    # Create new lot in 'active.auction' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.auction')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.auction')
+    auctions = sorted(lot['auctions'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+    response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], english['id']),
+                                   params={'data': {'status': 'unsuccessful'}})
+    self.assertEqual(response.json['data']['status'], 'unsuccessful')
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['status'], 'active.salable')
+
+    # Create new lot in 'active.auction' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.auction')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.auction')
+
+    auctions = sorted(lot['auctions'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+    response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], english['id']),
+                                   params={'data': {'status': 'cancelled'}})
+    self.assertEqual(response.json['data']['status'], 'cancelled')
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['status'], 'pending.dissolution')
+
+    # Create new lot in 'active.auction' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.auction')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.auction')
+
+    auctions = sorted(lot['auctions'], key=lambda a: a['tenderAttempts'])
+    insider = auctions[2]
+
+    # Change statuses of two first auctions to unsuccessful
+    fromdb = self.db.get(lot['id'])
+    fromdb = self.lot_model(fromdb)
+
+    fromdb.auctions[0].status = 'unsuccessful'
+    fromdb.auctions[1].status = 'unsuccessful'
+    fromdb = fromdb.store(self.db)
+    lot = fromdb
+    self.assertEqual(fromdb.id, lot['id'])
+
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+    response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], insider['id']),
+                                   params={'data': {'status': 'unsuccessful'}})
+
+    self.assertEqual(response.json['data']['status'], 'unsuccessful')
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['status'], 'pending.dissolution')
