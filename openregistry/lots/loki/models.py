@@ -85,6 +85,8 @@ class Auction(Model):
             role = 'Administrator'
         elif request.authenticated_role == 'convoy':
             role = 'convoy'
+        elif request.authenticated_role == 'concierge':
+            role = 'concierge'
         else:
             role = 'edit_{}.{}'.format(request.context.tenderAttempts, request.context.procurementMethodType)
         return role
