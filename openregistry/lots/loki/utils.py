@@ -22,37 +22,18 @@ def process_auction_result(request):
     lot = request.validated['lot']
 
     is_lot_need_to_be_dissolved = bool(
-        check_auction_status(lot, 'cancelled') or
-        check_auction_status(lot, 'unsuccessful', check_all=True)
+        request.validated['auction'].status == 'cancelled' or
+        all([auction.status == 'unsuccessful' for auction in lot.auctions])
     )
 
-    if lot.status == 'active.auction' and check_auction_status(lot, 'unsuccessful'):
-        LOGGER.info('Switched lot %s to %s', lot.id, 'active.salable',
-                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.salable'}))
-        lot.status = 'active.salable'
-    elif lot.status == 'active.auction' and is_lot_need_to_be_dissolved:
+    if lot.status == 'active.auction' and is_lot_need_to_be_dissolved:
         LOGGER.info('Switched lot %s to %s', lot.id, 'pending.dissolution',
                     extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_pending.dissolution'}))
         lot.status = 'pending.dissolution'
-
-
-def check_auction_status(lot, status, check_all=False):
-    """
-    :param lot: Lot model with filled data
-    :param status: status which will be used to compare with auction status
-    :param check_all: if True than, all auction should have this status
-                    else if False than only last auction will be checked
-    :return: True or False
-    """
-    if check_all:
-        return all([a.status == status for a in lot.auctions])
-    for index, auction in enumerate(lot.auctions):
-        if auction.status == 'scheduled':
-            if index == 0:
-                return False
-            previous = lot.auctions[index - 1]
-            return previous.status == status
-    return False
+    elif lot.status == 'active.auction' and request.validated['auction'].status == 'unsuccessful':
+        LOGGER.info('Switched lot %s to %s', lot.id, 'active.salable',
+                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.salable'}))
+        lot.status = 'active.salable'
 
 
 def update_auctions(lot):
