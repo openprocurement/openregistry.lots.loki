@@ -146,6 +146,8 @@ class Lot(BaseLot):
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_documents'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_items'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auctions'),
+            (Allow, 'g:concierge', 'upload_lot_auctions'),
+            (Allow, 'g:convoy', 'upload_lot_auctions'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auction_documents'),
         ]
         return acl
