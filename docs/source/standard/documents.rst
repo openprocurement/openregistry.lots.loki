@@ -21,27 +21,53 @@ Schema
 
     Possible values are:
 
-    * `notice` - Lot Notice
+    * `notice` - **Lot Notice**
     
     The formal notice that gives details. This may be a link to a downloadable document, to a web page, or to an official gazette in which the notice is contained.
 
-    * `technicalSpecifications` - Technical Specifications
+    * `technicalSpecifications` - **Technical Specifications**
     
     Detailed technical information about goods or services to be provided.
 
-    * `illustration` - Illustrations
+    * `illustration` - **Illustrations**
 
-    * `x_presentation` - Presentation
+    * `x_presentation` - **Presentation**
 
     Presentation about the lot to be sold.
 
-    * `informationDetails` - Information Details
+    * `informationDetails` - **Information Details**
 
     Auto-generated type of document that will be attached to each of the lot automatically.
 
-    * `cancellationDetails` - Cancellation Details
+    * `cancellationDetails` - **Cancellation Details**
 
     Reasons why the lot has to be deleted.
+
+    
+    **Note**: The following are specific for :ref:`auction` only:
+
+    * `evaluationCriteria` - **Evaluation Criteria**
+
+    Information about how bids will be evaluated.
+
+    * `x_PublicAssetCertificate` - **Public Asset Certificate**
+
+    Information about the auction. It is a link to the Public Asset Certificate.
+
+    * `x_PlatformLegalDetails` - **Platform Legal Details**
+
+    Place and application forms for participation in the auction as well as bank details for transferring guarantee deposits.
+
+    * `bidders` - **Information on bidders**
+
+    Information on bidders or participants, their validation documents and any procedural exemptions for which they qualify.
+
+    * `x_nda` - **Non-disclosure Agreement (NDA)**
+    A non-disclosure agreement between a participant and a bank.
+
+    * `x_dgfAssetFamiliarization` - **Asset Familiarization**
+
+    Goods examination procedure rules / Asset familiarization procedure in data room. Contains information on where and when a given document can be examined offline.
     
 :title:
     string, multilingual, required
@@ -106,3 +132,6 @@ Schema
 
 :accessDetails:
     string, optional
+
+    Required for `x_dgfAssetFamiliarization` document.
+

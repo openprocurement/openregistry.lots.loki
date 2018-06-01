@@ -30,8 +30,8 @@ Schema
     `itemClassificationScheme` to identify preferred classification lists,
     including CAV and GSIN.
 
-    It is required for `classification.scheme` to be `CAV-PS`. The
-    `classification.id` should be valid CAV-PS code.
+    It is required for `classification.scheme` to be `CPV` or `CAV-PS`. The
+    `classification.id` should be valid CPV or CAV-PS code.
 
 :additionalClassifications:
     List of :ref:`Classification` objects, optional
@@ -42,6 +42,9 @@ Schema
     This may also be used to present codes from an internal classification
     scheme.
 
+    E.g.`CPVS`, `DK018`, `cadastralNumber` & `UA-EDR` can be chosen from the list. 
+    The codes are to be noted manually for `cadastralNumber` & `UA-EDR`.
+    
 :unit:
     :ref:`Unit`, required
 
