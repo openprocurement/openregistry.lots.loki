@@ -22,7 +22,7 @@ item_roles = {
     'view': item_view_role,
 }
 
-auction_create_role = blacklist('id', 'status', 'auctionID', 'procurementMethodType')
+auction_create_role = blacklist('id', 'status', 'auctionID', 'relatedProcessID', 'procurementMethodType')
 auction_common_edit_role = blacklist('id', 'auctionID', 'procurementMethodType', 'tenderAttempts', 'status')
 auction_view_role = (schematics_default_role + blacklist())
 edit_first_english = (auction_common_edit_role + blacklist('tenderingDuration'))
@@ -42,7 +42,7 @@ auction_roles = {
     'edit_2.sellout.english': edit_second_english,
     'edit_3.sellout.insider': edit_insider,
     'convoy': whitelist('status'),
-    'concierge': whitelist('status', 'auctionID')
+    'concierge': whitelist('status', 'auctionID', 'relatedProcessID')
 }
 
 lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))

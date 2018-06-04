@@ -60,6 +60,7 @@ class Auction(Model):
 
     id = StringType(required=True, min_length=1, default=lambda: uuid4().hex)
     auctionID = StringType()
+    relatedProcessID = StringType()
     status = StringType(choices=AUCTION_STATUSES)
     procurementMethodType = StringType(choices=['sellout.english', 'sellout.insider'])
     tenderAttempts = IntType(min_value=1, max_value=3)
