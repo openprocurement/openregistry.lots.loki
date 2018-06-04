@@ -1581,3 +1581,19 @@ def check_auction_status_lot_workflow(self):
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'pending.dissolution')
+
+    # Create new lot in 'active.salable' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.salable')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.salable')
+    auctions = sorted(lot['auctions'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+
+    self.app.authorization = ('Basic', ('concierge', ''))
+    response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], english['id']),
+                                   params={'data': {'status': 'active'}})
+    self.assertEqual(response.json['data']['status'], 'active')
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['status'], 'active.auction')
