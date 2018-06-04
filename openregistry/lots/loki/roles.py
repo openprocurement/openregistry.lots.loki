@@ -41,7 +41,8 @@ auction_roles = {
     'edit_1.sellout.english': edit_first_english,
     'edit_2.sellout.english': edit_second_english,
     'edit_3.sellout.insider': edit_insider,
-    'convoy': whitelist('status')
+    'convoy': whitelist('status'),
+    'concierge': whitelist('status'),
 }
 
 lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
