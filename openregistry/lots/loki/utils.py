@@ -18,7 +18,7 @@ def check_lot_status(request, lot, now=None):
         lot.status = 'active.salable'
 
 
-def process_auction_result(request):
+def process_convoy_auction_report_result(request):
     lot = request.validated['lot']
 
     is_lot_need_to_be_dissolved = bool(
@@ -34,6 +34,15 @@ def process_auction_result(request):
         LOGGER.info('Switched lot %s to %s', lot.id, 'active.salable',
                     extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.salable'}))
         lot.status = 'active.salable'
+
+
+def process_concierge_auction_status_change(request):
+    lot = request.validated['lot']
+
+    if lot.status == 'active.salable' and request.validated['auction'].status == 'active':
+        LOGGER.info('Switched lot %s to %s', lot.id, 'active.auction',
+                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.auction'}))
+        lot.status = 'active.auction'
 
 
 def update_auctions(lot):
