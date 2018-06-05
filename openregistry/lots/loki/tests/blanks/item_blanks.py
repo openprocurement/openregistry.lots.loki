@@ -7,7 +7,12 @@ from openregistry.lots.core.utils import (
 )
 from openregistry.lots.core.models import Period
 from openregistry.lots.loki.models import Lot
-
+from openregistry.lots.loki.tests.base import (
+    add_decisions,
+    add_auctions,
+    check_patch_status_200,
+    create_single_lot
+)
 
 def item_listing(self):
     response = self.app.get('/{}/items'.format(self.resource_id))
@@ -120,6 +125,73 @@ def patch_item(self):
     self.assertEqual(item_id, response.json["data"]["id"])
     self.assertEqual(response.json["data"]["description"], 'partial item update')
     self.assertNotIn('additionalClassifications', response.json['data'])
+
+
+def patch_items_with_lot(self):
+    # Create lot in 'draft' status and move it to 'pending'
+    response = create_single_lot(self, self.initial_data)
+    lot = response.json['data']
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+
+    response = self.app.get('/{}'.format(lot['id']), headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data'], lot)
+
+    # Move from 'draft' to 'pending' status
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+
+
+    self.app.authorization = ('Basic', ('concierge', ''))
+
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification')
+    add_decisions(self, lot)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+
+    self.app.authorization = ('Basic', ('broker', ''))
+
+    # Move from 'pending' to 'pending' status
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', access_header)
+
+    response = self.app.post_json('/{}/items'.format(lot['id']),
+                                  headers=access_header,
+                                  params={'data': self.initial_item_data})
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(response.content_type, 'application/json')
+    item_id = response.json["data"]['id']
+    self.assertIn(item_id, response.headers['Location'])
+    self.assertEqual(self.initial_item_data['description'], response.json["data"]["description"])
+    self.assertEqual(self.initial_item_data['quantity'], response.json["data"]["quantity"])
+    self.assertEqual(self.initial_item_data['address'], response.json["data"]["address"])
+
+    response = self.app.post_json('/{}/items'.format(lot['id']),
+                                  headers=access_header,
+                                  params={'data': self.initial_item_data})
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(response.content_type, 'application/json')
+    item_id = response.json["data"]['id']
+    self.assertIn(item_id, response.headers['Location'])
+    self.assertEqual(self.initial_item_data['description'], response.json["data"]["description"])
+    self.assertEqual(self.initial_item_data['quantity'], response.json["data"]["quantity"])
+    self.assertEqual(self.initial_item_data['address'], response.json["data"]["address"])
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(len(response.json['data']['items']), 2)
+
+    data = {
+        'items': [self.initial_item_data]
+    }
+    response = self.app.patch_json('/{}'.format(lot['id']),
+                                  headers=access_header,
+                                  params={'data': data})
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(len(response.json['data']['items']), 1)
 
 
 def create_item_resource_invalid(self):
