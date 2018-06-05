@@ -15,7 +15,6 @@ from openregistry.lots.loki.constants import DEFAULT_DUTCH_STEPS
 from openregistry.lots.loki.tests.base import (
     create_single_lot,
     check_patch_status_200,
-    check_patch_status_403,
     add_decisions,
     add_auctions
 )
@@ -66,6 +65,37 @@ def patch_auctions_with_lot(self):
     self.assertEqual(english['procurementMethodType'], 'sellout.english')
 
 
+def patch_auction_by_concierge(self):
+    data = deepcopy(self.initial_auctions_data)
+    response = self.app.get('/{}/auctions'.format(self.resource_id))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    data['english']['minimalStep']['amount'] = 99
+
+    response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
+        headers=self.access_header, params={
+            'data': data['english']
+            })
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data']['id'], english['id'])
+    self.assertEqual(response.json['data']['tenderAttempts'], 1)
+    self.assertEqual(response.json['data']['value'], data['english']['value'])
+    self.assertEqual(response.json['data']['minimalStep'], data['english']['minimalStep'])
+    self.assertEqual(response.json['data']['auctionPeriod'], data['english']['auctionPeriod'])
+    self.assertEqual(response.json['data']['guarantee'], data['english']['guarantee'])
+    self.assertEqual(response.json['data']['registrationFee'], data['english']['registrationFee'])
+    self.assertNotIn('dutchSteps', response.json['data']['auctionParameters'])
+
+    self.app.authorization = ('Basic', ('concierge', ''))
+    
+    response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
+        headers=self.access_header, params={
+            'data': {'status': 'unsuccessful', 'auctionID': '1' * 32}
+            })
+    self.assertEqual(response.json['data']['status'], 'unsuccessful')
+    self.assertEqual(response.json['data']['auctionID'], '1' * 32)
+
 
 def patch_english_auction(self):
     data = deepcopy(self.initial_auctions_data)
@@ -76,18 +106,18 @@ def patch_english_auction(self):
 
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
         headers=self.access_header, params={
-            "data": data['english']
+            'data': data['english']
             })
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json["data"]["id"], english['id'])
-    self.assertEqual(response.json["data"]["tenderAttempts"], 1)
-    self.assertEqual(response.json["data"]["value"], data['english']['value'])
-    self.assertEqual(response.json["data"]["minimalStep"], data['english']['minimalStep'])
-    self.assertEqual(response.json["data"]["auctionPeriod"], data['english']['auctionPeriod'])
-    self.assertEqual(response.json["data"]["guarantee"], data['english']['guarantee'])
-    self.assertEqual(response.json["data"]["registrationFee"], data['english']['registrationFee'])
-    self.assertNotIn('dutchSteps', response.json["data"]["auctionParameters"])
+    self.assertEqual(response.json['data']['id'], english['id'])
+    self.assertEqual(response.json['data']['tenderAttempts'], 1)
+    self.assertEqual(response.json['data']['value'], data['english']['value'])
+    self.assertEqual(response.json['data']['minimalStep'], data['english']['minimalStep'])
+    self.assertEqual(response.json['data']['auctionPeriod'], data['english']['auctionPeriod'])
+    self.assertEqual(response.json['data']['guarantee'], data['english']['guarantee'])
+    self.assertEqual(response.json['data']['registrationFee'], data['english']['registrationFee'])
+    self.assertNotIn('dutchSteps', response.json['data']['auctionParameters'])
     default_type = response.json['data']['auctionParameters']['type']
 
     response = self.app.get('/{}/auctions'.format(self.resource_id))
@@ -129,11 +159,11 @@ def patch_english_auction(self):
     data['english']['tenderingDuration'] = 'P2YT3H'
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
         headers=self.access_header, params={
-            "data": data['english']
+            'data': data['english']
             })
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json["data"]["tenderAttempts"], 1)
+    self.assertEqual(response.json['data']['tenderAttempts'], 1)
     self.assertNotIn('tenderingDuration', response.json['data'])
 
     response = self.app.get('/{}/auctions'.format(self.resource_id))
@@ -175,7 +205,7 @@ def patch_english_auction(self):
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(self.resource_id, english['id']),
         headers=self.access_header, params={
-            "data": data['english']
+            'data': data['english']
             },
     )
     self.assertEqual(response.status, '200 OK')
@@ -193,7 +223,7 @@ def patch_english_auction(self):
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(self.resource_id, english['id']),
         headers=self.access_header, params={
-            "data": data['english']
+            'data': data['english']
             },
     )
     self.assertEqual(response.status, '200 OK')
@@ -221,13 +251,13 @@ def patch_second_english_auction(self):
 
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, second_english['id']),
         headers=self.access_header, params={
-            "data": data['second.english']
+            'data': data['second.english']
             })
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['tenderingDuration'], data['second.english']['tenderingDuration'])
-    self.assertEqual(response.json["data"]["tenderAttempts"], 2)
-    self.assertNotIn('dutchSteps', response.json["data"]["auctionParameters"])
+    self.assertEqual(response.json['data']['tenderAttempts'], 2)
+    self.assertNotIn('dutchSteps', response.json['data']['auctionParameters'])
 
     response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
@@ -250,7 +280,7 @@ def patch_second_english_auction(self):
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(self.resource_id, second_english['id']),
         headers=self.access_header, params={
-            "data": data['english']
+            'data': data['english']
             },
     )
     self.assertEqual(response.status, '200 OK')
@@ -271,7 +301,7 @@ def patch_second_english_auction(self):
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(self.resource_id, insider['id']),
         headers=self.access_header, params={
-            "data": data['second.english']
+            'data': data['second.english']
             },
     )
     self.assertEqual(response.status, '200 OK')
@@ -298,13 +328,13 @@ def patch_insider_auction(self):
 
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, insider['id']),
         headers=self.access_header, params={
-            "data": data_dutch_steps
+            'data': data_dutch_steps
             })
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['auctionParameters']['dutchSteps'], data_dutch_steps['auctionParameters']['dutchSteps'])
     self.assertNotIn('tenderingDuration', response.json['data'])
-    self.assertEqual(response.json["data"]["tenderAttempts"], 3)
+    self.assertEqual(response.json['data']['tenderAttempts'], 3)
     default_type = response.json['data']['auctionParameters']['type']
 
     data_with_tenderingDuration = {
@@ -313,12 +343,12 @@ def patch_insider_auction(self):
     }
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, insider['id']),
         headers=self.access_header, params={
-            "data": data_with_tenderingDuration
+            'data': data_with_tenderingDuration
             })
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertNotIn('tenderingDuration', response.json['data'])
-    self.assertEqual(response.json["data"]["tenderAttempts"], 3)
+    self.assertEqual(response.json['data']['tenderAttempts'], 3)
 
     # Test type validation
     data = deepcopy(self.initial_auctions_data)
@@ -327,7 +357,7 @@ def patch_insider_auction(self):
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(self.resource_id, insider['id']),
         headers=self.access_header, params={
-            "data": data['english']
+            'data': data['english']
             },
     )
     self.assertEqual(response.status, '200 OK')
@@ -410,7 +440,7 @@ def procurementMethodDetails_check_with_sandbox(self):
     # Test procurementMethodDetails after update second english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], second_english['id']),
-        {"data": auction_param_with_procurementMethodDetails},
+        {'data': auction_param_with_procurementMethodDetails},
         headers=self.access_header
     )
     self.assertEqual(
@@ -422,7 +452,7 @@ def procurementMethodDetails_check_with_sandbox(self):
     # Test procurementMethodDetails after update insider
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], insider['id']),
-        {"data": auction_param_with_procurementMethodDetails},
+        {'data': auction_param_with_procurementMethodDetails},
         headers=self.access_header
     )
     self.assertEqual(
@@ -435,7 +465,7 @@ def procurementMethodDetails_check_with_sandbox(self):
     # Test procurementMethodDetails after update english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], english['id']),
-        {"data": auction_param_with_procurementMethodDetails},
+        {'data': auction_param_with_procurementMethodDetails},
         headers=self.access_header
     )
     self.assertEqual(
@@ -472,7 +502,7 @@ def procurementMethodDetails_check_without_sandbox(self):
     # Test procurementMethodDetails error while updating english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], english['id']),
-        {"data": auction_param_with_procurementMethodDetails},
+        {'data': auction_param_with_procurementMethodDetails},
         headers=self.access_header,
         status=422
     )
@@ -484,7 +514,7 @@ def procurementMethodDetails_check_without_sandbox(self):
     # Test procurementMethodDetails error while updating english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], second_english['id']),
-        {"data": auction_param_with_procurementMethodDetails},
+        {'data': auction_param_with_procurementMethodDetails},
         headers=self.access_header,
         status=422
     )
@@ -496,7 +526,7 @@ def procurementMethodDetails_check_without_sandbox(self):
     # Test procurementMethodDetails error while updating english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], insider['id']),
-        {"data": auction_param_with_procurementMethodDetails},
+        {'data': auction_param_with_procurementMethodDetails},
         headers=self.access_header,
         status=422
     )
@@ -533,7 +563,7 @@ def submissionMethodDetails_check(self):
     # Test submissionMethodDetails after update second english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], second_english['id']),
-        {"data": auction_param_with_submissionMethodDetails},
+        {'data': auction_param_with_submissionMethodDetails},
         headers=self.access_header
     )
     self.assertEqual(
@@ -544,7 +574,7 @@ def submissionMethodDetails_check(self):
     # Test submissionMethodDetails after update insider
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], insider['id']),
-        {"data": auction_param_with_submissionMethodDetails},
+        {'data': auction_param_with_submissionMethodDetails},
         headers=self.access_header
     )
     self.assertEqual(
@@ -555,7 +585,7 @@ def submissionMethodDetails_check(self):
     # Test submissionMethodDetails after update english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], english['id']),
-        {"data": auction_param_with_submissionMethodDetails},
+        {'data': auction_param_with_submissionMethodDetails},
         headers=self.access_header
     )
     self.assertEqual(

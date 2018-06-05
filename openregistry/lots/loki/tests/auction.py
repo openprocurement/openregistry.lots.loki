@@ -17,12 +17,14 @@ from openregistry.lots.loki.tests.blanks.auction_blanks import (
     procurementMethodDetails_check_without_sandbox,
     submissionMethodDetails_check,
     patch_auctions_with_lot,
+    patch_auction_by_concierge
 )
 
 class LotAuctionResourceTest(LotContentWebTest):
     initial_auctions_data = deepcopy(test_lot_auctions_data)
 
     test_patch_auctions_with_lot = snitch(patch_auctions_with_lot)
+    test_patch_auction_by_concierge = snitch(patch_auction_by_concierge)
     test_patch_english_auction = snitch(patch_english_auction)
     test_patch_second_english_auction = snitch(patch_second_english_auction)
     test_patch_insider_auction = snitch(patch_insider_auction)
