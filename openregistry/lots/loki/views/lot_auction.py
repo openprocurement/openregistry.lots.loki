@@ -7,7 +7,11 @@ from openregistry.lots.core.utils import (
 from openregistry.lots.core.utils import (
     oplotsresource, apply_patch, save_lot
 )
-from openregistry.lots.loki.utils import update_auctions
+from openregistry.lots.loki.utils import (
+    update_auctions,
+    process_convoy_auction_report_result,
+    process_concierge_auction_status_change
+)
 from openregistry.lots.loki.validation import (
     validate_auction_data,
     rectificationPeriod_auction_validation,
@@ -44,6 +48,12 @@ class LotAuctionResource(APIResource):
         """Lot Auction Update"""
         apply_patch(self.request, save=False, src=self.request.context.serialize())
         update_auctions(self.request.validated['lot'])
+
+        if self.request.authenticated_role == 'convoy':
+            process_convoy_auction_report_result(self.request)
+        elif self.request.authenticated_role == 'concierge':
+            process_concierge_auction_status_change(self.request)
+
         if save_lot(self.request):
             self.LOGGER.info(
                 'Updated lot auction {}'.format(self.request.context.id),

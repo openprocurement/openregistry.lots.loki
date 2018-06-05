@@ -15,7 +15,6 @@ from openregistry.lots.loki.constants import DEFAULT_DUTCH_STEPS
 from openregistry.lots.loki.tests.base import (
     create_single_lot,
     check_patch_status_200,
-    check_patch_status_403,
     add_decisions,
     add_auctions
 )
