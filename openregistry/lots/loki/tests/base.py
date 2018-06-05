@@ -20,7 +20,7 @@ def add_decisions(self, lot):
         }
     data_with_decisions = {
         "decisions": [
-            lot['decisions'][0],asset_decision
+            lot['decisions'][0], asset_decision
         ]
     }
     response = self.app.patch_json('/{}'.format(lot['id']), params={'data': data_with_decisions})

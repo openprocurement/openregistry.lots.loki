@@ -145,8 +145,8 @@ def validate_auction_data(request, error_handler, **kwargs):
 
 
 def validate_update_auction_in_not_allowed_status(request, error_handler, **kwargs):
-    is_convoy = bool(request.authenticated_role == 'convoy')
-    if not is_convoy and request.validated['lot_status'] not in ['draft', 'composing', 'pending']:
+    is_convoy_or_concierge = bool(request.authenticated_role in ['convoy', 'concierge'])
+    if not is_convoy_or_concierge and request.validated['lot_status'] not in ['draft', 'composing', 'pending']:
             raise_operation_error(
                 request,
                 error_handler,

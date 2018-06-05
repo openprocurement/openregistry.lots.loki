@@ -41,14 +41,15 @@ auction_roles = {
     'edit_1.sellout.english': edit_first_english,
     'edit_2.sellout.english': edit_second_english,
     'edit_3.sellout.insider': edit_insider,
-    'convoy': whitelist('status')
+    'convoy': whitelist('status'),
+    'concierge': whitelist('status', 'auctionID')
 }
 
 lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
 lot_edit_role = (blacklist(
     'owner_token', 'owner', '_attachments',
     'revisions', 'date', 'dateModified', 'documents', 'auctions',
-    'lotID', 'mode', 'doc_id', 'items', 'rectificationPeriod') + schematics_embedded_role)
+    'lotID', 'mode', 'doc_id', 'rectificationPeriod') + schematics_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
 Administrator_role = whitelist('status', 'mode')
@@ -115,6 +116,5 @@ lot_roles = {
     'invalid': view_role,
     'edit.invalid': whitelist(),
     'concierge': whitelist('status', 'decisions', 'title', 'lotCustodian', 'description', 'lotHolder', 'items'),
-    'chronograph': whitelist(),
-    'convoy': whitelist('status', 'auctions')
+    'chronograph': whitelist()
 }

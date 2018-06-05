@@ -54,18 +54,18 @@ STATUS_CHANGES = {
         }
     },
     "active.auction": {
-        "editing_permissions": ["Administrator", "convoy"],
+        "editing_permissions": ["Administrator"],
         "next_status": {
-            "active.contracting": ["Administrator", "convoy"],
-            "pending.dissolution": ["Administrator", "convoy"],
-            "active.salable": ["Administrator", "convoy"]
+            "active.contracting": ["Administrator"],
+            "pending.dissolution": ["Administrator"],
+            "active.salable": ["Administrator"]
         }
     },
     "active.contracting": {
-        "editing_permissions": ["Administrator", "convoy"],
+        "editing_permissions": ["Administrator"],
         "next_status": {
-            "pending.sold": ["Administrator", "convoy"],
-            "pending.dissolution": ["Administrator", "convoy"],
+            "pending.sold": ["Administrator"],
+            "pending.dissolution": ["Administrator"],
         }
     },
     "pending.sold": {
