@@ -23,7 +23,7 @@ item_roles = {
 }
 
 auction_create_role = blacklist('id', 'status', 'auctionID', 'relatedProcessID', 'procurementMethodType')
-auction_common_edit_role = blacklist('id', 'auctionID', 'procurementMethodType', 'tenderAttempts', 'status')
+auction_common_edit_role = blacklist('id', 'auctionID', 'procurementMethodType', 'tenderAttempts', 'status', 'relatedProcessID')
 auction_view_role = (schematics_default_role + blacklist())
 edit_first_english = (auction_common_edit_role + blacklist('tenderingDuration'))
 edit_second_english = (
