@@ -13,10 +13,12 @@ from openregistry.lots.loki.tests.json_data import (
     auction_second_english_data
 )
 
+
 def add_decisions(self, lot):
     asset_decision = {
             'decisionDate': get_now().isoformat(),
-            'decisionID': 'decisionAssetID'
+            'decisionID': 'decisionAssetID',
+            'decisionOf': 'asset'
         }
     data_with_decisions = {
         "decisions": [
@@ -26,6 +28,7 @@ def add_decisions(self, lot):
     response = self.app.patch_json('/{}'.format(lot['id']), params={'data': data_with_decisions})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data']['decisions'][0]['decisionOf'], 'lot')
     self.assertEqual(response.json['data']['decisions'], data_with_decisions['decisions'])
 
 
