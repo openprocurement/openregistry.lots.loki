@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
+from copy import deepcopy
+from uuid import uuid4
 
 from openregistry.lots.core.utils import (
     get_now,
@@ -129,6 +131,9 @@ def patch_item(self):
 
 def patch_items_with_lot(self):
     # Create lot in 'draft' status and move it to 'pending'
+    initial_item_data = deepcopy(self.initial_item_data)
+    del initial_item_data['id']
+
     response = create_single_lot(self, self.initial_data)
     lot = response.json['data']
     token = response.json['access']['token']
@@ -158,7 +163,7 @@ def patch_items_with_lot(self):
 
     response = self.app.post_json('/{}/items'.format(lot['id']),
                                   headers=access_header,
-                                  params={'data': self.initial_item_data})
+                                  params={'data': initial_item_data})
     self.assertEqual(response.status, '201 Created')
     self.assertEqual(response.content_type, 'application/json')
     item_id = response.json["data"]['id']
@@ -169,7 +174,7 @@ def patch_items_with_lot(self):
 
     response = self.app.post_json('/{}/items'.format(lot['id']),
                                   headers=access_header,
-                                  params={'data': self.initial_item_data})
+                                  params={'data': initial_item_data})
     self.assertEqual(response.status, '201 Created')
     self.assertEqual(response.content_type, 'application/json')
     item_id = response.json["data"]['id']
@@ -184,7 +189,7 @@ def patch_items_with_lot(self):
     self.assertEqual(len(response.json['data']['items']), 2)
 
     data = {
-        'items': [self.initial_item_data]
+        'items': [initial_item_data]
     }
     response = self.app.patch_json('/{}'.format(lot['id']),
                                   headers=access_header,
@@ -192,6 +197,35 @@ def patch_items_with_lot(self):
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(len(response.json['data']['items']), 1)
+
+    item_data = deepcopy(self.initial_item_data)
+    item_data['id'] = uuid4().hex
+    data = {
+        'items': [item_data, item_data]
+    }
+    response = self.app.patch_json('/{}'.format(lot['id']),
+                                  headers=access_header,
+                                  params={'data': data},
+                                  status=422)
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'][0]['description'][0],
+        u'Item id should be uniq for all items'
+    )
+
+    data = {
+        'items': [item_data]
+    }
+    response = self.app.patch_json('/{}'.format(lot['id']),
+                                  headers=access_header,
+                                  params={'data': data})
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertNotEqual(
+        response.json['data']['id'],
+        item_data['id']
+    )
 
 
 def create_item_resource_invalid(self):
@@ -252,8 +286,6 @@ def rectificationPeriod_item_workflow(self):
     self.assertEqual(response.status, '403 Forbidden')
     self.assertEqual(response.json['errors'][0]['description'], 'You can\'t change items after rectification period')
 
-
-    self.assertEqual(response.json['errors'][0]['description'], 'You can\'t change items after rectification period')
     response = self.app.patch_json('/{}/items/{}'.format(lot['id'], item_id),
                                    headers=self.access_header,
                                    params={'data': self.initial_item_data},
