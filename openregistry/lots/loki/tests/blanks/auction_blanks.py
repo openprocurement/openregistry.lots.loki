@@ -597,3 +597,67 @@ def submissionMethodDetails_check(self):
         response.json['data']['submissionMethodDetails'],
         auction_param_with_submissionMethodDetails['submissionMethodDetails']
     )
+
+
+def registrationFee_default(self):
+    default_amount = 17.0
+
+    # Check default registrationFee.amount
+    data = deepcopy(self.initial_auctions_data)
+    response = self.app.get('/{}/auctions'.format(self.resource_id))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    second_english = auctions[1]
+    insider = auctions[2]
+
+    self.assertEqual(english['registrationFee']['amount'], default_amount)
+    self.assertEqual(second_english['registrationFee']['amount'], default_amount / 2)
+    self.assertEqual(insider['registrationFee']['amount'], default_amount / 2)
+
+    # Change registrationFee
+    data = {
+        'registrationFee': {'amount': 100}
+    }
+    response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
+        headers=self.access_header, params={
+            'data': data
+            })
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['data']['registrationFee']['amount'],
+        data['registrationFee']['amount']
+    )
+
+    response = self.app.get('/{}/auctions'.format(self.resource_id))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    second_english = auctions[1]
+    insider = auctions[2]
+
+    self.assertEqual(english['registrationFee']['amount'], data['registrationFee']['amount'])
+    self.assertEqual(second_english['registrationFee']['amount'], data['registrationFee']['amount'] / 2)
+    self.assertEqual(insider['registrationFee']['amount'], data['registrationFee']['amount'] / 2)
+
+    # Patch registrationFee to None
+    data = {
+        'registrationFee': None
+    }
+    response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
+        headers=self.access_header, params={
+            'data': data
+            })
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data']['registrationFee']['amount'], default_amount)
+
+    response = self.app.get('/{}/auctions'.format(self.resource_id))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    second_english = auctions[1]
+    insider = auctions[2]
+
+    self.assertEqual(english['registrationFee']['amount'], default_amount)
+    self.assertEqual(second_english['registrationFee']['amount'], default_amount / 2)
+    self.assertEqual(insider['registrationFee']['amount'], default_amount / 2)
+

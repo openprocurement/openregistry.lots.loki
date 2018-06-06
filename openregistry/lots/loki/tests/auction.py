@@ -17,8 +17,10 @@ from openregistry.lots.loki.tests.blanks.auction_blanks import (
     procurementMethodDetails_check_without_sandbox,
     submissionMethodDetails_check,
     patch_auctions_with_lot,
-    patch_auction_by_concierge
+    patch_auction_by_concierge,
+    registrationFee_default
 )
+
 
 class LotAuctionResourceTest(LotContentWebTest):
     initial_auctions_data = deepcopy(test_lot_auctions_data)
@@ -32,6 +34,7 @@ class LotAuctionResourceTest(LotContentWebTest):
     test_procurementMethodDetails_check_with_sandbox = snitch(procurementMethodDetails_check_with_sandbox)
     test_procurementMethodDetails_check_without_sandbox = snitch(procurementMethodDetails_check_without_sandbox)
     submissionMethodDetails_check_without_sandbox = snitch(submissionMethodDetails_check)
+    test_registrationFee_default = snitch(registrationFee_default)
 
 
 def suite():
