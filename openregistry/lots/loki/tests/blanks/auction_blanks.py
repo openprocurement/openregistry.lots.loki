@@ -91,10 +91,15 @@ def patch_auction_by_concierge(self):
     
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
         headers=self.access_header, params={
-            'data': {'status': 'unsuccessful', 'auctionID': '1' * 32}
+            'data': {
+                'status': 'unsuccessful',
+                'auctionID': 'someAuctionID',
+                'relatedProcessID': '1' * 32
+            }
             })
     self.assertEqual(response.json['data']['status'], 'unsuccessful')
-    self.assertEqual(response.json['data']['auctionID'], '1' * 32)
+    self.assertEqual(response.json['data']['auctionID'], 'someAuctionID')
+    self.assertEqual(response.json['data']['relatedProcessID'], '1' * 32)
 
 
 def patch_english_auction(self):

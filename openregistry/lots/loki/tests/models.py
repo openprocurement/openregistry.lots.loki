@@ -139,6 +139,19 @@ class DummyModelsTest(unittest.TestCase):
         auction.validate()
         self.assertEqual(auction.auctionParameters.dutchSteps, data['auctionParameters']['dutchSteps'])
 
+        data['relatedProcessID'] = 'relatedProcessID'
+        data['auctionID'] = 'auctionID'
+
+        auction.import_data(data)
+
+        edit_serialization = auction.serialize('edit')
+        self.assertNotIn('relatedProcessID', edit_serialization)
+        self.assertNotIn('auctionID', edit_serialization)
+
+        edit_serialization = auction.serialize('create')
+        self.assertNotIn('relatedProcessID', edit_serialization)
+        self.assertNotIn('auctionID', edit_serialization)
+
 
 def suite():
     tests = unittest.TestSuite()

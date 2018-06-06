@@ -13,10 +13,12 @@ from openregistry.lots.loki.tests.json_data import (
     auction_second_english_data
 )
 
+
 def add_decisions(self, lot):
     asset_decision = {
             'decisionDate': get_now().isoformat(),
-            'decisionID': 'decisionAssetID'
+            'decisionID': 'decisionAssetID',
+            'decisionOf': 'asset'
         }
     data_with_decisions = {
         "decisions": [
@@ -26,6 +28,7 @@ def add_decisions(self, lot):
     response = self.app.patch_json('/{}'.format(lot['id']), params={'data': data_with_decisions})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data']['decisions'][0]['decisionOf'], 'lot')
     self.assertEqual(response.json['data']['decisions'], data_with_decisions['decisions'])
 
 
@@ -72,10 +75,13 @@ def check_patch_status_403(self, path, lot_status, headers=None):
 
 
 def create_single_lot(self, data, status=None):
+    data['decisions'][0]['relatedItem'] = '1' * 32
     response = self.app.post_json('/', {"data": data})
     self.assertEqual(response.status, '201 Created')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'draft')
+    self.assertEqual(response.json['data']['decisions'][0]['decisionOf'], 'lot')
+    self.assertNotIn('relatedItem', response.json['data']['decisions'][0])
     self.assertEqual(len(response.json['data']['auctions']), 3)
     token = response.json['access']['token']
     lot_id = response.json['data']['id']

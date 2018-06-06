@@ -7,7 +7,7 @@ from openregistry.lots.core.models import (
 )
 from openregistry.lots.core.models import (
     schematics_default_role,
-    schematics_embedded_role
+    lots_embedded_role
 )
 
 
@@ -22,8 +22,11 @@ item_roles = {
     'view': item_view_role,
 }
 
-auction_create_role = blacklist('id', 'status', 'auctionID', 'procurementMethodType')
-auction_common_edit_role = blacklist('id', 'auctionID', 'procurementMethodType', 'tenderAttempts', 'status')
+auction_create_role = blacklist('id', 'status', 'auctionID', 'relatedProcessID', 'procurementMethodType')
+auction_common_edit_role = blacklist(
+    'id', 'auctionID', 'procurementMethodType', 'tenderAttempts',
+    'status', 'relatedProcessID'
+)
 auction_view_role = (schematics_default_role + blacklist())
 edit_first_english = (auction_common_edit_role + blacklist('tenderingDuration'))
 edit_second_english = (
@@ -42,20 +45,26 @@ auction_roles = {
     'edit_2.sellout.english': edit_second_english,
     'edit_3.sellout.insider': edit_insider,
     'convoy': whitelist('status'),
-    'concierge': whitelist('status', 'auctionID')
+    'concierge': whitelist('status', 'auctionID', 'relatedProcessID')
 }
 
 lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
 lot_edit_role = (blacklist(
     'owner_token', 'owner', '_attachments',
     'revisions', 'date', 'dateModified', 'documents', 'auctions',
-    'lotID', 'mode', 'doc_id', 'rectificationPeriod') + schematics_embedded_role)
-view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
+    'lotID', 'mode', 'doc_id', 'rectificationPeriod') + lots_embedded_role)
+view_role = (blacklist('owner_token', '_attachments', 'revisions') + lots_embedded_role)
 
 Administrator_role = whitelist('status', 'mode')
 concierge_role = (blacklist(
     'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified',
-    'lotID', 'mode', 'doc_id') + schematics_embedded_role)
+    'lotID', 'mode', 'doc_id') + lots_embedded_role)
+
+decision_roles = {
+    'create': blacklist('decisionOf', 'relatedItem'),
+    'edit': blacklist('decisionOf', 'relatedItem'),
+    'edit_pending': blacklist('decisionOf', 'relatedItem'),
+}
 
 lot_roles = {
     'create': lot_create_role,
