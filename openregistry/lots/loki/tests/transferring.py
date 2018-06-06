@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from openregistry.lots.loki.tests.base import LotContentWebTest
+from openregistry.lots.core.tests.base import snitch
 from openregistry.lots.core.tests.plugins.transferring.mixins import (
     LotOwnershipChangeTestCaseMixin
 )
 
+from openregistry.lots.loki.tests.base import LotContentWebTest
+from openregistry.lots.loki.tests.blanks.transferring import switch_mode
+
 
 class LotOwnershipChangeResourceTest(LotContentWebTest,
                                      LotOwnershipChangeTestCaseMixin):
+
+    # decision that was created from asset can't be updated
+    test_new_owner_can_change = None
+    test_mode_test = snitch(switch_mode)
 
     def setUp(self):
         super(LotOwnershipChangeResourceTest, self).setUp()
