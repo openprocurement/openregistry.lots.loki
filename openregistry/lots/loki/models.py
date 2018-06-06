@@ -25,6 +25,7 @@ from openregistry.lots.core.models import (
     AuctionParameters
 )
 
+from openregistry.lots.core.validation import validate_items_uniq
 from openregistry.lots.core.models import ILot, Lot as BaseLot
 from openregistry.lots.core.utils import (
     get_now
@@ -113,7 +114,7 @@ class Lot(BaseLot):
     lotCustodian = ModelType(AssetCustodian, serialize_when_none=False)
     lotHolder = ModelType(AssetHolder, serialize_when_none=False)
     officialRegistrationID = StringType(serialize_when_none=False)
-    items = ListType(ModelType(Item), default=list())
+    items = ListType(ModelType(Item), default=list(), validators=[validate_items_uniq])
     documents = ListType(ModelType(Document), default=list())
     decisions = ListType(ModelType(LotDecision), default=list(), min_size=1, max_size=2, required=True)
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
