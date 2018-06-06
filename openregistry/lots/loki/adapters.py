@@ -13,7 +13,10 @@ from openregistry.lots.core.utils import (
     apply_patch,
     save_lot
 )
-from openregistry.lots.loki.utils import check_status
+from openregistry.lots.loki.utils import (
+    check_status,
+    update_auctions
+)
 from .constants import (
     STATUS_CHANGES,
     RECTIFICATION_PERIOD_DURATION,
@@ -73,6 +76,7 @@ class LokiLotManagerAdapter(LotManagerAdapter):
                 data['auctionParameters']['type'] = 'insider'
                 data['auctionParameters']['dutchSteps'] = DEFAULT_DUTCH_STEPS
             lot.auctions.append(auction_class(data))
+        update_auctions(lot)
 
     def create_lot(self, request):
         self._validate(request, self.create_validation)
