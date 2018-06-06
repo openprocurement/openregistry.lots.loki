@@ -601,7 +601,6 @@ def submissionMethodDetails_check(self):
 
 def registrationFee_default(self):
     # Check default registrationFee.amount
-    data = deepcopy(self.initial_auctions_data)
     response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
     english = auctions[0]
@@ -658,4 +657,3 @@ def registrationFee_default(self):
     self.assertEqual(english['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE)
     self.assertEqual(second_english['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE / 2)
     self.assertEqual(insider['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE / 2)
-
