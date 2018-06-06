@@ -33,7 +33,8 @@ from openregistry.lots.core.utils import (
 from .constants import (
     LOT_STATUSES,
     AUCTION_STATUSES,
-    AUCTION_DOCUMENT_TYPES
+    AUCTION_DOCUMENT_TYPES,
+    DEFAULT_REGISTRATION_FEE
 )
 from .roles import (
     lot_roles,
@@ -56,7 +57,7 @@ class AuctionDocument(Document):
 
 
 class RegistrationFee(Guarantee):
-    amount = FloatType(min_value=0, default=17)
+    amount = FloatType(min_value=0, default=DEFAULT_REGISTRATION_FEE)
 
 
 class LotDecision(Decision):
