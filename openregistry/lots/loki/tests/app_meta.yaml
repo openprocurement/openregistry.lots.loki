@@ -2,6 +2,9 @@
 plugins:
   api:
     plugins:
+      transferring:
+        plugins:
+          lots.transferring:
       lots.core:
         plugins:
           lots.loki:
