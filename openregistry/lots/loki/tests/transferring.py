@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from openregistry.lots.basic.tests.base import LotContentWebTest
+from openregistry.lots.loki.tests.base import LotContentWebTest
 from openregistry.lots.core.tests.plugins.transferring.mixins import (
     LotOwnershipChangeTestCaseMixin
 )
