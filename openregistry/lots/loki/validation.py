@@ -2,11 +2,55 @@
 from openregistry.lots.core.utils import (
     raise_operation_error,
     update_logging_context,
-    get_now
+    get_now,
+    error_handler,
+    raise_operation_error,
+    get_first_document,
+    check_document,
+    set_first_document_fields,
+    get_type,
+    update_document_url
 )
 from openregistry.lots.core.validation import (
     validate_data
 )
+
+
+def validate_document_data(request, **kwargs):
+    context = request.context if 'documents' in request.context else request.context.__parent__
+    model = type(context).documents.model_class
+    data = validate_data(request, model, "document")
+    document = request.validated['document']
+
+    if document.documentType not in (model._document_types_url_only + model._document_types_offline):
+        check_document(request, request.validated['document'], 'body')
+
+    first_document = get_first_document(request)
+
+    if first_document:
+        set_first_document_fields(request, first_document, document)
+
+    if not document.documentOf:
+        document.documentOf = get_type(context).__name__.lower()
+
+    if document.documentType not in (model._document_types_url_only + model._document_types_offline):
+        document_route = request.matched_route.name.replace("collection_", "")
+        document = update_document_url(request, document, document_route, {})
+
+    request.validated['document'] = document
+    return data
+
+
+def validate_file_upload(request, **kwargs):
+    update_logging_context(request, {'document_id': '__new__'})
+    if request.registry.use_docservice and request.content_type == "application/json":
+        return validate_document_data(request)
+    if 'file' not in request.POST or not hasattr(request.POST['file'], 'filename'):
+        request.errors.add('body', 'file', 'Not Found')
+        request.errors.status = 404
+        raise error_handler(request)
+    else:
+        request.validated['file'] = request.POST['file']
 
 
 def validate_document_operation_in_not_allowed_lot_status(request, error_handler, **kwargs):

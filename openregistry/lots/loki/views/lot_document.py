@@ -11,8 +11,6 @@ from openregistry.lots.core.utils import (
 )
 
 from openregistry.lots.core.validation import (
-    validate_file_upload,
-    validate_document_data,
     validate_patch_document_data,
 )
 from openregistry.lots.core.validation import (
@@ -20,7 +18,9 @@ from openregistry.lots.core.validation import (
 )
 from openregistry.lots.loki.validation import (
     validate_document_operation_in_not_allowed_lot_status,
-    rectificationPeriod_document_validation
+    rectificationPeriod_document_validation,
+    validate_file_upload,
+    validate_document_data
 )
 
 post_validators = (

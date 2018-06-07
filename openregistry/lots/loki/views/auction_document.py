@@ -11,16 +11,16 @@ from openregistry.lots.core.utils import (
 )
 
 from openregistry.lots.core.validation import (
-    validate_file_upload,
-    validate_document_data,
-    validate_patch_document_data,
+    validate_patch_document_data
 )
 from openregistry.lots.core.validation import (
-    validate_lot_document_update_not_by_author_or_lot_owner
+    validate_lot_document_update_not_by_author_or_lot_owner,
 )
 from openregistry.lots.loki.validation import (
     validate_update_auction_document_in_not_allowed_status,
-    rectificationPeriod_auction_document_validation
+    rectificationPeriod_auction_document_validation,
+    validate_file_upload,
+    validate_document_data
 )
 
 post_validators = (
