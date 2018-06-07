@@ -346,8 +346,9 @@ def model_validation(self):
     self.assertEqual(response.content_type, 'application/json')
     auction_id = response.json["data"][0]['id']
 
-
     initial_document_data = deepcopy(self.initial_document_data)
+    del initial_document_data['url']
+    del initial_document_data['hash']
     initial_document_data['documentType'] = 'x_dgfAssetFamiliarization'
     response = self.app.post_json('/{}/auctions/{}/documents'.format(self.resource_id, auction_id),
                                   headers=self.access_header,
@@ -356,7 +357,7 @@ def model_validation(self):
     self.assertEqual(response.status, '422 Unprocessable Entity')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'][0]['description'][0], u"accessDetails is required, when documentType is x_dgfAssetFamiliarization")
+    self.assertEqual(response.json['errors'][0]['description'][0], u"This field is required.")
 
     initial_document_data['accessDetails'] = u'Some access details'
     response = self.app.post_json('/{}/auctions/{}/documents'.format(self.resource_id, auction_id),
