@@ -126,6 +126,9 @@ def check_change_to_verification(self):
     english = auctions[0]
     second_english = auctions[1]
 
+    first_english_data = deepcopy(auction_english_data)
+    first_english_data['auctionPeriod']['startDate'] = get_now().isoformat()
+
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.status, '200 OK')
@@ -144,12 +147,33 @@ def check_change_to_verification(self):
         status=422,
         headers=access_header
     )
+    # Check if all required fields are filled in first english auction
     self.assertEqual(response.status, '422 Unprocessable Entity')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(
         response.json['errors'][0]['description'],
         "Can\'t switch lot to verification status from composing until "
         "these fields are empty ['value', 'minimalStep', 'auctionPeriod', 'guarantee'] within the auctions"
+    )
+
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], english['id']),
+        params={'data': first_english_data}, headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
+    # Check if auctionPeriod.startDate is in three days after now
+    response = self.app.patch_json(
+        '/{}'.format(lot['id']),
+        {"data": {'status': 'verification'}},
+        status=422,
+        headers=access_header
+    )
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'][0]['description'],
+        'startDate of auctionPeriod must be at least in three days after today'
     )
 
     response = self.app.patch_json(
@@ -164,6 +188,7 @@ def check_change_to_verification(self):
         status=422,
         headers=access_header
     )
+    # Check if all required fields are filled in second english auction
     self.assertEqual(response.status, '422 Unprocessable Entity')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(
@@ -355,8 +380,24 @@ def rectificationPeriod_workflow(self):
     self.assertNotEqual(response.json['data']['status'], 'active.salable')
     self.assertEqual(lot['status'], response.json['data']['status'])
 
-
+    # Check if auctionPeriod.StartDate is not in two days after rectificationPeriod.endDate
     self.app.authorization = ('Basic', ('broker', ''))
+    response = self.app.get('/{}/auctions'.format(lot['id']))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], english['id']),
+        headers=access_header, params={
+            'data': {'auctionPeriod': {'startDate': get_now().isoformat()}}
+            },
+        status=422
+    )
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'][0]['description'][0],
+        'startDate of auctionPeriod must be at least in two days after endDate of rectificationPeriod'
+    )
 
     rectificationPeriod = Period()
     rectificationPeriod.startDate = get_now() - timedelta(3)
@@ -374,6 +415,7 @@ def rectificationPeriod_workflow(self):
     self.assertEqual(response.json['data']['id'], lot['id'])
 
     # Change rectification period in db
+    add_auctions(self, lot, access_header)
     fromdb = self.db.get(lot['id'])
     fromdb = self.lot_model(fromdb)
 
@@ -414,12 +456,15 @@ def rectificationPeriod_workflow(self):
 
     response = create_single_lot(self, self.initial_data)
     lot = response.json['data']
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.json['data']['id'], lot['id'])
 
     # Change rectification period in db
+    add_auctions(self, lot, access_header)
     fromdb = self.db.get(lot['id'])
     fromdb = self.lot_model(fromdb)
 

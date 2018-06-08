@@ -87,6 +87,8 @@ def create_single_lot(self, data, status=None):
     lot_id = response.json['data']['id']
 
     if status:
+        access_header = {'X-Access-Token': str(token)}
+        add_auctions(self, response.json['data'], access_header)
         fromdb = self.db.get(lot_id)
         fromdb = self.lot_model(fromdb)
 
