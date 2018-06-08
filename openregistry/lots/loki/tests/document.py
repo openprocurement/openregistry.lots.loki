@@ -27,6 +27,7 @@ from openregistry.lots.loki.tests.blanks.document_blanks import (
 class LotDocumentWithDSResourceTest(LotContentWebTest):
     docservice = True
     document_types = LOKI_DOCUMENT_TYPES
+    initial_status = 'composing'
 
     test_01_not_found = snitch(not_found)
     test_02_create_document_in_forbidden_resource_status = snitch(create_document_in_forbidden_resource_status)

@@ -6,6 +6,7 @@ from openregistry.lots.core.constants import TZ
 from openregistry.lots.core.models import Period
 from openregistry.lots.core.utils import get_now, calculate_business_date
 
+from openregistry.lots.loki.tests.base import add_auctions
 from openregistry.lots.loki.models import Lot
 
 
@@ -121,6 +122,10 @@ def rectificationPeriod_document_workflow(self):
     self.assertEqual(response.json['data']['id'], lot['id'])
 
     # Change rectification period in db
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
     fromdb = self.db.get(lot['id'])
     fromdb = Lot(fromdb)
 

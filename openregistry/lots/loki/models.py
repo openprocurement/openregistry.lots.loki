@@ -129,7 +129,7 @@ class Auction(Model):
     def validate_auctionPeriod(self, data, period):
         lot = get_lot(data['__parent__'])
         if data['tenderAttempts'] == 1:
-            if lot.status not in ['draft', 'composing', 'verification'] and not period:
+            if lot.status == 'pending' and not period:
                 raise ValidationError('This field is required.')
             if lot.rectificationPeriod:
                 min_auction_start_date = calculate_business_date(

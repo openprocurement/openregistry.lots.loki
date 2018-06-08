@@ -12,6 +12,7 @@ from openregistry.lots.loki.models import (
     StartDateRequiredPeriod,
     BankAccount,
     Auction,
+    Lot
 )
 
 now = get_now()
@@ -106,6 +107,9 @@ class DummyModelsTest(unittest.TestCase):
                 "type": "insider",
             }
         }
+        lot = Lot()
+        lot.status = 'draft'
+        data['__parent__'] = lot
         auction = Auction()
         auction.import_data(data)
         auction.validate()
