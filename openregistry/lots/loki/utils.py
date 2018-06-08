@@ -60,9 +60,12 @@ def update_auctions(lot):
         for key in auto_calculated_fields:
             object_class = getattr(lot.__class__.auctions.model_class, key)
             auction[key] = object_class(english[key].serialize())
-            auction[key]['amount'] = (
-                0 if key == 'minimalStep' and auction.procurementMethodType == 'sellout.insider'
-                else english[key]['amount'] / 2
-            )
+            if key == 'registrationFee':
+                auction[key]['amount'] = english[key]['amount']
+            else:
+                auction[key]['amount'] = (
+                    0 if key == 'minimalStep' and auction.procurementMethodType == 'sellout.insider'
+                    else round(english[key]['amount'] / 2, 2)
+                )
 
     insider.tenderingDuration = second_english.tenderingDuration

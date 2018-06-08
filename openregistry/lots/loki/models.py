@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from uuid import uuid4
 from pyramid.security import Allow
-from schematics.types import StringType, IntType, MD5Type
+from schematics.types import StringType, IntType, MD5Type, FloatType
 from schematics.types.compound import ModelType, ListType
 from schematics.types.serializable import serializable
 from zope.interface import implementer
@@ -34,7 +34,8 @@ from openregistry.lots.core.utils import (
 from .constants import (
     LOT_STATUSES,
     AUCTION_STATUSES,
-    AUCTION_DOCUMENT_TYPES
+    AUCTION_DOCUMENT_TYPES,
+    DEFAULT_REGISTRATION_FEE
 )
 from .roles import (
     lot_roles,
@@ -54,6 +55,10 @@ class StartDateRequiredPeriod(Period):
 class AuctionDocument(Document):
     documentType = StringType(choices=AUCTION_DOCUMENT_TYPES, required=True)
     documentOf = StringType(choices=['auction'])
+
+
+class RegistrationFee(Guarantee):
+    amount = FloatType(min_value=0, default=DEFAULT_REGISTRATION_FEE)
 
 
 class LotDecision(Decision):
@@ -76,7 +81,7 @@ class Auction(Model):
     value = ModelType(Value)
     minimalStep = ModelType(Value)
     guarantee = ModelType(Guarantee)
-    registrationFee = ModelType(Guarantee)
+    registrationFee = ModelType(RegistrationFee, default={})
     bankAccount = ModelType(BankAccount)
     documents = ListType(ModelType(AuctionDocument), default=list())
     auctionParameters = ModelType(AuctionParameters)

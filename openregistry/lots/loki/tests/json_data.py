@@ -20,21 +20,21 @@ auction_common = {
         'endDate': (now + timedelta(days=10)).isoformat()
     },
     'value': {
-        'amount': 3000,
+        'amount': 3000.87,
         'currency': 'UAH',
         'valueAddedTaxIncluded': True
     },
     'minimalStep': {
-        'amount': 300,
+        'amount': 300.87,
         'currency': 'UAH',
         'valueAddedTaxIncluded': True
     },
     'guarantee': {
-        'amount': 700,
+        'amount': 700.87,
         'currency': 'UAH'
     },
     'registrationFee': {
-        'amount': 700,
+        'amount': 700.87,
         'currency': 'UAH'
     }
 }
