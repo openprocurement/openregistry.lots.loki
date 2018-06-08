@@ -22,6 +22,7 @@ from openregistry.lots.loki.constants import AUCTION_DOCUMENT_TYPES
 class LotAuctionDocumentWithDSResourceTest(LotContentWebTest):
     docservice = True
     document_types = AUCTION_DOCUMENT_TYPES
+    initial_status = 'composing'
 
     test_not_found = snitch(not_found_auction_document)
     test_put_auction_document = snitch(put_auction_document)
