@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 from copy import deepcopy
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from openregistry.lots.core.utils import (
     get_now,
@@ -9,7 +9,7 @@ from openregistry.lots.core.utils import (
 )
 from openregistry.lots.core.models import Period
 from openregistry.lots.loki.models import Lot
-from openregistry.lots.core.constants import SANDBOX_MODE
+from openregistry.lots.core.constants import SANDBOX_MODE, TZ
 from openregistry.lots.loki.constants import DEFAULT_DUTCH_STEPS, DEFAULT_REGISTRATION_FEE
 
 from openregistry.lots.loki.tests.base import (
@@ -21,6 +21,12 @@ from openregistry.lots.loki.tests.base import (
 
 
 def patch_auctions_with_lot(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
     self.app.authorization = ('Basic', ('broker', ''))
 
     response = create_single_lot(self, self.initial_data)
@@ -66,6 +72,12 @@ def patch_auctions_with_lot(self):
 
 
 def patch_auction_by_concierge(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
     data = deepcopy(self.initial_auctions_data)
     response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
@@ -76,6 +88,8 @@ def patch_auction_by_concierge(self):
         headers=self.access_header, params={
             'data': data['english']
             })
+    del data['english']['auctionPeriod']['endDate']
+
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['id'], english['id'])
@@ -103,6 +117,10 @@ def patch_auction_by_concierge(self):
 
 
 def patch_english_auction(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('composing')
+
     data = deepcopy(self.initial_auctions_data)
     response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
@@ -113,6 +131,8 @@ def patch_english_auction(self):
         headers=self.access_header, params={
             'data': data['english']
             })
+    del data['english']['auctionPeriod']['endDate']
+
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['id'], english['id'])
@@ -247,6 +267,10 @@ def patch_english_auction(self):
 
 
 def patch_second_english_auction(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('composing')
+
     data = deepcopy(self.initial_auctions_data)
     response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
@@ -325,6 +349,10 @@ def patch_second_english_auction(self):
 
 
 def patch_insider_auction(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('composing')
+
     data = deepcopy(self.initial_auctions_data)
     response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
@@ -391,6 +419,10 @@ def rectificationPeriod_auction_workflow(self):
     lot = self.create_resource()
 
     # Change rectification period in db
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
     fromdb = self.db.get(lot['id'])
     fromdb = Lot(fromdb)
 
@@ -419,6 +451,12 @@ def rectificationPeriod_auction_workflow(self):
 
 @unittest.skipIf(not SANDBOX_MODE, 'If sandbox mode is enabled auctionParameters has additional field procurementMethodDetails')
 def procurementMethodDetails_check_with_sandbox(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
     # Test procurementMethodDetails after creating lot
     response = self.app.get('/{}'.format(self.resource_id))
     lot = response.json['data']
@@ -481,9 +519,19 @@ def procurementMethodDetails_check_with_sandbox(self):
 
 @unittest.skipIf(SANDBOX_MODE, 'If sandbox mode is disabled auctionParameters has not procurementMethodDetails field')
 def procurementMethodDetails_check_without_sandbox(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
     # Test procurementMethodDetails after creating lot
     response = self.app.get('/{}'.format(self.resource_id))
     lot = response.json['data']
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
     english = response.json['data']['auctions'][0]
     second_english = response.json['data']['auctions'][1]
     insider = response.json['data']['auctions'][2]
@@ -546,6 +594,10 @@ def submissionMethodDetails_check(self):
     # Test submissionMethodDetails after creating lot
     response = self.app.get('/{}'.format(self.resource_id))
     lot = response.json['data']
+
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
     english = response.json['data']['auctions'][0]
     second_english = response.json['data']['auctions'][1]
     insider = response.json['data']['auctions'][2]
@@ -564,7 +616,6 @@ def submissionMethodDetails_check(self):
     )
 
     auction_param_with_submissionMethodDetails = {'submissionMethodDetails': 'quick(mode:fast-forward)'}
-
     # Test submissionMethodDetails after update second english
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], second_english['id']),
@@ -599,7 +650,42 @@ def submissionMethodDetails_check(self):
     )
 
 
+def auctionPeriod_endDate_blacklisted(self):
+    response = self.app.get('/{}/auctions'.format(self.resource_id))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+
+    response = self.app.get('/{}'.format(self.resource_id))
+    lot = response.json['data']
+    self.set_status('draft')
+    add_auctions(self, lot, access_header=self.access_header)
+    self.set_status('pending')
+
+
+    english = auctions[0]
+
+    # Change auctionPeriod
+    data = {
+        'auctionPeriod': {
+            'startDate': (datetime.now(TZ) + timedelta(1)).isoformat(),
+            'endDate': (datetime.now(TZ) + timedelta(10)).isoformat()
+        }
+    }
+
+
+    response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
+        headers=self.access_header, params={
+            'data': data
+            })
+    self.assertEqual(
+        response.json['data']['auctionPeriod']['startDate'],
+        data['auctionPeriod']['startDate']
+    )
+    self.assertNotIn('endDate', response.json['data']['auctionPeriod'])
+
+
 def registrationFee_default(self):
+    self.set_status('composing')
+
     # Check default registrationFee.amount
     response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
