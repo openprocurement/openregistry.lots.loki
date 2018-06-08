@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from openregistry.lots.core.utils import (
-    raise_operation_error,
     update_logging_context,
     get_now,
     error_handler,
