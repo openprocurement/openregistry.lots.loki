@@ -75,6 +75,7 @@ class LokiLotManagerAdapter(LotManagerAdapter):
             elif auction_type == 'sellout.insider':
                 data['auctionParameters']['type'] = 'insider'
                 data['auctionParameters']['dutchSteps'] = DEFAULT_DUTCH_STEPS
+            data['__parent__'] = lot
             lot.auctions.append(auction_class(data))
         update_auctions(lot)
 

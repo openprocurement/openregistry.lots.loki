@@ -47,6 +47,15 @@ auction_roles = {
     'convoy': whitelist('status'),
     'concierge': whitelist('status', 'auctionID', 'relatedProcessID')
 }
+auction_period_roles = {
+    'create': blacklist('endDate'),
+    'edit': blacklist('endDate'),
+    'edit_1.sellout.english': blacklist('endDate'),
+    'edit_2.sellout.english': blacklist('endDate'),
+    'edit_3.sellout.insider': blacklist('endDate'),
+
+}
+
 
 lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
 lot_edit_role = (blacklist(
