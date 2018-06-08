@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
 from openregistry.lots.core.utils import (
     update_logging_context,
     get_now,
@@ -8,7 +9,8 @@ from openregistry.lots.core.utils import (
     check_document,
     set_first_document_fields,
     get_type,
-    update_document_url
+    update_document_url,
+    calculate_business_date
 )
 from openregistry.lots.core.validation import (
     validate_data
@@ -174,6 +176,7 @@ def rectificationPeriod_auction_validation(request, error_handler, **kwargs):
         request.validated['lot'].rectificationPeriod and
         request.validated['lot'].rectificationPeriod.endDate < get_now()
     )
+
     if request.authenticated_role != 'convoy' and is_rectificationPeriod_finished:
         request.errors.add('body', 'mode', 'You can\'t change auctions after rectification period')
         request.errors.status = 403
@@ -222,6 +225,22 @@ def validate_verification_status(request, error_handler):
                 'these fields are empty {} within the auctions'.format(required_fields)
             )
             request.errors.status = 422
+
+        min_auction_start_date = calculate_business_date(
+            start=get_now(),
+            delta=timedelta(3),
+            context=None,
+            working_days=True
+        )
+        auction_period = english.auctionPeriod
+        if auction_period and min_auction_start_date.date() > auction_period.startDate.date():
+            request.errors.add(
+                'body',
+                'mode',
+                'startDate of auctionPeriod must be at least in three days after today'
+            )
+            request.errors.status = 422
+            raise error_handler(request)
 
         required_fields = ['tenderingDuration']
         if not all(second_english[field] for field in required_fields):
