@@ -62,7 +62,7 @@ STATUS_CHANGES = {
         }
     },
     "active.contracting": {
-        "editing_permissions": ["Administrator"],
+        "editing_permissions": ["Administrator", "caravan"],
         "next_status": {
             "pending.sold": ["Administrator"],
             "pending.dissolution": ["Administrator"],
