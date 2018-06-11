@@ -50,7 +50,7 @@ auction_roles = {
 
 lot_create_role = (whitelist('status', 'assets', 'decisions', 'lotType', 'lotIdentifier', 'mode'))
 lot_edit_role = (blacklist(
-    'owner_token', 'owner', '_attachments',
+    'owner_token', 'owner', '_attachments', 'contracts',
     'revisions', 'date', 'dateModified', 'documents', 'auctions',
     'lotID', 'mode', 'doc_id', 'rectificationPeriod') + lots_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + lots_embedded_role)
@@ -65,6 +65,7 @@ decision_roles = {
     'edit': blacklist('decisionOf', 'relatedItem'),
     'edit_pending': blacklist('decisionOf', 'relatedItem'),
 }
+
 
 lot_roles = {
     'create': lot_create_role,
@@ -119,5 +120,6 @@ lot_roles = {
     'invalid': view_role,
     'edit.invalid': whitelist(),
     'concierge': whitelist('status', 'decisions', 'title', 'lotCustodian', 'description', 'lotHolder', 'items'),
-    'chronograph': whitelist()
+    'chronograph': whitelist(),
+    'caravan': whitelist('contracts')  # Role for contract-bot
 }
