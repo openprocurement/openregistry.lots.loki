@@ -1602,3 +1602,45 @@ def check_auction_status_lot_workflow(self):
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'active.auction')
+
+
+def patch_contracts(self):
+    # Create new lot in 'active.auction' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, self.initial_data, 'active.contracting')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.contracting')
+
+    contracts_data = [
+        {
+            'relatedProcessID': '1' * 32,
+            'contractID': 'contractID1',
+        },
+        {
+            'relatedProcessID': '2' * 32,
+            'contractID': 'contractID2',
+            'type': 'JUSTWRONG'
+        },
+    ]
+
+    self.app.authorization = ('Basic', ('caravan', ''))
+    response = self.app.patch_json('/{}'.format(lot['id']),
+                                   params={'data': {'contracts': contracts_data}})
+
+    self.assertEqual(response.json['data']['contracts'][0]['relatedProcessID'], contracts_data[0]['relatedProcessID'])
+    self.assertEqual(response.json['data']['contracts'][0]['contractID'], contracts_data[0]['contractID'])
+    self.assertEqual(response.json['data']['contracts'][0]['type'], 'loki')
+
+    self.assertEqual(response.json['data']['contracts'][1]['relatedProcessID'], contracts_data[1]['relatedProcessID'])
+    self.assertEqual(response.json['data']['contracts'][1]['contractID'], contracts_data[1]['contractID'])
+    self.assertEqual(response.json['data']['contracts'][1]['type'], 'loki')
+
+    response = self.app.get('/{}'.format(lot['id']))
+
+    self.assertEqual(response.json['data']['contracts'][0]['relatedProcessID'], contracts_data[0]['relatedProcessID'])
+    self.assertEqual(response.json['data']['contracts'][0]['contractID'], contracts_data[0]['contractID'])
+    self.assertEqual(response.json['data']['contracts'][0]['type'], 'loki')
+
+    self.assertEqual(response.json['data']['contracts'][1]['relatedProcessID'], contracts_data[1]['relatedProcessID'])
+    self.assertEqual(response.json['data']['contracts'][1]['contractID'], contracts_data[1]['contractID'])
+    self.assertEqual(response.json['data']['contracts'][1]['type'], 'loki')
