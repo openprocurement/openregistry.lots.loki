@@ -102,35 +102,9 @@ class Auction(Model):
     if SANDBOX_MODE:
         procurementMethodDetails = StringType()
 
-    def validate_value(self, data, value):
-        lot = get_lot(data['__parent__'])
-        if data['tenderAttempts'] == 1:
-            if lot.status == 'pending' and not value:
-                raise ValidationError('This field is required.')
-
-    def validate_minimalStep(self, data, value):
-        lot = get_lot(data['__parent__'])
-        if data['tenderAttempts'] == 1:
-            if lot.status == 'pending' and not value:
-                raise ValidationError('This field is required.')
-
-    def validate_guarantee(self, data, value):
-        lot = get_lot(data['__parent__'])
-        if data['tenderAttempts'] == 1:
-            if lot.status == 'pending' and not value:
-                raise ValidationError('This field is required.')
-
-    def validate_tenderingDuration(self, data, value):
-        lot = get_lot(data['__parent__'])
-        if data['tenderAttempts'] == 2:
-            if lot.status == 'pending' and not value:
-                raise ValidationError('This field is required.')
-
     def validate_auctionPeriod(self, data, period):
         lot = get_lot(data['__parent__'])
         if data['tenderAttempts'] == 1:
-            if lot.status == 'pending' and not period:
-                raise ValidationError('This field is required.')
             if lot.rectificationPeriod:
                 min_auction_start_date = calculate_business_date(
                     start=lot.rectificationPeriod.endDate,
