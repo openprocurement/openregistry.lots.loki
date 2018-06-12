@@ -220,7 +220,7 @@ def validate_verification_status(request, error_handler):
         english = auctions[0]
         second_english = auctions[1]
 
-        required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee']
+        required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount']
         if not all(english[field] for field in required_fields):
             request.errors.add(
                 'body',

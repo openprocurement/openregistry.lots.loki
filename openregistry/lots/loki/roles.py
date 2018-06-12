@@ -31,10 +31,10 @@ auction_view_role = (schematics_default_role + blacklist())
 edit_first_english = (auction_common_edit_role + blacklist('tenderingDuration'))
 edit_second_english = (
     auction_common_edit_role +
-    blacklist('value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod'))
+    blacklist('value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod', 'bankAccount'))
 edit_insider = (
     auction_common_edit_role +
-    blacklist('tenderingDuration', 'value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod')
+    blacklist('tenderingDuration', 'value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod', 'bankAccount')
 )
 
 auction_roles = {
