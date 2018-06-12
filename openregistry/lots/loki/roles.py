@@ -34,7 +34,10 @@ edit_second_english = (
     blacklist('value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod', 'bankAccount'))
 edit_insider = (
     auction_common_edit_role +
-    blacklist('tenderingDuration', 'value', 'minimalStep', 'guarantee', 'registrationFee', 'auctionPeriod', 'bankAccount')
+    blacklist(
+        'tenderingDuration', 'value', 'minimalStep', 'guarantee',
+        'registrationFee', 'auctionPeriod', 'bankAccount'
+    )
 )
 
 auction_roles = {
