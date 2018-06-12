@@ -153,7 +153,7 @@ def check_change_to_verification(self):
     self.assertEqual(
         response.json['errors'][0]['description'],
         "Can\'t switch lot to verification status from composing until "
-        "these fields are empty ['value', 'minimalStep', 'auctionPeriod', 'guarantee'] within the auctions"
+        "these fields are empty ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount'] within the auctions"
     )
 
     response = self.app.patch_json(

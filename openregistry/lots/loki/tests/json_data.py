@@ -36,6 +36,16 @@ auction_common = {
     'registrationFee': {
         'amount': 700.87,
         'currency': 'UAH'
+    },
+    'bankAccount': {
+        'bankName': 'name of bank',
+        'accountIdentification': [
+            {
+                'scheme': 'accountNumber',
+                'id': '111111-8',
+                'description': 'some description'
+            }
+        ]
     }
 }
 auction_english_data = deepcopy(auction_common)
