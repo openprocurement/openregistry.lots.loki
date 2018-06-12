@@ -187,6 +187,13 @@ def validate_auction_data(request, error_handler, **kwargs):
     validate_data(request, model)
 
 
+def validate_contracts_data(request, error_handler, **kwargs):
+    update_logging_context(request, {'auction_id': '__new__'})
+    context = request.context if 'auctions' in request.context else request.context.__parent__
+    model = type(context).contracts.model_class
+    validate_data(request, model)
+
+
 def validate_update_auction_in_not_allowed_status(request, error_handler, **kwargs):
     is_convoy_or_concierge = bool(request.authenticated_role in ['convoy', 'concierge'])
     if not is_convoy_or_concierge and request.validated['lot_status'] not in ['draft', 'composing', 'pending']:
