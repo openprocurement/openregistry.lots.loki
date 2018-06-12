@@ -32,8 +32,7 @@ from openregistry.lots.loki.tests.blanks.lot_blanks import (
     check_auction_status_lot_workflow,
     # LotTest
     simple_add_lot,
-    simple_patch,
-    patch_contracts
+    simple_patch
 )
 from openregistry.lots.loki.models import Lot
 
@@ -72,7 +71,6 @@ class LotResourceTest(BaseLotWebTest, ResourceTestMixin):
     test_rectificationPeriod_workflow = snitch(rectificationPeriod_workflow)
     test_auction_autocreation = snitch(auction_autocreation)
     test_check_auction_status_lot_workflow = snitch(check_auction_status_lot_workflow)
-    test_patch_contracts = snitch(patch_contracts)
 
 
 def suite():

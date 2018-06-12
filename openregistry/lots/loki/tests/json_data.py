@@ -87,3 +87,8 @@ test_loki_item_data.update(
         ]
     }
 )
+
+test_lot_contract_data = {
+    'contractID': 'contractID',
+    'relatedProcessID': '1' * 32
+}
