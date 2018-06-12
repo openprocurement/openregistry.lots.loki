@@ -66,6 +66,11 @@ decision_roles = {
     'edit_pending': blacklist('decisionOf', 'relatedItem'),
 }
 
+contracts_roles = {
+    'view': (schematics_default_role + blacklist()),
+    'caravan': blacklist('id', 'type')
+}
+
 
 lot_roles = {
     'create': lot_create_role,
@@ -121,5 +126,5 @@ lot_roles = {
     'edit.invalid': whitelist(),
     'concierge': whitelist('status', 'decisions', 'title', 'lotCustodian', 'description', 'lotHolder', 'items'),
     'chronograph': whitelist(),
-    'caravan': whitelist('contracts')  # Role for contract-bot
+    'caravan': whitelist()
 }
