@@ -177,7 +177,7 @@ def rectificationPeriod_auction_validation(request, error_handler, **kwargs):
         request.validated['lot'].rectificationPeriod.endDate < get_now()
     )
 
-    if request.authenticated_role != 'convoy' and is_rectificationPeriod_finished:
+    if request.authenticated_role not in ['convoy', 'concierge'] and is_rectificationPeriod_finished:
         request.errors.add('body', 'mode', 'You can\'t change auctions after rectification period')
         request.errors.status = 403
         raise error_handler(request)

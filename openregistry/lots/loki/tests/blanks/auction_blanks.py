@@ -440,13 +440,27 @@ def rectificationPeriod_auction_workflow(self):
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
     english = auctions[0]
 
-
     response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], english['id']),
                                    headers=self.access_header,
                                    params={'data': data['english']},
                                    status=403)
     self.assertEqual(response.status, '403 Forbidden')
     self.assertEqual(response.json['errors'][0]['description'], 'You can\'t change auctions after rectification period')
+
+
+    self.app.authorization = ('Basic', ('concierge', ''))
+    response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], english['id']),
+                                   headers=self.access_header,
+                                   params={'data': data['english']},
+                                   status=200)
+    self.assertEqual(response.status, '200 OK')
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+    response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], english['id']),
+                                   headers=self.access_header,
+                                   params={'data': data['english']},
+                                   status=200)
+    self.assertEqual(response.status, '200 OK')
 
 
 @unittest.skipIf(not SANDBOX_MODE, 'If sandbox mode is enabled auctionParameters has additional field procurementMethodDetails')

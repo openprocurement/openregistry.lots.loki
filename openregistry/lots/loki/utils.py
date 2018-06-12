@@ -69,3 +69,8 @@ def update_auctions(lot):
                 )
 
     insider.tenderingDuration = second_english.tenderingDuration
+
+
+def set_contracts_type(lot):
+    for c in lot['contracts']:
+        c.type = lot.lotType

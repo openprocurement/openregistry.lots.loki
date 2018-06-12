@@ -132,6 +132,12 @@ class Auction(Model):
         return role
 
 
+class Contract(Model):
+    contractID = StringType()
+    relatedProcessID = StringType()
+    type = StringType()
+
+
 @implementer(ILokiLot)
 class Lot(BaseLot):
     class Options:
@@ -150,6 +156,7 @@ class Lot(BaseLot):
     decisions = ListType(ModelType(LotDecision), default=list(), min_size=1, max_size=2, required=True)
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
     auctions = ListType(ModelType(Auction), default=list(), max_size=3)
+    contracts = ListType(ModelType(Contract), default=list(), )
     _internal_type = 'loki'
 
     def get_role(self):
@@ -163,6 +170,8 @@ class Lot(BaseLot):
             role = 'convoy'
         elif request.authenticated_role == 'chronograph':
             role = 'chronograph'
+        elif request.authenticated_role == 'caravan':
+            role = 'caravan'
         else:
             after_rectificationPeriod = bool(
                 request.context.rectificationPeriod and

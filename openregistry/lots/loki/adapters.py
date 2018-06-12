@@ -15,7 +15,8 @@ from openregistry.lots.core.utils import (
 )
 from openregistry.lots.loki.utils import (
     check_status,
-    update_auctions
+    update_auctions,
+    set_contracts_type
 )
 from .constants import (
     STATUS_CHANGES,
@@ -89,5 +90,10 @@ class LokiLotManagerAdapter(LotManagerAdapter):
             apply_patch(request, save=False, src=request.validated['lot_src'])
             check_status(request)
             save_lot(request)
+        elif request.authenticated_role == 'caravan':
+            apply_patch(request, save=False, src=request.validated['lot_src'])
+            set_contracts_type(request.validated['lot'])
+            save_lot(request)
+            request.validated['data'] = {}
         elif request.validated['data'].get('status') == 'pending' and not request.context.rectificationPeriod:
             self._set_rectificationPeriod(request)
