@@ -112,10 +112,10 @@ class Auction(Model):
                 context=lot,
                 working_days=True
             )
-            if min_auction_start_date.date() > period['startDate'].date():
+            if min_auction_start_date > period['startDate']:
                 raise ValidationError(
                     'startDate of auctionPeriod must be at least '
-                    'in {} days after endDate of rectificationPeriod'.format(DAYS_AFTER_RECTIFICATION_PERIOD)
+                    'in {} days after endDate of rectificationPeriod'.format(DAYS_AFTER_RECTIFICATION_PERIOD.days)
                 )
 
     def get_role(self):

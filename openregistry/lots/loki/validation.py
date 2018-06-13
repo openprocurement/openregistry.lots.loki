@@ -246,12 +246,12 @@ def validate_verification_status(request, error_handler):
         )
 
         auction_period = english.auctionPeriod
-        if auction_period and min_auction_start_date.date() > auction_period.startDate.date():
+        if auction_period and min_auction_start_date > auction_period.startDate:
             request.errors.add(
                 'body',
                 'mode',
                 'startDate of auctionPeriod must be '
-                'at least in {} days after today'.format(duration)
+                'at least in {} days after today'.format(duration.days)
             )
             request.errors.status = 422
             raise error_handler(request)

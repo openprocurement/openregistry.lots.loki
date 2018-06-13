@@ -179,7 +179,7 @@ def check_change_to_verification(self):
     self.assertEqual(
         response.json['errors'][0]['description'],
         'startDate of auctionPeriod must be at least '
-        'in {} days after today'.format(RECTIFICATION_PERIOD_DURATION + DAYS_AFTER_RECTIFICATION_PERIOD)
+        'in {} days after today'.format((RECTIFICATION_PERIOD_DURATION + DAYS_AFTER_RECTIFICATION_PERIOD).days)
     )
 
     response = self.app.patch_json(
@@ -404,7 +404,7 @@ def rectificationPeriod_workflow(self):
     self.assertEqual(
         response.json['errors'][0]['description'][0],
         'startDate of auctionPeriod must be '
-        'at least in {} days after endDate of rectificationPeriod'.format(DAYS_AFTER_RECTIFICATION_PERIOD)
+        'at least in {} days after endDate of rectificationPeriod'.format(DAYS_AFTER_RECTIFICATION_PERIOD.days)
     )
 
     rectificationPeriod = Period()

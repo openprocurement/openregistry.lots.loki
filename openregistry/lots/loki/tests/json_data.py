@@ -21,12 +21,12 @@ test_loki_document_data['documentOf'] = 'lot'
 
 auction_common = {
     'auctionPeriod': {
-        'startDate': calculate_business_date(
+        'startDate': (calculate_business_date(
             start=now,
             delta=DAYS_AFTER_RECTIFICATION_PERIOD + RECTIFICATION_PERIOD_DURATION,
             context=None,
             working_days=True
-        ).isoformat(),
+        ) + timedelta(minutes=5)).isoformat(),
     },
     'value': {
         'amount': 3000.87,
