@@ -14,7 +14,10 @@ from openregistry.lots.core.utils import (
 from openregistry.lots.core.validation import (
     validate_data
 )
-from openregistry.lots.loki.constants import DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION
+from openregistry.lots.loki.constants import (
+    DAYS_AFTER_RECTIFICATION_PERIOD,
+    RECTIFICATION_PERIOD_DURATION
+)
 
 
 def validate_document_data(request, **kwargs):
@@ -233,9 +236,11 @@ def validate_verification_status(request, error_handler):
             )
             request.errors.status = 422
 
+        duration = DAYS_AFTER_RECTIFICATION_PERIOD + RECTIFICATION_PERIOD_DURATION
+
         min_auction_start_date = calculate_business_date(
             start=get_now(),
-            delta=DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION,
+            delta=duration,
             context=english,
             working_days=True
         )
@@ -245,7 +250,7 @@ def validate_verification_status(request, error_handler):
                 'body',
                 'mode',
                 'startDate of auctionPeriod must be '
-                'at least in {} days after today'.format(DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION)
+                'at least in {} days after today'.format(duration)
             )
             request.errors.status = 422
             raise error_handler(request)

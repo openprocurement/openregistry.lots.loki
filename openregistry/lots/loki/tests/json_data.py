@@ -8,6 +8,11 @@ from openregistry.lots.core.tests.blanks.json_data import (
     test_document_data,
     test_item_data,
 )
+from openregistry.lots.loki.constants import (
+    DAYS_AFTER_RECTIFICATION_PERIOD,
+    RECTIFICATION_PERIOD_DURATION
+)
+
 
 now = get_now()
 test_loki_document_data = deepcopy(test_document_data)
@@ -17,11 +22,11 @@ test_loki_document_data['documentOf'] = 'lot'
 auction_common = {
     'auctionPeriod': {
         'startDate': calculate_business_date(
-            start=now + timedelta(days=3),
-            delta=timedelta(1),
+            start=now,
+            delta=DAYS_AFTER_RECTIFICATION_PERIOD + RECTIFICATION_PERIOD_DURATION,
             context=None,
             working_days=True
-        ).isoformat()
+        ).isoformat(),
     },
     'value': {
         'amount': 3000.87,
