@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from uuid import uuid4
-from datetime import timedelta
 from pyramid.security import Allow
 from schematics.types import StringType, IntType, MD5Type, FloatType
 from schematics.exceptions import ValidationError
@@ -42,7 +41,8 @@ from .constants import (
     LOT_STATUSES,
     AUCTION_STATUSES,
     AUCTION_DOCUMENT_TYPES,
-    DEFAULT_REGISTRATION_FEE
+    DEFAULT_REGISTRATION_FEE,
+    DAYS_AFTER_RECTIFICATION_PERIOD
 )
 from .roles import (
     lot_roles,
@@ -105,19 +105,18 @@ class Auction(Model):
 
     def validate_auctionPeriod(self, data, period):
         lot = get_lot(data['__parent__'])
-        if data['tenderAttempts'] == 1:
-            if lot.rectificationPeriod:
-                min_auction_start_date = calculate_business_date(
-                    start=lot.rectificationPeriod.endDate,
-                    delta=timedelta(2),
-                    context=None,
-                    working_days=True
+        if data['tenderAttempts'] == 1 and lot.rectificationPeriod:
+            min_auction_start_date = calculate_business_date(
+                start=lot.rectificationPeriod.endDate,
+                delta=DAYS_AFTER_RECTIFICATION_PERIOD,
+                context=self,
+                working_days=True
+            )
+            if min_auction_start_date.date() > period['startDate'].date():
+                raise ValidationError(
+                    'startDate of auctionPeriod must be at least '
+                    'in {} days after endDate of rectificationPeriod'.format(DAYS_AFTER_RECTIFICATION_PERIOD)
                 )
-                if min_auction_start_date.date() > period['startDate'].date():
-                    raise ValidationError(
-                        'startDate of auctionPeriod must be at least '
-                        'in two days after endDate of rectificationPeriod'
-                    )
 
     def get_role(self):
         root = self.__parent__.__parent__

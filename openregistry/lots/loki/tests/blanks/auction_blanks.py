@@ -88,7 +88,6 @@ def patch_auction_by_concierge(self):
         headers=self.access_header, params={
             'data': data['english']
             })
-    del data['english']['auctionPeriod']['endDate']
 
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
@@ -131,7 +130,6 @@ def patch_english_auction(self):
         headers=self.access_header, params={
             'data': data['english']
             })
-    del data['english']['auctionPeriod']['endDate']
 
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')

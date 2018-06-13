@@ -2,7 +2,7 @@
 from copy import deepcopy
 from datetime import timedelta
 
-from openregistry.lots.core.utils import get_now
+from openregistry.lots.core.utils import get_now, calculate_business_date
 
 from openregistry.lots.core.tests.blanks.json_data import (
     test_document_data,
@@ -16,8 +16,12 @@ test_loki_document_data['documentOf'] = 'lot'
 
 auction_common = {
     'auctionPeriod': {
-        'startDate': (now + timedelta(days=5)).isoformat(),
-        'endDate': (now + timedelta(days=10)).isoformat()
+        'startDate': calculate_business_date(
+            start=now + timedelta(days=3),
+            delta=timedelta(1),
+            context=None,
+            working_days=True
+        ).isoformat()
     },
     'value': {
         'amount': 3000.87,

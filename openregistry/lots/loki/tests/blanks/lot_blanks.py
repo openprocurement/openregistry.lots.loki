@@ -20,7 +20,9 @@ from openregistry.lots.loki.constants import (
     STATUS_CHANGES,
     LOT_STATUSES,
     DEFAULT_DUTCH_STEPS,
-    RECTIFICATION_PERIOD_DURATION
+    RECTIFICATION_PERIOD_DURATION,
+    DAYS_AFTER_RECTIFICATION_PERIOD,
+    DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION
 )
 from openregistry.lots.loki.tests.base import (
     create_single_lot,
@@ -177,7 +179,8 @@ def check_change_to_verification(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(
         response.json['errors'][0]['description'],
-        'startDate of auctionPeriod must be at least in three days after today'
+        'startDate of auctionPeriod must be at least '
+        'in {} days after today'.format(DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION)
     )
 
     response = self.app.patch_json(
@@ -401,7 +404,8 @@ def rectificationPeriod_workflow(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(
         response.json['errors'][0]['description'][0],
-        'startDate of auctionPeriod must be at least in two days after endDate of rectificationPeriod'
+        'startDate of auctionPeriod must be '
+        'at least in {} days after endDate of rectificationPeriod'.format(DAYS_AFTER_RECTIFICATION_PERIOD)
     )
 
     rectificationPeriod = Period()

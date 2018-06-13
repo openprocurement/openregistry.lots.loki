@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
 from openregistry.lots.core.utils import (
     update_logging_context,
     get_now,
@@ -15,6 +14,7 @@ from openregistry.lots.core.utils import (
 from openregistry.lots.core.validation import (
     validate_data
 )
+from openregistry.lots.loki.constants import DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION
 
 
 def validate_document_data(request, **kwargs):
@@ -235,8 +235,8 @@ def validate_verification_status(request, error_handler):
 
         min_auction_start_date = calculate_business_date(
             start=get_now(),
-            delta=timedelta(3),
-            context=None,
+            delta=DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION,
+            context=english,
             working_days=True
         )
         auction_period = english.auctionPeriod
@@ -244,7 +244,8 @@ def validate_verification_status(request, error_handler):
             request.errors.add(
                 'body',
                 'mode',
-                'startDate of auctionPeriod must be at least in three days after today'
+                'startDate of auctionPeriod must be '
+                'at least in {} days after today'.format(DAYS_AFTER_TODAY_WHEN_SETTING_VERIFICATION)
             )
             request.errors.status = 422
             raise error_handler(request)
