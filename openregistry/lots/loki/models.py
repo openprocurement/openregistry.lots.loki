@@ -109,7 +109,7 @@ class Auction(Model):
             min_auction_start_date = calculate_business_date(
                 start=lot.rectificationPeriod.endDate,
                 delta=DAYS_AFTER_RECTIFICATION_PERIOD,
-                context=self,
+                context=lot,
                 working_days=True
             )
             if min_auction_start_date.date() > period['startDate'].date():

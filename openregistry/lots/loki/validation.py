@@ -241,9 +241,10 @@ def validate_verification_status(request, error_handler):
         min_auction_start_date = calculate_business_date(
             start=get_now(),
             delta=duration,
-            context=english,
+            context=lot,
             working_days=True
         )
+
         auction_period = english.auctionPeriod
         if auction_period and min_auction_start_date.date() > auction_period.startDate.date():
             request.errors.add(
