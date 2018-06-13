@@ -48,7 +48,8 @@ from .roles import (
     lot_roles,
     auction_roles,
     decision_roles,
-    auction_period_roles
+    auction_period_roles,
+    contracts_roles
 )
 
 
@@ -132,6 +133,23 @@ class Auction(Model):
         return role
 
 
+class Contract(Model):
+    class Options:
+        roles = contracts_roles
+
+    id = StringType(required=True, min_length=1, default=lambda: uuid4().hex)
+    contractID = StringType()
+    relatedProcessID = StringType()
+    type = StringType()
+
+    def get_role(self):
+        root = self.__parent__.__parent__
+        request = root.request
+        if request.authenticated_role == 'caravan':
+            role = 'caravan'
+        return role
+
+
 @implementer(ILokiLot)
 class Lot(BaseLot):
     class Options:
@@ -150,6 +168,7 @@ class Lot(BaseLot):
     decisions = ListType(ModelType(LotDecision), default=list(), min_size=1, max_size=2, required=True)
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
     auctions = ListType(ModelType(Auction), default=list(), max_size=3)
+    contracts = ListType(ModelType(Contract), default=list())
     _internal_type = 'loki'
 
     def get_role(self):
@@ -163,6 +182,8 @@ class Lot(BaseLot):
             role = 'convoy'
         elif request.authenticated_role == 'chronograph':
             role = 'chronograph'
+        elif request.authenticated_role == 'caravan':
+            role = 'caravan'
         else:
             after_rectificationPeriod = bool(
                 request.context.rectificationPeriod and
@@ -188,6 +209,7 @@ class Lot(BaseLot):
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auctions'),
             (Allow, 'g:concierge', 'upload_lot_auctions'),
             (Allow, 'g:convoy', 'upload_lot_auctions'),
+            (Allow, 'g:caravan', 'upload_lot_contracts'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auction_documents'),
         ]
         return acl

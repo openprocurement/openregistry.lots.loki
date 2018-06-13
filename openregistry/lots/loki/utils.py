@@ -51,7 +51,7 @@ def update_auctions(lot):
     second_english = auctions[1]
     insider = auctions[2]
 
-    auto_calculated_fields = ['value', 'minimalStep', 'registrationFee', 'guarantee']
+    auto_calculated_fields = ['value', 'minimalStep', 'registrationFee', 'guarantee', 'bankAccount']
     auto_calculated_fields = filter(
         lambda f: getattr(english, f, None), auto_calculated_fields
     )
@@ -60,8 +60,8 @@ def update_auctions(lot):
         for key in auto_calculated_fields:
             object_class = getattr(lot.__class__.auctions.model_class, key)
             auction[key] = object_class(english[key].serialize())
-            if key == 'registrationFee':
-                auction[key]['amount'] = english[key]['amount']
+            if key in ['registrationFee', 'bankAccount']:
+                continue
             else:
                 auction[key]['amount'] = (
                     0 if key == 'minimalStep' and auction.procurementMethodType == 'sellout.insider'

@@ -3,15 +3,24 @@ import os
 from copy import deepcopy
 from uuid import uuid4
 
+from openregistry.lots.loki.utils import get_now
+from openregistry.lots.core.constants import (
+    SANDBOX_MODE,
+)
 from openregistry.lots.core.tests.base import (
     BaseLotWebTest as BaseLWT
 )
-from openregistry.lots.loki.utils import get_now
 from openregistry.lots.loki.tests.json_data import (
     test_loki_lot_data,
     auction_english_data,
     auction_second_english_data
 )
+
+DEFAULT_ACCELERATION = 1440
+
+
+if SANDBOX_MODE:
+    test_loki_lot_data['sandboxParameters'] = 'quick, accelerator={}'.format(DEFAULT_ACCELERATION)
 
 
 def add_decisions(self, lot):

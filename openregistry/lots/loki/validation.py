@@ -177,7 +177,7 @@ def rectificationPeriod_auction_validation(request, error_handler, **kwargs):
         request.validated['lot'].rectificationPeriod.endDate < get_now()
     )
 
-    if request.authenticated_role != 'convoy' and is_rectificationPeriod_finished:
+    if request.authenticated_role not in ['convoy', 'concierge'] and is_rectificationPeriod_finished:
         request.errors.add('body', 'mode', 'You can\'t change auctions after rectification period')
         request.errors.status = 403
         raise error_handler(request)
@@ -187,6 +187,13 @@ def validate_auction_data(request, error_handler, **kwargs):
     update_logging_context(request, {'auction_id': '__new__'})
     context = request.context if 'auctions' in request.context else request.context.__parent__
     model = type(context).auctions.model_class
+    validate_data(request, model)
+
+
+def validate_contracts_data(request, error_handler, **kwargs):
+    update_logging_context(request, {'auction_id': '__new__'})
+    context = request.context if 'auctions' in request.context else request.context.__parent__
+    model = type(context).contracts.model_class
     validate_data(request, model)
 
 
@@ -216,7 +223,7 @@ def validate_verification_status(request, error_handler):
         english = auctions[0]
         second_english = auctions[1]
 
-        required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee']
+        required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount']
         if not all(english[field] for field in required_fields):
             request.errors.add(
                 'body',

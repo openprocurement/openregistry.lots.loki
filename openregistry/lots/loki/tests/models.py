@@ -53,13 +53,23 @@ class DummyModelsTest(unittest.TestCase):
             account_details.serialize('test')
 
         account_details.import_data(data)
-        account_details.validate()
+        with self.assertRaises(ModelValidationError) as ex:
+            account_details.validate()
+        self.assertEqual(
+            ex.exception.messages,
+            {
+                'accountIdentification': [u'Please provide at least 1 item.'],
+                'bankName': [u'This field is required.']
+            }
+        )
+
         data['accountIdentification'] = [
             {
                 'scheme': 'wrong',
                 'id': '1231232'
             }
         ]
+        data['bankName'] = 'bankName'
         account_details.import_data(data)
         with self.assertRaises(ModelValidationError) as ex:
             account_details.validate()

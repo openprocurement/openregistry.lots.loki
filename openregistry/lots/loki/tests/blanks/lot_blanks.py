@@ -7,6 +7,9 @@ from isodate import parse_datetime
 from openregistry.lots.core.utils import get_now, calculate_business_date
 from openregistry.lots.core.models import Period
 from openregistry.lots.core.tests.base import create_blacklist
+from openregistry.lots.core.constants import (
+    SANDBOX_MODE,
+)
 
 from openregistry.lots.loki.models import Lot
 from openregistry.lots.loki.tests.json_data import (
@@ -24,7 +27,8 @@ from openregistry.lots.loki.tests.base import (
     check_patch_status_200,
     check_patch_status_403,
     add_decisions,
-    add_auctions
+    add_auctions,
+    DEFAULT_ACCELERATION
 )
 
 ROLES = ['lot_owner', 'Administrator', 'concierge', 'convoy', 'chronograph']
@@ -153,7 +157,7 @@ def check_change_to_verification(self):
     self.assertEqual(
         response.json['errors'][0]['description'],
         "Can\'t switch lot to verification status from composing until "
-        "these fields are empty ['value', 'minimalStep', 'auctionPeriod', 'guarantee'] within the auctions"
+        "these fields are empty ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount'] within the auctions"
     )
 
     response = self.app.patch_json(
@@ -366,7 +370,8 @@ def rectificationPeriod_workflow(self):
     self.assertIn('rectificationPeriod', response.json['data'])
     startDate = parse_datetime(response.json['data']['rectificationPeriod']['startDate'])
     endDate = parse_datetime(response.json['data']['rectificationPeriod']['endDate'])
-    self.assertEqual(endDate - startDate, RECTIFICATION_PERIOD_DURATION)
+    accelerator = DEFAULT_ACCELERATION if SANDBOX_MODE else 1
+    self.assertEqual(endDate - startDate, RECTIFICATION_PERIOD_DURATION/accelerator)
     self.assertEqual(response.json['data']['next_check'], response.json['data']['rectificationPeriod']['endDate'])
 
     response = self.app.get('/{}'.format(lot['id']))

@@ -3,10 +3,10 @@ from copy import deepcopy
 from datetime import timedelta
 
 from openregistry.lots.core.utils import get_now
+
 from openregistry.lots.core.tests.blanks.json_data import (
     test_document_data,
     test_item_data,
-    test_organization
 )
 
 now = get_now()
@@ -36,6 +36,16 @@ auction_common = {
     'registrationFee': {
         'amount': 700.87,
         'currency': 'UAH'
+    },
+    'bankAccount': {
+        'bankName': 'name of bank',
+        'accountIdentification': [
+            {
+                'scheme': 'accountNumber',
+                'id': '111111-8',
+                'description': 'some description'
+            }
+        ]
     }
 }
 auction_english_data = deepcopy(auction_common)
@@ -87,3 +97,8 @@ test_loki_item_data.update(
         ]
     }
 )
+
+test_lot_contract_data = {
+    'contractID': 'contractID',
+    'relatedProcessID': '1' * 32
+}
