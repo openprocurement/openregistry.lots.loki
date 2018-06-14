@@ -156,14 +156,73 @@ def check_change_to_verification(self):
     self.assertEqual(response.status, '422 Unprocessable Entity')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(
-        response.json['errors'][0]['description'],
-        "Can\'t switch lot to verification status from composing until "
-        "these fields are empty ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount'] within the auctions"
+        response.json['errors'][0]['name'],
+        'auctions'
+    )
+    self.assertEqual(
+        response.json['errors'][0]['description'][0],
+        {
+            'value': ['This field is required.'],
+            'minimalStep': ['This field is required.'],
+            'auctionPeriod': ['This field is required.'],
+            'guarantee': ['This field is required.'],
+            'bankAccount': ['This field is required.'],
+        }
+    )
+    self.assertEqual(
+        response.json['errors'][0]['description'][1],
+        {
+            'tenderingDuration': ['This field is required.'],
+        }
+    )
+
+    first_english_data_without_bankAccount = deepcopy(first_english_data)
+    del first_english_data_without_bankAccount['bankAccount']
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], english['id']),
+        params={'data': first_english_data_without_bankAccount}, headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
+    response = self.app.patch_json(
+        '/{}'.format(lot['id']),
+        {"data": {'status': 'verification'}},
+        status=422,
+        headers=access_header
+    )
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'][0]['description'][0],
+        {
+            'bankAccount': ['This field is required.']
+        }
     )
 
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], english['id']),
         params={'data': first_english_data}, headers=access_header)
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
+    # Check if all required fields are filled in second english auction
+    response = self.app.patch_json(
+        '/{}'.format(lot['id']),
+        {"data": {'status': 'verification'}},
+        status=422,
+        headers=access_header
+    )
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'][0]['description'][0],
+        {
+            'tenderingDuration': ['This field is required.'],
+        }
+    )
+    response = self.app.patch_json(
+        '/{}/auctions/{}'.format(lot['id'], second_english['id']),
+        params={'data': auction_second_english_data}, headers=access_header)
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
 
@@ -185,27 +244,6 @@ def check_change_to_verification(self):
     response = self.app.patch_json(
         '/{}/auctions/{}'.format(lot['id'], english['id']),
         params={'data': auction_english_data}, headers=access_header)
-    self.assertEqual(response.status, '200 OK')
-    self.assertEqual(response.content_type, 'application/json')
-
-    response = self.app.patch_json(
-        '/{}'.format(lot['id']),
-        {"data": {'status': 'verification'}},
-        status=422,
-        headers=access_header
-    )
-    # Check if all required fields are filled in second english auction
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(
-        response.json['errors'][0]['description'],
-        "Can\'t switch lot to verification status from composing until "
-        "these fields are empty ['tenderingDuration'] within the second (english) auction"
-    )
-
-    response = self.app.patch_json(
-        '/{}/auctions/{}'.format(lot['id'], second_english['id']),
-        params={'data': auction_second_english_data}, headers=access_header)
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
 

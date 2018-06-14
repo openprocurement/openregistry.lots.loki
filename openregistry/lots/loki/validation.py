@@ -226,15 +226,33 @@ def validate_verification_status(request, error_handler):
         english = auctions[0]
         second_english = auctions[1]
 
+        auction_error_message = {
+            'location': 'body',
+            'name': 'auctions',
+            'description': []
+        }
+
+        # Get errors from first auction
         required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount']
-        if not all(english[field] for field in required_fields):
-            request.errors.add(
-                'body',
-                'data',
-                'Can\'t switch lot to verification status from composing until '
-                'these fields are empty {} within the auctions'.format(required_fields)
-            )
+        empty_fields = [field for field in required_fields if not english[field]]
+
+        if empty_fields:
+            description = {field: ['This field is required.'] for field in empty_fields}
+            auction_error_message['description'].append(description)
+
+        # Get errors from second auction
+        required_fields = ['tenderingDuration']
+        empty_fields = [field for field in required_fields if not second_english[field]]
+
+        if empty_fields:
+            description = {field: ['This field is required.'] for field in empty_fields}
+            auction_error_message['description'].append(description)
+
+        # Raise errors from first and second auction
+        if auction_error_message['description']:
+            request.errors.add(**auction_error_message)
             request.errors.status = 422
+            raise error_handler(request)
 
         duration = DAYS_AFTER_RECTIFICATION_PERIOD + RECTIFICATION_PERIOD_DURATION
 
@@ -255,16 +273,6 @@ def validate_verification_status(request, error_handler):
             )
             request.errors.status = 422
             raise error_handler(request)
-
-        required_fields = ['tenderingDuration']
-        if not all(second_english[field] for field in required_fields):
-            request.errors.add(
-                'body',
-                'data',
-                'Can\'t switch lot to verification status from composing until '
-                'these fields are empty {} within the second (english) auction'.format(required_fields)
-            )
-            request.errors.status = 422
 
         if request.errors:
             raise error_handler(request)
