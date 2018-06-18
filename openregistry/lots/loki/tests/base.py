@@ -7,8 +7,11 @@ from openregistry.lots.loki.utils import get_now
 from openregistry.lots.core.constants import (
     SANDBOX_MODE,
 )
+from openregistry.lots.loki.tests.fixtures import PARTIAL_MOCK_CONFIG
 from openregistry.lots.core.tests.base import (
-    BaseLotWebTest as BaseLWT
+    connection_mock_config,
+    BaseLotWebTest as BaseLWT,
+    MOCK_CONFIG as BASE_MOCK_CONFIG
 )
 from openregistry.lots.loki.tests.json_data import (
     test_loki_lot_data,
@@ -115,9 +118,15 @@ def create_single_lot(self, data, status=None):
     return response
 
 
+MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG,
+                                     base=BASE_MOCK_CONFIG,
+                                     connector=('plugins', 'api', 'plugins',
+                                                'lots.core', 'plugins'))
+
 class BaseLotWebTest(BaseLWT):
     initial_auth = ('Basic', ('broker', ''))
     relative_to = os.path.dirname(__file__)
+    mock_config = MOCK_CONFIG
 
     def setUp(self):
         self.initial_data = deepcopy(test_loki_lot_data)
@@ -128,3 +137,4 @@ class BaseLotWebTest(BaseLWT):
 class LotContentWebTest(BaseLotWebTest):
     init = True
     initial_status = 'pending'
+    mock_config = MOCK_CONFIG
