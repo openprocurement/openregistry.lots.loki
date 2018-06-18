@@ -103,6 +103,16 @@ class Auction(Model):
     if SANDBOX_MODE:
         procurementMethodDetails = StringType()
 
+    def validate_minimalStep(self, data, value):
+        if value and value.amount and data.get('value'):
+            if data.get('value').amount < value.amount:
+                raise ValidationError(u"value should be less than value of auction")
+            if data.get('value').currency != value.currency:
+                raise ValidationError(u"currency should be identical to currency of value of auction")
+            if data.get('value').valueAddedTaxIncluded != value.valueAddedTaxIncluded:
+                raise ValidationError(
+                    u"valueAddedTaxIncluded should be identical to valueAddedTaxIncluded of value of auction")
+
     def validate_auctionPeriod(self, data, period):
         lot = get_lot(data['__parent__'])
         if data['tenderAttempts'] == 1 and lot.rectificationPeriod:
