@@ -124,6 +124,53 @@ class DummyModelsTest(unittest.TestCase):
         auction.import_data(data)
         auction.validate()
 
+        data['minimalStep']['amount'] = data['value']['amount'] + 100
+        data['minimalStep']['valueAddedTaxIncluded'] = True
+        data['value']['valueAddedTaxIncluded'] = False
+        auction.import_data(data)
+        with self.assertRaises(ModelValidationError) as ex:
+            auction.validate()
+        self.assertEqual(
+            ex.exception.messages,
+            {
+                'minimalStep': [
+                    'value should be less than value of auction'
+                ]
+            }
+        )
+
+        data['minimalStep']['amount'] = data['value']['amount'] / 3
+        data['minimalStep']['valueAddedTaxIncluded'] = True
+        data['value']['valueAddedTaxIncluded'] = False
+        auction.import_data(data)
+        with self.assertRaises(ModelValidationError) as ex:
+            auction.validate()
+        self.assertEqual(
+            ex.exception.messages,
+            {
+                'minimalStep': [
+                    'valueAddedTaxIncluded should be identical to valueAddedTaxIncluded of value of auction'
+                ]
+            }
+        )
+        data['minimalStep']['valueAddedTaxIncluded'] = data['value']['valueAddedTaxIncluded']
+
+        data['minimalStep']['currency'] = 'USD'
+        Auction.minimalStep.model_class.currency.choices = ['UAH', 'USD']
+        auction = Auction()
+        auction.import_data(data)
+        with self.assertRaises(ModelValidationError) as ex:
+            auction.validate()
+        self.assertEqual(
+            ex.exception.messages,
+            {
+                'minimalStep': [
+                    'currency should be identical to currency of value of auction'
+                ]
+            }
+        )
+
+        data['minimalStep']['currency'] = data['value']['currency']
         data['auctionParameters'] = {'dutchSteps': 0, 'type': 'insider'}
         auction.import_data(data)
         with self.assertRaises(ModelValidationError) as ex:
