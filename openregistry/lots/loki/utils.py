@@ -30,10 +30,18 @@ def process_convoy_auction_report_result(request):
         LOGGER.info('Switched lot %s to %s', lot.id, 'pending.dissolution',
                     extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_pending.dissolution'}))
         lot.status = 'pending.dissolution'
+        for auction in lot.auctions[request.validated['auction'].tenderAttempts:]:
+            auction.status = 'cancelled'
     elif lot.status == 'active.auction' and request.validated['auction'].status == 'unsuccessful':
         LOGGER.info('Switched lot %s to %s', lot.id, 'active.salable',
                     extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.salable'}))
         lot.status = 'active.salable'
+    elif lot.status == 'active.auction' and request.validated['auction'].status == 'complete':
+        LOGGER.info('Switched lot %s to %s', lot.id, 'active.contracting',
+                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_lot_active.contracting'}))
+        lot.status = 'active.contracting'
+        for auction in lot.auctions[request.validated['auction'].tenderAttempts:]:
+            auction.status = 'cancelled'
 
 
 def process_concierge_auction_status_change(request):
