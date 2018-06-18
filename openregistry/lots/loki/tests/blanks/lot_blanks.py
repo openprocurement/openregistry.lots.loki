@@ -1631,6 +1631,12 @@ def check_auction_status_lot_workflow(self):
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'active.salable')
+    auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+
+    self.assertEqual(auctions[0]['status'], 'unsuccessful')
+    self.assertEqual(auctions[1]['status'], 'scheduled')
+    self.assertEqual(auctions[2]['status'], 'scheduled')
+
 
     # Create new lot in 'active.auction' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1648,6 +1654,11 @@ def check_auction_status_lot_workflow(self):
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'pending.dissolution')
+    auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+
+    self.assertEqual(auctions[0]['status'], 'cancelled')
+    self.assertEqual(auctions[1]['status'], 'cancelled')
+    self.assertEqual(auctions[2]['status'], 'cancelled')
 
     # Create new lot in 'active.auction' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1677,6 +1688,11 @@ def check_auction_status_lot_workflow(self):
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'pending.dissolution')
+    auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+
+    self.assertEqual(auctions[0]['status'], 'unsuccessful')
+    self.assertEqual(auctions[1]['status'], 'unsuccessful')
+    self.assertEqual(auctions[2]['status'], 'unsuccessful')
 
     # Create new lot in 'active.salable' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1693,3 +1709,24 @@ def check_auction_status_lot_workflow(self):
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'active.auction')
+
+    # Create new lot in 'active.auction' status and patch to complete
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.auction')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.auction')
+    auctions = sorted(lot['auctions'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+    response = self.app.patch_json('/{}/auctions/{}'.format(lot['id'], english['id']),
+                                   params={'data': {'status': 'complete'}})
+    self.assertEqual(response.json['data']['status'], 'complete')
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['status'], 'active.contracting')
+    auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+
+    self.assertEqual(auctions[0]['status'], 'complete')
+    self.assertEqual(auctions[1]['status'], 'cancelled')
+    self.assertEqual(auctions[2]['status'], 'cancelled')
