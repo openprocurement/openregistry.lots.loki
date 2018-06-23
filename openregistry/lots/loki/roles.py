@@ -80,7 +80,9 @@ decision_roles = {
 
 contracts_roles = {
     'view': (schematics_default_role + blacklist()),
-    'caravan': blacklist('id', 'type')
+    'create': blacklist('id', 'type'),
+    'caravan': blacklist('id', 'type'),
+    'convoy': blacklist('id', 'type'),
 }
 
 

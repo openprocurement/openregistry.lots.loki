@@ -156,6 +156,8 @@ class Contract(Model):
         request = root.request
         if request.authenticated_role == 'caravan':
             role = 'caravan'
+        elif request.authenticated_role == 'convoy':
+            role = 'convoy'
         return role
 
 
@@ -219,6 +221,7 @@ class Lot(BaseLot):
             (Allow, 'g:concierge', 'upload_lot_auctions'),
             (Allow, 'g:convoy', 'upload_lot_auctions'),
             (Allow, 'g:caravan', 'upload_lot_contracts'),
+            (Allow, 'g:convoy', 'upload_lot_contracts'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auction_documents'),
         ]
         return acl

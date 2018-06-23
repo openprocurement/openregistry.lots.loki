@@ -80,15 +80,9 @@ class LokiLotManagerAdapter(LotManagerAdapter):
             lot.auctions.append(auction_class(data))
         update_auctions(lot)
 
-    def _create_contracts(self, request):
-        lot = request.validated['lot']
-        contract_class = lot.__class__.contracts.model_class
-        lot.contracts.append(contract_class({'type': lot.lotType}))
-
     def create_lot(self, request):
         self._validate(request, self.create_validation)
         self._create_auctions(request)
-        self._create_contracts(request)
 
     def change_lot(self, request):
         self._validate(request, self.change_validation)

@@ -2,27 +2,41 @@
 from openregistry.lots.loki.tests.base import create_single_lot, check_patch_status_200
 
 
-def patch_contracts(self):
+def patch_contracts(self, auth_role):
+    patch_contract_data = {
+        'contractID': 'patchedContractID',
+        'relatedProcessID': '2' * 32,
+        'type': 'wrong'
+    }
+
     response = self.app.get('/{}'.format(self.resource_id))
     lot_type = response.json['data']['lotType']
 
     response = self.app.get('/{}/contracts'.format(self.resource_id))
     contracts = response.json['data']
-    contract = contracts[0]
-    contract_id = contract['id']
-    self.assertEqual(len(contracts), 1)
-    self.assertEqual(contract['type'], lot_type)
+    self.assertEqual(len(contracts), 0)
 
-    self.app.authorization = ('Basic', ('caravan', ''))
-    response = self.app.patch_json('/{}/contracts/{}'.format(self.resource_id, contract_id),
-        headers=self.access_header, params={
-            "data": self.initial_contract_data})
+    self.app.authorization = ('Basic', (auth_role, ''))
+
+    response = self.app.post_json(
+        '/{}/contracts'.format(self.resource_id),
+        params={'data': self.initial_contract_data}
+    )
+    self.assertEqual(response.json['data']['contractID'], self.initial_contract_data['contractID'])
+    self.assertEqual(response.json['data']['relatedProcessID'], self.initial_contract_data['relatedProcessID'])
+    self.assertEqual(response.json['data']['type'], lot_type)
+    contract_id = response.json['data']['id']
+
+    response = self.app.patch_json(
+        '/{}/contracts/{}'.format(self.resource_id, contract_id),
+        params={"data": patch_contract_data}
+    )
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(contract_id, response.json["data"]["id"])
     self.assertEqual(response.json["data"]["type"], lot_type)
-    self.assertEqual(response.json["data"]["contractID"], self.initial_contract_data['contractID'])
-    self.assertEqual(response.json["data"]["relatedProcessID"], self.initial_contract_data['relatedProcessID'])
+    self.assertEqual(response.json["data"]["contractID"], patch_contract_data['contractID'])
+    self.assertEqual(response.json["data"]["relatedProcessID"], patch_contract_data['relatedProcessID'])
 
     response = self.app.patch_json('/{}/contracts/{}'.format(self.resource_id, contract_id),
         headers=self.access_header, params={
@@ -50,7 +64,7 @@ def patch_contracts(self):
     self.assertEqual(response.status, '403 Forbidden')
 
     # Invalid patch
-    self.app.authorization = ('Basic', ('caravan', ''))
+    self.app.authorization = ('Basic', (auth_role, ''))
     response = self.app.patch_json(
         '/{}/contracts/{}'.format(self.resource_id, contract_id),
         headers=self.access_header,
@@ -71,6 +85,18 @@ def patch_contracts_with_lot(self):
     lot = response.json['data']
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+    contract_post_data = {
+    }
+
+    response = self.app.post_json(
+        '/{}/contracts'.format(lot['id']),
+        params={'data': contract_post_data}
+    )
+    self.assertIsNotNone(response.json['data'].get('id'))
+
+    self.app.authorization = ('Basic', ('broker', ''))
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
@@ -129,3 +155,53 @@ def patch_contracts_with_lot(self):
     self.assertEqual(contract['type'], lot['lotType'])
     self.assertNotIn('contractID', contract)
     self.assertNotIn('relatedProcessID', contract)
+
+
+def create_contract_by_convoy(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    self.assertNotIn('contracts', response.json['data'])
+    lot_type = response.json['data']['lotType']
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+    contract_post_data = {
+        'contractID': 'contractID',
+        'relatedProcessID': '1' * 32,
+        'type': 'wrong'
+    }
+
+    response = self.app.post_json(
+        '/{}/contracts'.format(self.resource_id),
+        params={'data': contract_post_data}
+    )
+    self.assertEqual(response.json['data']['contractID'], contract_post_data['contractID'])
+    self.assertEqual(response.json['data']['relatedProcessID'], contract_post_data['relatedProcessID'])
+    self.assertEqual(response.json['data']['type'], lot_type)
+
+
+def create_contract_by_caravan(self):
+    response = self.app.get('/{}'.format(self.resource_id))
+    self.assertNotIn('contracts', response.json['data'])
+    lot_type = response.json['data']['lotType']
+
+    self.app.authorization = ('Basic', ('caravan', ''))
+    contract_post_data = {
+        'contractID': 'contractID',
+        'relatedProcessID': '1' * 32,
+        'type': 'wrong'
+    }
+
+    response = self.app.post_json(
+        '/{}/contracts'.format(self.resource_id),
+        params={'data': contract_post_data}
+    )
+    self.assertEqual(response.json['data']['contractID'], contract_post_data['contractID'])
+    self.assertEqual(response.json['data']['relatedProcessID'], contract_post_data['relatedProcessID'])
+    self.assertEqual(response.json['data']['type'], lot_type)
+
+
+def patch_contract_by_convoy(self):
+    patch_contracts(self, 'convoy')
+
+
+def patch_contract_by_caravan(self):
+    patch_contracts(self, 'caravan')

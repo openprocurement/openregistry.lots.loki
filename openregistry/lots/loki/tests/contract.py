@@ -9,16 +9,22 @@ from openregistry.lots.loki.tests.base import (
 )
 from openregistry.lots.loki.tests.json_data import test_lot_contract_data
 from openregistry.lots.loki.tests.blanks.contract_blanks import (
-    patch_contracts,
-    patch_contracts_with_lot
+    patch_contract_by_caravan,
+    patch_contract_by_convoy,
+    patch_contracts_with_lot,
+    create_contract_by_caravan,
+    create_contract_by_convoy
 )
 
 
 class LotAuctionResourceTest(LotContentWebTest):
     initial_contract_data = deepcopy(test_lot_contract_data)
 
-    test_patch_contracts = snitch(patch_contracts)
     test_patch_contracts_with_lot = snitch(patch_contracts_with_lot)
+    test_patch_contract_by_caravan = snitch(patch_contract_by_caravan)
+    test_patch_contract_by_convoy = snitch(patch_contract_by_convoy)
+    test_create_contract_by_caravan = snitch(create_contract_by_caravan)
+    test_create_contract_by_convoy = snitch(create_contract_by_convoy)
 
 
 def suite():
