@@ -193,7 +193,14 @@ def validate_auction_data(request, error_handler, **kwargs):
     validate_data(request, model)
 
 
-def validate_contracts_data(request, error_handler, **kwargs):
+def validate_contract_data(request, error_handler, **kwargs):
+    update_logging_context(request, {'auction_id': '__new__'})
+    context = request.context if 'auctions' in request.context else request.context.__parent__
+    model = type(context).contracts.model_class
+    validate_data(request, model, 'contract')
+
+
+def validate_patch_contract_data(request, error_handler, **kwargs):
     update_logging_context(request, {'auction_id': '__new__'})
     context = request.context if 'auctions' in request.context else request.context.__parent__
     model = type(context).contracts.model_class
