@@ -7,6 +7,9 @@ from openregistry.lots.core.utils import (
 from openregistry.lots.core.utils import (
     oplotsresource, apply_patch, save_lot
 )
+from openregistry.lots.loki.utils import (
+    process_caravan_contract_report_result
+)
 from openregistry.lots.loki.validation import (
     validate_contracts_data,
 )
@@ -38,6 +41,8 @@ class LotContractResource(APIResource):
     def patch(self):
         """Lot Contract Update"""
         apply_patch(self.request, save=False, src=self.request.context.serialize())
+        if self.request.authenticated_role == 'caravan':
+            process_caravan_contract_report_result(self.request)
         if save_lot(self.request):
             self.LOGGER.info(
                 'Updated lot contract {}'.format(self.request.context.id),
