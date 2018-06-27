@@ -110,40 +110,45 @@ def rectificationPeriod_item_validation(request, error_handler, **kwargs):
 
 
 # Decision validation
-def validate_decision_post(request, error_handler):
-    if len(request.validated['lot'].decisions) > 1:
+def validate_decision_post(request, error_handler, **kwargs):
+    update_logging_context(request, {'decision_id': '__new__'})
+    context = request.context if 'decisions' in request.context else request.context.__parent__
+    model = type(context).decisions.model_class
+    validate_data(request, model, "decision")
+
+
+def validate_decision_patch_data(request, error_handler, **kwargs):
+    update_logging_context(request, {'decision_id': '__new__'})
+    context = request.context if 'decisions' in request.context else request.context.__parent__
+    model = type(context).decisions.model_class
+    validate_data(request, model)
+
+
+def validate_decision_by_decisionOf(request, error_handler, **kwargs):
+    decision = request.validated['decision']
+    if decision.decisionOf != 'lot':
+        request.errors.add(
+            'body',
+            'mode',
+            'Can edit only decisions which have decisionOf equal to \'lot\'.'
+        )
+        request.errors.status = 403
+        raise error_handler(request)
+
+
+def validate_decision_after_rectificationPeriod(request, error_handler, **kwargs):
+    if bool(request.validated['lot'].rectificationPeriod and
+            request.validated['lot'].rectificationPeriod.endDate < get_now()):
+        request.errors.add('body', 'mode', 'You can\'t change or add decisions after rectification period')
+        request.errors.status = 403
+        raise error_handler(request)
+
+
+def validate_decision_update_in_not_allowed_status(request, error_handler, **kwargs):
+    status = request.validated['lot_status']
+    if status not in ['pending', 'composing']:
         raise_operation_error(request, error_handler,
-                              'Can\'t add more than one decisions to lot')
-
-
-
-def validate_decision_patch(request, error_handler):
-    # Validate second decision because second decision come from asset and can be changed
-    is_decisions_available = bool(
-        len(request.context.decisions) == 2 or
-        len(request.json['data'].get('decisions', [])) == 2
-    )
-    if request.json['data'].get('status') == 'pending' and not is_decisions_available:
-        raise_operation_error(
-            request,
-            error_handler,
-            'Can\'t switch to pending while decisions not available.'
-        )
-
-    is_asset_decision_patched_wrong = bool(
-        len(request.context.decisions) < 2 or
-        (
-            request.json['data'].get('decisions') and (
-                len(request.json['data']['decisions']) < 2 or
-                request.context.decisions[1].serialize() != request.json['data']['decisions'][1]
-            )
-        )
-    )
-    if request.context.status == 'pending' and is_asset_decision_patched_wrong:
-        raise_operation_error(
-            request,
-            error_handler,
-            'Can\'t update decision that was created from asset')
+                              'Can\'t update decisions in current ({}) lot status'.format(status))
 
 
 # Auction validation
@@ -216,6 +221,15 @@ def validate_contracts_data(request, error_handler, **kwargs):
 # Lot validation
 def validate_verification_status(request, error_handler):
     if request.validated['data'].get('status') == 'verification' and request.context.status == 'composing':
+        # Decision validation
+        if not any(decision.decisionOf == 'lot' for decision in request.context.decisions):
+            raise_operation_error(
+                        request,
+                        error_handler,
+                        'Can\'t switch to verification while lot decisions not available.'
+                    )
+
+        # Auction validation
         lot = request.validated['lot']
         auctions = sorted(lot.auctions, key=lambda a: a.tenderAttempts)
         english = auctions[0]
@@ -274,6 +288,8 @@ def validate_verification_status(request, error_handler):
 
 
 def validate_deleted_status(request, error_handler):
+    # Moving lot.status to 'deleted' is allowed only when at least one of lot.documents
+    # have documentOf = 'cancellationDetails'
     can_be_deleted = any([doc.documentType == 'cancellationDetails' for doc in request.context['documents']])
     if request.json['data'].get('status') == 'pending.deleted' and not can_be_deleted:
         request.errors.add(
@@ -283,3 +299,14 @@ def validate_deleted_status(request, error_handler):
             "only when lot have at least one document with \'cancellationDetails\' documentType")
         request.errors.status = 403
         raise error_handler(request)
+
+
+def validate_pending_status(request, error_handler):
+    # Check if at least one decision with type = 'asset' is available in lot.decisions
+    is_decisions_available = any(decision.decisionOf == 'asset' for decision in request.context.decisions)
+    if request.json['data'].get('status') == 'pending' and not is_decisions_available:
+        raise_operation_error(
+            request,
+            error_handler,
+            'Can\'t switch to pending while decisions not available.'
+        )
