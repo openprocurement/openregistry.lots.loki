@@ -15,7 +15,7 @@ from openregistry.lots.loki.tests.blanks.contract_blanks import (
 )
 
 
-class LotAuctionResourceTest(LotContentWebTest):
+class LotContractResourceTest(LotContentWebTest):
     initial_contract_data = deepcopy(test_lot_contract_data)
 
     test_patch_contracts_by_convoy = snitch(patch_contracts_by_convoy)
@@ -25,7 +25,7 @@ class LotAuctionResourceTest(LotContentWebTest):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(LotAuctionResourceTest))
+    suite.addTest(unittest.makeSuite(LotContractResourceTest))
     return suite
 
 

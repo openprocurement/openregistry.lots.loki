@@ -76,11 +76,11 @@ test_loki_lot_data = {
     "title": u"Тестовий лот",
     "description": u"Щось там тестове",
     "lotType": "loki",
-    "assets": [],
-    "decisions": [{
-        'decisionDate': get_now().isoformat(),
-        'decisionID': 'decisionLotID'
-    }]
+    "assets": []
+}
+test_decision_data = {
+    'decisionID': 'someDecisionID',
+    'decisionDate': get_now().isoformat()
 }
 
 test_loki_item_data = deepcopy(test_item_data)

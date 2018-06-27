@@ -1,4 +1,6 @@
  # -*- coding: utf-8 -*-
+import unittest
+
 from copy import deepcopy
 from uuid import uuid4
 from datetime import timedelta
@@ -29,6 +31,7 @@ from openregistry.lots.loki.tests.base import (
     check_patch_status_403,
     add_decisions,
     add_auctions,
+    add_lot_decision,
     DEFAULT_ACCELERATION
 )
 
@@ -145,6 +148,7 @@ def check_change_to_verification(self):
 
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
 
     response = self.app.patch_json(
         '/{}'.format(lot['id']),
@@ -249,26 +253,8 @@ def check_change_to_verification(self):
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
-
-def check_decisions(self):
+    # Check when decisions not available
     self.app.authorization = ('Basic', ('broker', ''))
-
-    data_with_two_decisions = deepcopy(self.initial_data)
-    data_with_two_decisions['decisions'].append({
-        'decisionDate': get_now().isoformat(),
-        'decisionID': 'secondDecisionID'
-    })
-    response = self.app.post_json(
-        '/',
-        params={'data': data_with_two_decisions},
-        status=403
-    )
-    self.assertEqual(response.status, '403 Forbidden')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(
-        response.json['errors'][0]['description'],
-        'Can\'t add more than one decisions to lot'
-    )
 
     response = create_single_lot(self, self.initial_data)
     lot = response.json['data']
@@ -277,8 +263,19 @@ def check_decisions(self):
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
     add_auctions(self, lot, access_header)
+    response = self.app.patch_json(
+        '/{}'.format(lot['id']),
+        {"data": {'status': 'verification'}},
+        status=403,
+        headers=access_header
+    )
+    self.assertEqual(response.status, '403 Forbidden')
+    self.assertEqual(
+        response.json['errors'][0]['description'],
+        'Can\'t switch to verification while lot decisions not available.'
+    )
+    lot = add_lot_decision(self, lot['id'], access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
-
 
     self.app.authorization = ('Basic', ('concierge', ''))
 
@@ -294,91 +291,6 @@ def check_decisions(self):
         response.json['errors'][0]['description'],
         'Can\'t switch to pending while decisions not available.'
     )
-
-    asset_decision = {
-            'decisionDate': get_now().isoformat(),
-            'decisionID': 'decisionAssetID',
-            'decisionOf': 'asset',
-            'relatedItem': '1' * 32
-        }
-    data_with_decisions = {
-        "decisions": [
-            lot['decisions'][0],
-            asset_decision
-        ],
-        'status': 'pending'
-    }
-    response = self.app.patch_json('/{}'.format(lot['id']), params={'data': data_with_decisions})
-    self.assertEqual(response.status, '200 OK')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['data']['status'], 'pending')
-    self.assertEqual(response.json['data']['decisions'], data_with_decisions['decisions'])
-
-    self.app.authorization = ('Basic', ('broker', ''))
-    lot_data_with_decisions = {
-        "decisions": [{
-            'decisionDate': get_now().isoformat(),
-            'decisionID': 'decisionLotID'
-        }, {
-            'decisionDate': get_now().isoformat(),
-            'decisionID': 'wrong'
-        }
-        ]
-    }
-
-    response = self.app.patch_json(
-        '/{}'.format(lot['id']),
-        headers=access_header,
-        params={'data': lot_data_with_decisions},
-        status=403
-    )
-    self.assertEqual(response.status, '403 Forbidden')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(
-        response.json['errors'][0]['description'],
-        'Can\'t update decision that was created from asset'
-    )
-
-    lot_data_with_decisions = {
-        "decisions": []
-    }
-
-    response = self.app.patch_json(
-        '/{}'.format(lot['id']),
-        headers=access_header,
-        params={'data': lot_data_with_decisions},
-        status=[200, 403]
-    )
-
-    lot_data_with_decisions = {
-        "decisions": deepcopy(data_with_decisions['decisions'])
-    }
-    del lot_data_with_decisions['decisions'][1]
-    response = self.app.patch_json(
-        '/{}'.format(lot['id']),
-        headers=access_header,
-        params={'data': lot_data_with_decisions},
-        status=403
-    )
-    self.assertEqual(response.status, '403 Forbidden')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(
-        response.json['errors'][0]['description'],
-        'Can\'t update decision that was created from asset'
-    )
-
-    lot_data_with_decisions['decisions'] = deepcopy(data_with_decisions['decisions'])
-    lot_data_with_decisions['decisions'][0]['relatedItem'] = '1' * 32
-    response = self.app.patch_json(
-        '/{}'.format(lot['id']),
-        headers=access_header,
-        params={'data': lot_data_with_decisions},
-    )
-    self.assertEqual(response.status, '200 OK')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertNotIn('relatedItem', response.json['data']['decisions'][0])
-    del lot_data_with_decisions['decisions'][0]['relatedItem']
-    self.assertEqual(response.json['data']['decisions'], lot_data_with_decisions['decisions'])
 
 
 def rectificationPeriod_workflow(self):
@@ -396,6 +308,7 @@ def rectificationPeriod_workflow(self):
     self.assertNotIn('rectificationPeriod', response.json['data'])
     self.assertNotIn('next_check', response.json['data'])
 
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     response = self.app.patch_json('/{}'.format(lot['id']),
                                    headers=access_header,
@@ -595,6 +508,7 @@ def simple_patch(self):
     self.assertEqual(response.json['data'], lot)
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -765,6 +679,7 @@ def change_composing_lot(self):
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
     # Move from 'verification' to 'composing' status
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -802,6 +717,7 @@ def change_composing_lot(self):
 
 
     self.app.authorization = ('Basic', ('broker', ''))
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
 
 
@@ -855,6 +771,7 @@ def change_verification_lot(self):
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
     # Move from 'composing' to 'verification' status
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -878,6 +795,7 @@ def change_verification_lot(self):
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -892,6 +810,7 @@ def change_verification_lot(self):
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -932,6 +851,7 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'pending' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -973,6 +893,7 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -1042,6 +963,7 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -1085,6 +1007,7 @@ def change_deleted_lot(self):
 
     # Move from 'draft' to 'composing'
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    lot = add_lot_decision(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -1548,10 +1471,13 @@ def change_pending_deleted_lot(self):
     lot_info = self.initial_data
 
     # Create new lot in 'pending.deleted' status
-    json = create_single_lot(self, lot_info, 'verification')
+    json = create_single_lot(self, lot_info, 'composing')
     lot = json['data']
     token = json['access']['token']
     access_header = {'X-Access-Token': str(token)}
+    lot = add_lot_decision(self, lot['id'], access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
@@ -1570,10 +1496,13 @@ def change_pending_deleted_lot(self):
 
     # Create new lot in 'pending.deleted' status
     self.app.authorization = ('Basic', ('broker', ''))
-    json = create_single_lot(self, lot_info, 'verification')
+    json = create_single_lot(self, lot_info, 'composing')
     lot = json['data']
     token = json['access']['token']
     access_header = {'X-Access-Token': str(token)}
+    lot = add_lot_decision(self, lot['id'], access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')

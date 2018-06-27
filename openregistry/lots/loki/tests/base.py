@@ -30,7 +30,8 @@ def add_decisions(self, lot):
     asset_decision = {
             'decisionDate': get_now().isoformat(),
             'decisionID': 'decisionAssetID',
-            'decisionOf': 'asset'
+            'decisionOf': 'asset',
+            'relatedItem': '1' * 32
         }
     data_with_decisions = {
         "decisions": [
@@ -41,7 +42,20 @@ def add_decisions(self, lot):
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['decisions'][0]['decisionOf'], 'lot')
-    self.assertEqual(response.json['data']['decisions'], data_with_decisions['decisions'])
+    self.assertEqual(response.json['data']['decisions'][0]['id'], data_with_decisions['decisions'][0]['id'])
+    self.assertEqual(response.json['data']['decisions'][0]['decisionID'], data_with_decisions['decisions'][0]['decisionID'])
+    self.assertNotIn('relatedItem', response.json['data']['decisions'][0])
+
+    self.assertEqual(response.json['data']['decisions'][1]['decisionOf'], 'asset')
+    self.assertIsNotNone(response.json['data']['decisions'][1].get('id'))
+    self.assertEqual(
+        response.json['data']['decisions'][1]['decisionID'],
+        data_with_decisions['decisions'][1]['decisionID']
+    )
+    self.assertEqual(
+        response.json['data']['decisions'][1]['relatedItem'],
+        data_with_decisions['decisions'][1]['relatedItem']
+    )
 
 
 def add_auctions(self, lot, access_header):
@@ -61,7 +75,6 @@ def add_auctions(self, lot, access_header):
         params={'data': auction_second_english_data}, headers=access_header)
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
-
 
 
 def check_patch_status_200(self, path, lot_status, headers=None):
@@ -87,13 +100,11 @@ def check_patch_status_403(self, path, lot_status, headers=None):
 
 
 def create_single_lot(self, data, status=None):
-    data['decisions'][0]['relatedItem'] = '1' * 32
     response = self.app.post_json('/', {"data": data})
     self.assertEqual(response.status, '201 Created')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'draft')
-    self.assertEqual(response.json['data']['decisions'][0]['decisionOf'], 'lot')
-    self.assertNotIn('relatedItem', response.json['data']['decisions'][0])
+    self.assertNotIn('decisions', response.json['data'])
     self.assertEqual(len(response.json['data']['auctions']), 3)
     token = response.json['access']['token']
     lot_id = response.json['data']['id']
@@ -118,10 +129,39 @@ def create_single_lot(self, data, status=None):
     return response
 
 
+def add_lot_decision(self, lot_id, headers):
+    old_authorization = self.app.authorization
+    self.app.authorization = ('Basic', ('broker', ''))
+
+    response = self.app.get('/{}'.format(lot_id))
+    old_decs_count = len(response.json['data'].get('decisions', []))
+
+    decision_data = {
+        'decisionDate': get_now().isoformat(),
+        'decisionID': 'decisionLotID'
+    }
+    response = self.app.post_json(
+        '/{}/decisions'.format(lot_id),
+        {"data": decision_data},
+        headers=headers
+    )
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(response.json['data']['decisionDate'], decision_data['decisionDate'])
+    self.assertEqual(response.json['data']['decisionID'], decision_data['decisionID'])
+
+    response = self.app.get('/{}'.format(lot_id))
+    present_decs_count = len(response.json['data'].get('decisions', []))
+    self.assertEqual(old_decs_count + 1, present_decs_count)
+
+    self.app.authorization = old_authorization
+    return response.json['data']
+
+
 MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG,
                                      base=BASE_MOCK_CONFIG,
                                      connector=('plugins', 'api', 'plugins',
                                                 'lots.core', 'plugins'))
+
 
 class BaseLotWebTest(BaseLWT):
     initial_auth = ('Basic', ('broker', ''))
