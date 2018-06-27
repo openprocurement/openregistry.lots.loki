@@ -77,6 +77,15 @@ class LotDecision(Decision):
         roles = decision_roles
     decisionOf = StringType(choices=['lot', 'asset'], default='lot')
 
+    def get_role(self):
+        root = self.__parent__.__parent__
+        request = root.request
+        if request.validated['lot'].status in ['composing', 'pending']:
+            role = 'edit'
+        else:
+            role = 'not_edit'
+        return role
+
 
 class Auction(Model):
     class Options:
@@ -176,7 +185,7 @@ class Lot(BaseLot):
     officialRegistrationID = StringType(serialize_when_none=False)
     items = ListType(ModelType(Item), default=list(), validators=[validate_items_uniq])
     documents = ListType(ModelType(Document), default=list())
-    decisions = ListType(ModelType(LotDecision), default=list(), min_size=1, max_size=2, required=True)
+    decisions = ListType(ModelType(LotDecision), default=list())
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
     auctions = ListType(ModelType(Auction), default=list(), max_size=3)
     contracts = ListType(ModelType(Contract), default=list())
@@ -218,6 +227,7 @@ class Lot(BaseLot):
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_documents'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_items'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auctions'),
+            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_decisions'),
             (Allow, 'g:concierge', 'upload_lot_auctions'),
             (Allow, 'g:convoy', 'upload_lot_auctions'),
             (Allow, 'g:convoy', 'upload_lot_contracts'),
