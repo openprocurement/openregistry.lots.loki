@@ -24,8 +24,7 @@ from .constants import (
     DEFAULT_DUTCH_STEPS
 )
 from .validation import (
-    validate_decision_post,
-    validate_decision_patch,
+    validate_pending_status,
     validate_deleted_status,
     validate_verification_status,
 )
@@ -43,10 +42,9 @@ class LokiLotManagerAdapter(LotManagerAdapter):
     name = 'Loki Lot Manager'
     create_validation = (
         validate_post_lot_role,
-        validate_decision_post,
     )
     change_validation = (
-        validate_decision_patch,
+        validate_pending_status,
         validate_deleted_status,
         validate_verification_status,
     )
