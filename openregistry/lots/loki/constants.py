@@ -3,6 +3,7 @@ from datetime import timedelta
 
 
 AUCTION_STATUSES = ['scheduled', 'active', 'complete',  'unsuccessful', 'cancelled']
+CONTRACT_STATUSES = ['scheduled', 'cancelled', 'active', 'unsuccessful', 'complete']
 
 LOT_STATUSES = [
     "draft", "composing", "verification",  "pending", "pending.deleted", "deleted", "active.salable",

@@ -1561,10 +1561,12 @@ def check_auction_status_lot_workflow(self):
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'active.salable')
     auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+    contract = response.json['data']['contracts'][0]
 
     self.assertEqual(auctions[0]['status'], 'unsuccessful')
     self.assertEqual(auctions[1]['status'], 'scheduled')
     self.assertEqual(auctions[2]['status'], 'scheduled')
+    self.assertEqual(contract['status'], 'scheduled')
 
 
     # Create new lot in 'active.auction' status
@@ -1584,10 +1586,12 @@ def check_auction_status_lot_workflow(self):
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'pending.dissolution')
     auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+    contract = response.json['data']['contracts'][0]
 
     self.assertEqual(auctions[0]['status'], 'cancelled')
     self.assertEqual(auctions[1]['status'], 'cancelled')
     self.assertEqual(auctions[2]['status'], 'cancelled')
+    self.assertEqual(contract['status'], 'cancelled')
 
     # Create new lot in 'active.auction' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1618,10 +1622,12 @@ def check_auction_status_lot_workflow(self):
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.json['data']['status'], 'pending.dissolution')
     auctions = sorted(response.json['data']['auctions'], key=lambda a: a['tenderAttempts'])
+    contract = response.json['data']['contracts'][0]
 
     self.assertEqual(auctions[0]['status'], 'unsuccessful')
     self.assertEqual(auctions[1]['status'], 'unsuccessful')
     self.assertEqual(auctions[2]['status'], 'unsuccessful')
+    self.assertEqual(contract['status'], 'cancelled')
 
     # Create new lot in 'active.salable' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1659,3 +1665,49 @@ def check_auction_status_lot_workflow(self):
     self.assertEqual(auctions[0]['status'], 'complete')
     self.assertEqual(auctions[1]['status'], 'cancelled')
     self.assertEqual(auctions[2]['status'], 'cancelled')
+
+
+def check_contract_status_workflow(self):
+    response = self.app.get('/')
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(len(response.json['data']), 0)
+
+    lot_info = self.initial_data
+
+    # Create new lot in 'active.contracting' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.contracting')
+    lot = json['data']
+    contract_id = lot['contracts'][0]['id']
+    self.assertEqual(lot['status'], 'active.contracting')
+
+    self.app.authorization = ('Basic', ('caravan', ''))
+    response = self.app.patch_json('/{}/contracts/{}'.format(lot['id'], contract_id),
+                                   params={'data': {'status': 'unsuccessful'}})
+
+    self.assertEqual(response.json['data']['status'], 'unsuccessful')
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['status'], 'pending.dissolution')
+
+    contract = response.json['data']['contracts'][0]
+    self.assertEqual(contract['status'], 'unsuccessful')
+
+    # Create new lot in 'active.contracting' status
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.contracting')
+    lot = json['data']
+    contract_id = lot['contracts'][0]['id']
+    self.assertEqual(lot['status'], 'active.contracting')
+
+    self.app.authorization = ('Basic', ('caravan', ''))
+    response = self.app.patch_json('/{}/contracts/{}'.format(lot['id'], contract_id),
+                                   params={'data': {'status': 'complete'}})
+
+    self.assertEqual(response.json['data']['status'], 'complete')
+
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['status'], 'pending.sold')
+
+    contract = response.json['data']['contracts'][0]
+    self.assertEqual(contract['status'], 'complete')

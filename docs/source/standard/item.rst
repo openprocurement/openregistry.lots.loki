@@ -33,6 +33,8 @@ Schema
     It is required for `classification.scheme` to be `CPV` or `CAV-PS`. The
     `classification.id` should be valid CPV or CAV-PS code.
 
+    The CPV & CAV-PS codes accuracy should be equal to the class (XXXX0000-Y) at least.
+
 :additionalClassifications:
     List of :ref:`Classification` objects, optional
 

@@ -12,6 +12,7 @@ def patch_contracts_by(self, role):
     contract_id = contract['id']
     self.assertEqual(len(contracts), 1)
     self.assertEqual(contract['type'], lot_type)
+    self.assertEqual(contract['status'], 'scheduled')
 
     self.app.authorization = ('Basic', (role, ''))
     response = self.app.patch_json('/{}/contracts/{}'.format(self.resource_id, contract_id),
@@ -38,6 +39,20 @@ def patch_contracts_by(self, role):
     self.assertEqual(contract['type'], lot_type)
     self.assertEqual(contract['id'], contract_id)
 
+    # Patch status
+    response = self.app.patch_json('/{}/contracts/{}'.format(self.resource_id, contract_id),
+        headers=self.access_header, params={
+            "data": {'status': 'active'}})
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data']['status'], 'active')
+
+    response = self.app.get('/{}/contracts'.format(self.resource_id))
+    contracts = response.json['data']
+    contract = contracts[0]
+    self.assertEqual(contract['status'], 'active')
+
+    # Patch by broker
     self.app.authorization = ('Basic', ('broker', ''))
     response = self.app.patch_json(
         '/{}/contracts/{}'.format(self.resource_id, contract_id),

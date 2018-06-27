@@ -22,6 +22,16 @@ Schema
    |ocdsDescription|
    LotID is included to make the flattened data structure more convenient.
 
+:owner:  
+    string, auto-generated, read-only
+
+    The entity whom the lot is owned by.
+
+:date:
+    string, auto-generated, read-only
+    
+    The date of lot creation/undoing.
+
 :title:
     string, multilingual, required
     
@@ -34,11 +44,6 @@ Schema
     A description of the goods, services to be provided.
     
     Initial data originates from `asset.description`.
-   
-:date:
-    string, auto-generated, read-only
-    
-    The date of lot creation/undoing.
     
 :dateModified:    
     string, auto-generated, read-only
@@ -108,7 +113,7 @@ Schema
 .. _period:    
 
 Period
-=======    
+======
 
 Schema
 ------
@@ -183,4 +188,17 @@ Schema
 :decisionID:
     string, required
 
-    The decision identifier to refer to in the `paper` documentation. 
+    The decision identifier to refer to in the `paper` documentation.
+
+:decisionOf:
+    string, required
+
+    Possible values are:
+
+    * `lot`
+    * `asset`
+
+:relatedItem:
+    string, optional
+
+    ID of related asset.

@@ -37,14 +37,15 @@ from openregistry.lots.core.utils import (
     calculate_business_date
 )
 
-from .constants import (
+from openregistry.lots.loki.constants import (
     LOT_STATUSES,
     AUCTION_STATUSES,
     AUCTION_DOCUMENT_TYPES,
     DEFAULT_REGISTRATION_FEE,
-    DAYS_AFTER_RECTIFICATION_PERIOD
+    DAYS_AFTER_RECTIFICATION_PERIOD,
+    CONTRACT_STATUSES
 )
-from .roles import (
+from openregistry.lots.loki.roles import (
     lot_roles,
     auction_roles,
     decision_roles,
@@ -156,6 +157,7 @@ class Contract(Model):
         roles = contracts_roles
 
     id = StringType(required=True, min_length=1, default=lambda: uuid4().hex)
+    status = StringType(choices=CONTRACT_STATUSES, default='scheduled')
     contractID = StringType()
     relatedProcessID = StringType()
     type = StringType()

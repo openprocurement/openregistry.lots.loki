@@ -1,7 +1,7 @@
 .. . Kicking page rebuild 2014-10-30 17:00:08
 .. include:: defs.hrst
 
-.. index:: Auction, Duration, Value, Guarantee, auctionParameters, Bank Account
+.. index:: Auction, Duration, Value, Guarantee, auctionParameters, Bank Account, Сontracts
 
 .. _auction:
 
@@ -45,6 +45,11 @@ Schema
 
   * `quick(mode:no-auction)`; 
   * `quick(mode:fast-forward)`.
+
+:sandboxParameters:
+  string, optional
+
+  Parameter that accelerates lot periods. Set quick, accelerator=1440 as text value for `sandboxParameters` for the time frames to be reduced in 1440 times.
 
 :auctionPeriod:
   :ref:`period`, required
@@ -95,7 +100,7 @@ Schema
   Ogranizator can optionally set value for the 3rd auction within the `lots.auctions` structure.
 
 :bankAccount:
-  :ref:`bankAccount`, optional
+  :ref:`bankAccount`, required
 
   Details which uniquely identify a bank account, and are used when making or receiving a payment.
 
@@ -118,7 +123,17 @@ Schema
   * `cancelled` - the process has been cancelled;  
 
   * `unsuccessful` - the process has been unsuccessful.
-  
+
+:contracts:
+  Array of :ref:`contracts`, auto-generated, read-only
+
+  Information of the related contract.
+
+:relatedProcessID:
+  string, required
+
+  Internal id of the auction.
+
 .. _auctionParameters:
 
 Auction Parameters
@@ -200,6 +215,9 @@ Schema
 Bank Account
 ============
 
+Schema
+------
+
 :description:
   string, multilingual, optional
     
@@ -220,3 +238,32 @@ Bank Account
   * `UA-EDR`; 
   * `UA-MFO`;
   * `accountNumber`.
+
+.. _contracts:
+
+Сontracts
+=========
+
+All of the fields within are auto-generated & read-only
+
+Schema
+------
+
+:type:
+  string, required, auto-generated, read-only
+
+  Type of the contract. The only value is `yoke`.
+
+:contractID:
+  string, required, auto-generated, read-only
+
+  The contract identifier to refer to in “paper” documentation.
+
+  Added as long as the contract is being created within the Module of Contracting.
+
+:relatedProcessID:
+  string, required, auto-generated, read-only
+
+  Internal identifier of the object within the Module of Contracting.
+
+  Added as long as the contract is being created within the Module of Contracting.
