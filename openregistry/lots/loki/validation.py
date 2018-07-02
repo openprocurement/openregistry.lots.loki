@@ -110,20 +110,6 @@ def rectificationPeriod_item_validation(request, error_handler, **kwargs):
 
 
 # Decision validation
-def validate_decision_post(request, error_handler, **kwargs):
-    update_logging_context(request, {'decision_id': '__new__'})
-    context = request.context if 'decisions' in request.context else request.context.__parent__
-    model = type(context).decisions.model_class
-    validate_data(request, model, "decision")
-
-
-def validate_decision_patch_data(request, error_handler, **kwargs):
-    update_logging_context(request, {'decision_id': '__new__'})
-    context = request.context if 'decisions' in request.context else request.context.__parent__
-    model = type(context).decisions.model_class
-    validate_data(request, model)
-
-
 def validate_decision_by_decisionOf(request, error_handler, **kwargs):
     decision = request.validated['decision']
     if decision.decisionOf != 'lot':
@@ -134,21 +120,6 @@ def validate_decision_by_decisionOf(request, error_handler, **kwargs):
         )
         request.errors.status = 403
         raise error_handler(request)
-
-
-def validate_decision_after_rectificationPeriod(request, error_handler, **kwargs):
-    if bool(request.validated['lot'].rectificationPeriod and
-            request.validated['lot'].rectificationPeriod.endDate < get_now()):
-        request.errors.add('body', 'mode', 'You can\'t change or add decisions after rectification period')
-        request.errors.status = 403
-        raise error_handler(request)
-
-
-def validate_decision_update_in_not_allowed_status(request, error_handler, **kwargs):
-    status = request.validated['lot_status']
-    if status not in ['pending', 'composing']:
-        raise_operation_error(request, error_handler,
-                              'Can\'t update decisions in current ({}) lot status'.format(status))
 
 
 # Auction validation

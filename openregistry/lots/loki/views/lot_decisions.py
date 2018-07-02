@@ -8,12 +8,14 @@ from openregistry.lots.core.utils import (
 from openregistry.lots.core.utils import (
     save_lot, oplotsresource, apply_patch,
 )
-from openregistry.lots.loki.validation import (
+from openregistry.lots.core.validation import (
     validate_decision_post,
     validate_decision_after_rectificationPeriod,
     validate_decision_patch_data,
-    validate_decision_by_decisionOf,
     validate_decision_update_in_not_allowed_status
+)
+from openregistry.lots.loki.validation import (
+    validate_decision_by_decisionOf
 )
 
 post_validators = (
