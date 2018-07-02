@@ -21,7 +21,8 @@ from .constants import (
     STATUS_CHANGES,
     RECTIFICATION_PERIOD_DURATION,
     ITEM_EDITING_STATUSES,
-    DEFAULT_DUTCH_STEPS
+    DEFAULT_DUTCH_STEPS,
+    DECISION_EDITING_STATUSES
 )
 from .validation import (
     validate_pending_status,
@@ -36,6 +37,7 @@ class LokiLotConfigurator(LotConfigurator):
     name = "Loki Lot configurator"
     available_statuses = STATUS_CHANGES
     item_editing_allowed_statuses = ITEM_EDITING_STATUSES
+    decision_editing_allowed_statuses = DECISION_EDITING_STATUSES
 
 
 class LokiLotManagerAdapter(LotManagerAdapter):
