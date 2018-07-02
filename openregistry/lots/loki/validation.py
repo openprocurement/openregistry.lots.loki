@@ -190,6 +190,39 @@ def validate_contracts_data(request, error_handler, **kwargs):
 
 
 # Lot validation
+def get_fields_errors(required_fields, auction):
+    empty_fields = [field for field in required_fields if not auction[field]]
+
+    err_msg = []
+    if empty_fields:
+        description = {field: ['This field is required.'] for field in empty_fields}
+        err_msg.append(description)
+
+    return err_msg
+
+
+def get_auction_validation_result(lot):
+    auctions = sorted(lot.auctions, key=lambda a: a.tenderAttempts)
+    english = auctions[0]
+    second_english = auctions[1]
+
+    auction_error_message = {
+        'location': 'body',
+        'name': 'auctions',
+        'description': []
+    }
+
+    # Get errors from first auction
+    required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount']
+    auction_error_message['description'].extend(get_fields_errors(required_fields, english))
+
+    # Get errors from second auction
+    required_fields = ['tenderingDuration']
+    auction_error_message['description'].extend(get_fields_errors(required_fields, second_english))
+
+    return auction_error_message
+
+
 def validate_verification_status(request, error_handler):
     if request.validated['data'].get('status') == 'verification' and request.context.status == 'composing':
         # Decision validation
@@ -204,29 +237,8 @@ def validate_verification_status(request, error_handler):
         lot = request.validated['lot']
         auctions = sorted(lot.auctions, key=lambda a: a.tenderAttempts)
         english = auctions[0]
-        second_english = auctions[1]
 
-        auction_error_message = {
-            'location': 'body',
-            'name': 'auctions',
-            'description': []
-        }
-
-        # Get errors from first auction
-        required_fields = ['value', 'minimalStep', 'auctionPeriod', 'guarantee', 'bankAccount']
-        empty_fields = [field for field in required_fields if not english[field]]
-
-        if empty_fields:
-            description = {field: ['This field is required.'] for field in empty_fields}
-            auction_error_message['description'].append(description)
-
-        # Get errors from second auction
-        required_fields = ['tenderingDuration']
-        empty_fields = [field for field in required_fields if not second_english[field]]
-
-        if empty_fields:
-            description = {field: ['This field is required.'] for field in empty_fields}
-            auction_error_message['description'].append(description)
+        auction_error_message = get_auction_validation_result(lot)
 
         # Raise errors from first and second auction
         if auction_error_message['description']:
