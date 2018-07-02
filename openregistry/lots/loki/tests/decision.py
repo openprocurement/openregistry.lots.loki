@@ -12,7 +12,9 @@ from openregistry.lots.loki.tests.blanks.decision_blanks import (
     create_decision,
     patch_decision,
     patch_decisions_with_lot_by_broker,
-    patch_decisions_with_lot_by_concierge
+    patch_decisions_with_lot_by_concierge,
+    rectificationPeriod_decision_workflow,
+    create_or_patch_decision_in_not_allowed_status
 )
 
 
@@ -23,6 +25,8 @@ class LotDecisionResourceTest(LotContentWebTest):
     test_patch_decision = snitch(patch_decision)
     test_patch_decisions_with_lot_by_broker = snitch(patch_decisions_with_lot_by_broker)
     test_patch_decisions_with_lot_by_concierge = snitch(patch_decisions_with_lot_by_concierge)
+    test_rectificationPeriod_decision_workflow = snitch(rectificationPeriod_decision_workflow)
+    test_create_or_patch_decision_in_not_allowed_status = snitch(create_or_patch_decision_in_not_allowed_status)
 
 
 def suite():
