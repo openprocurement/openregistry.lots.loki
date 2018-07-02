@@ -286,8 +286,15 @@ def validate_deleted_status(request, error_handler):
 
 def validate_pending_status(request, error_handler):
     # Check if at least one decision with type = 'asset' is available in lot.decisions
-    is_decisions_available = any(decision.decisionOf == 'asset' for decision in request.context.decisions)
-    if request.json['data'].get('status') == 'pending' and not is_decisions_available:
+    # or patching to pending status is going with decisions
+    is_decisions_in_context = any(
+        decision.decisionOf == 'asset' for decision in request.context.decisions
+    )
+    is_decision_in_data = any(
+        decision['decisionOf'] == 'asset' for decision in request.validated['data'].get('decisions', [])
+    )
+
+    if request.json['data'].get('status') == 'pending' and not (is_decision_in_data or is_decisions_in_context):
         raise_operation_error(
             request,
             error_handler,
