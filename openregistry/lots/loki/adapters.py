@@ -21,7 +21,8 @@ from .constants import (
     STATUS_CHANGES,
     RECTIFICATION_PERIOD_DURATION,
     ITEM_EDITING_STATUSES,
-    DEFAULT_DUTCH_STEPS
+    DEFAULT_DUTCH_STEPS,
+    CONTRACT_TYPE
 )
 from .validation import (
     validate_decision_post,
@@ -83,7 +84,7 @@ class LokiLotManagerAdapter(LotManagerAdapter):
     def _create_contracts(self, request):
         lot = request.validated['lot']
         contract_class = lot.__class__.contracts.model_class
-        lot.contracts.append(contract_class({'type': lot.lotType}))
+        lot.contracts.append(contract_class({'type': CONTRACT_TYPE}))
 
     def create_lot(self, request):
         self._validate(request, self.create_validation)
