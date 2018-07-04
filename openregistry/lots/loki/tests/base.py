@@ -63,7 +63,6 @@ def add_auctions(self, lot, access_header):
     self.assertEqual(response.content_type, 'application/json')
 
 
-
 def check_patch_status_200(self, path, lot_status, headers=None):
     response = self.app.patch_json(path,
                                    headers=headers,

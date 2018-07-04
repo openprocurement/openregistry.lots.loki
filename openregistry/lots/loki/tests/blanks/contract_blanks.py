@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
+from openregistry.lots.loki.constants import (
+    CONTRACT_TYPE
+)
+
 from openregistry.lots.loki.tests.base import create_single_lot, check_patch_status_200
 
 
 def patch_contracts_by(self, role):
-    response = self.app.get('/{}'.format(self.resource_id))
-    lot_type = response.json['data']['lotType']
-
     response = self.app.get('/{}/contracts'.format(self.resource_id))
     contracts = response.json['data']
     contract = contracts[0]
     contract_id = contract['id']
     self.assertEqual(len(contracts), 1)
-    self.assertEqual(contract['type'], lot_type)
+    self.assertEqual(contract['type'], CONTRACT_TYPE)
     self.assertEqual(contract['status'], 'scheduled')
 
     self.app.authorization = ('Basic', (role, ''))
@@ -21,7 +22,7 @@ def patch_contracts_by(self, role):
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(contract_id, response.json["data"]["id"])
-    self.assertEqual(response.json["data"]["type"], lot_type)
+    self.assertEqual(response.json["data"]["type"], CONTRACT_TYPE)
     self.assertEqual(response.json["data"]["contractID"], self.initial_contract_data['contractID'])
     self.assertEqual(response.json["data"]["relatedProcessID"], self.initial_contract_data['relatedProcessID'])
 
@@ -36,7 +37,7 @@ def patch_contracts_by(self, role):
     contracts = response.json['data']
     contract = contracts[0]
     self.assertEqual(len(contracts), 1)
-    self.assertEqual(contract['type'], lot_type)
+    self.assertEqual(contract['type'], CONTRACT_TYPE)
     self.assertEqual(contract['id'], contract_id)
 
     # Patch status
@@ -119,7 +120,7 @@ def patch_contracts_with_lot(self):
     contracts = response.json['data']['contracts']
     contract = contracts[0]
     self.assertEqual(len(contracts), 1)
-    self.assertEqual(contract['type'], lot['lotType'])
+    self.assertEqual(contract['type'], CONTRACT_TYPE)
     self.assertNotIn('contractID', contract)
     self.assertNotIn('relatedProcessID', contract)
 
@@ -149,6 +150,6 @@ def patch_contracts_with_lot(self):
     contracts = response.json['data']['contracts']
     contract = contracts[0]
     self.assertEqual(len(contracts), 1)
-    self.assertEqual(contract['type'], lot['lotType'])
+    self.assertEqual(contract['type'], CONTRACT_TYPE)
     self.assertNotIn('contractID', contract)
     self.assertNotIn('relatedProcessID', contract)
