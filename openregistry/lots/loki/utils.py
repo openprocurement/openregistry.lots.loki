@@ -57,6 +57,14 @@ def process_concierge_auction_status_change(request):
         lot.status = 'active.auction'
 
 
+def process_lot_status_change(request):
+    lot = request.context
+
+    if lot.status == 'pending.deleted' and request.validated['data'].get('status') == 'deleted':
+        for auction in lot.auctions:
+            auction.status = 'cancelled'
+
+
 def process_caravan_contract_report_result(request):
     lot = request.validated['lot']
     contract = request.validated['contract']

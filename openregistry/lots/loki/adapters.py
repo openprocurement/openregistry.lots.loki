@@ -15,7 +15,8 @@ from openregistry.lots.core.utils import (
 )
 from openregistry.lots.loki.utils import (
     check_status,
-    update_auctions
+    update_auctions,
+    process_lot_status_change
 )
 from .constants import (
     STATUS_CHANGES,
@@ -99,3 +100,7 @@ class LokiLotManagerAdapter(LotManagerAdapter):
             save_lot(request)
         elif request.validated['data'].get('status') == 'pending' and not request.context.rectificationPeriod:
             self._set_rectificationPeriod(request)
+
+        if request.authenticated_role in ('concierge', 'Administrator'):
+            process_lot_status_change(request)
+            request.validated['lot_src'] = self.context.serialize('plain')
