@@ -1567,6 +1567,10 @@ def change_pending_deleted_lot(self):
 
     self.app.authorization = ('Basic', ('concierge', ''))
     check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted')
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['auctions'][0]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][1]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][2]['status'], 'cancelled')
 
     # Create new lot in 'pending.deleted' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1593,6 +1597,10 @@ def change_pending_deleted_lot(self):
 
     self.app.authorization = ('Basic', ('administrator', ''))
     check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted')
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['auctions'][0]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][1]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][2]['status'], 'cancelled')
 
     # Create new lot in 'pending.deleted' status
     self.app.authorization = ('Basic', ('broker', ''))
