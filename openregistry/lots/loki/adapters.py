@@ -22,7 +22,8 @@ from .constants import (
     RECTIFICATION_PERIOD_DURATION,
     ITEM_EDITING_STATUSES,
     DEFAULT_DUTCH_STEPS,
-    CONTRACT_TYPE
+    CONTRACT_TYPE,
+    PLATFORM_LEGAL_DETAILS_DOC_DATA
 )
 from .validation import (
     validate_decision_post,
@@ -86,10 +87,18 @@ class LokiLotManagerAdapter(LotManagerAdapter):
         contract_class = lot.__class__.contracts.model_class
         lot.contracts.append(contract_class({'type': CONTRACT_TYPE}))
 
+    def _add_x_PlatformLegalDetails_document(self, request):
+        lot = request.validated['lot']
+        document_class = lot.__class__.documents.model_class
+        document = document_class(PLATFORM_LEGAL_DETAILS_DOC_DATA)
+        document.author = 'Administrator'
+        lot.documents.append(document)
+
     def create_lot(self, request):
         self._validate(request, self.create_validation)
         self._create_auctions(request)
         self._create_contracts(request)
+        self._add_x_PlatformLegalDetails_document(request)
 
     def change_lot(self, request):
         self._validate(request, self.change_validation)
