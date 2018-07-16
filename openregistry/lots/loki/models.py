@@ -43,7 +43,8 @@ from openregistry.lots.loki.constants import (
     AUCTION_DOCUMENT_TYPES,
     DEFAULT_REGISTRATION_FEE,
     DAYS_AFTER_RECTIFICATION_PERIOD,
-    CONTRACT_STATUSES
+    CONTRACT_STATUSES,
+    LOT_DOCUMENT_TYPES
 )
 from openregistry.lots.loki.roles import (
     lot_roles,
@@ -67,6 +68,10 @@ class StartDateRequiredPeriod(Period):
 class AuctionDocument(Document):
     documentType = StringType(choices=AUCTION_DOCUMENT_TYPES, required=True)
     documentOf = StringType(choices=['auction'])
+
+
+class LotDocument(Document):
+    documentType = StringType(choices=LOT_DOCUMENT_TYPES, required=True)
 
 
 class RegistrationFee(Guarantee):
@@ -177,7 +182,7 @@ class Lot(BaseLot):
     lotHolder = ModelType(AssetHolder, serialize_when_none=False)
     officialRegistrationID = StringType(serialize_when_none=False)
     items = ListType(ModelType(Item), default=list(), validators=[validate_items_uniq])
-    documents = ListType(ModelType(Document), default=list())
+    documents = ListType(ModelType(LotDocument), default=list())
     decisions = ListType(ModelType(LotDecision), default=list(), min_size=1, max_size=2, required=True)
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
     auctions = ListType(ModelType(Auction), default=list(), max_size=3)
