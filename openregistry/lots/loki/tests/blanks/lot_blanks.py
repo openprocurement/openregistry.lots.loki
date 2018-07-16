@@ -21,7 +21,8 @@ from openregistry.lots.loki.constants import (
     LOT_STATUSES,
     DEFAULT_DUTCH_STEPS,
     RECTIFICATION_PERIOD_DURATION,
-    DAYS_AFTER_RECTIFICATION_PERIOD
+    DAYS_AFTER_RECTIFICATION_PERIOD,
+    PLATFORM_LEGAL_DETAILS_DOC_DATA
 )
 from openregistry.lots.loki.tests.base import (
     create_single_lot,
@@ -1782,3 +1783,39 @@ def check_contract_status_workflow(self):
 
     contract = response.json['data']['contracts'][0]
     self.assertEqual(contract['status'], 'complete')
+
+
+def adding_platformLegalDetails_doc(self):
+    response = self.app.post_json('/', {'data': self.initial_data})
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(len(response.json['data']['documents']), 1)
+    document = response.json['data']['documents'][0]
+    self.assertEqual(document['title'], PLATFORM_LEGAL_DETAILS_DOC_DATA['title'])
+    self.assertEqual(document['url'], PLATFORM_LEGAL_DETAILS_DOC_DATA['url'])
+    self.assertEqual(document['documentOf'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentOf'])
+    self.assertEqual(document['documentType'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentType'])
+    self.assertIsNotNone(document.get('id'))
+
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+
+    lot_id = response.json['data']['id']
+    doc_id = document['id']
+
+    response = self.app.get('/{}/documents/{}'.format(lot_id, doc_id))
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.json['data']['title'], PLATFORM_LEGAL_DETAILS_DOC_DATA['title'])
+    self.assertEqual(response.json['data']['url'], PLATFORM_LEGAL_DETAILS_DOC_DATA['url'])
+    self.assertEqual(response.json['data']['documentOf'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentOf'])
+    self.assertEqual(response.json['data']['documentType'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentType'])
+
+    check_patch_status_200(self, '/{}'.format(lot_id), 'composing', access_header)
+
+    response = self.app.patch_json(
+        '/{}/documents/{}'.format(lot_id, doc_id),
+        params={'data': {'title': 'another'}},
+        status=403,
+        headers=access_header
+    )
+    self.assertEqual(response.status, '403 Forbidden')
+    self.assertEqual(response.json['errors'][0]['description'], 'Can update document only author')

@@ -8,25 +8,26 @@ from openregistry.lots.core.tests.blanks.document import (
     create_document_in_forbidden_resource_status,
     put_resource_document_invalid,
     create_resource_document_error,
-    create_resource_document_json,
     create_resource_document_json_invalid,
-    put_resource_document_json
 )
 
 from openregistry.lots.loki.tests.base import (
     LotContentWebTest
 )
 from openregistry.lots.loki.tests.json_data import test_loki_document_data
-from openregistry.lots.core.constants import LOKI_DOCUMENT_TYPES
+from openregistry.lots.loki.constants import LOT_DOCUMENT_TYPES
 from openregistry.lots.loki.tests.blanks.document_blanks import (
+    create_resource_document_json,
+    put_resource_document_json,
     patch_resource_document,
     model_validation,
     rectificationPeriod_document_workflow
 )
 
+
 class LotDocumentWithDSResourceTest(LotContentWebTest):
     docservice = True
-    document_types = LOKI_DOCUMENT_TYPES
+    document_types = LOT_DOCUMENT_TYPES
     initial_status = 'composing'
 
     test_01_not_found = snitch(not_found)
