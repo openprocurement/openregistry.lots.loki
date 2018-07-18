@@ -92,7 +92,6 @@ class LokiLotManagerAdapter(LotManagerAdapter):
         lot = request.validated['lot']
         document_class = lot.__class__.documents.model_class
         document = document_class(PLATFORM_LEGAL_DETAILS_DOC_DATA)
-        document.author = 'Administrator'
         lot.documents.append(document)
 
     def create_lot(self, request):

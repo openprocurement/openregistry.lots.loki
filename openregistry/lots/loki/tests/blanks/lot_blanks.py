@@ -1823,8 +1823,7 @@ def adding_platformLegalDetails_doc(self):
     response = self.app.patch_json(
         '/{}/documents/{}'.format(lot_id, doc_id),
         params={'data': {'title': 'another'}},
-        status=403,
         headers=access_header
     )
-    self.assertEqual(response.status, '403 Forbidden')
-    self.assertEqual(response.json['errors'][0]['description'], 'Can update document only author')
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.json['data']['title'], 'another')
