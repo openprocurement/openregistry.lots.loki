@@ -1805,6 +1805,7 @@ def adding_platformLegalDetails_doc(self):
     response = self.app.get('/{}/documents/{}'.format(lot_id, doc_id))
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.json['data']['title'], PLATFORM_LEGAL_DETAILS_DOC_DATA['title'])
+    self.assertEqual(response.json['data']['description'], PLATFORM_LEGAL_DETAILS_DOC_DATA['description'])
     self.assertEqual(response.json['data']['url'], PLATFORM_LEGAL_DETAILS_DOC_DATA['url'])
     self.assertEqual(response.json['data']['documentOf'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentOf'])
     self.assertEqual(response.json['data']['documentType'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentType'])
