@@ -63,6 +63,7 @@ def process_lot_status_change(request):
     if lot.status == 'pending.deleted' and request.validated['data'].get('status') == 'deleted':
         for auction in lot.auctions:
             auction.status = 'cancelled'
+        lot.contracts[0].status = 'cancelled'
 
 
 def process_caravan_contract_report_result(request):

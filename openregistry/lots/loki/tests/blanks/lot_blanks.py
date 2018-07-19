@@ -1572,6 +1572,7 @@ def change_pending_deleted_lot(self):
     self.assertEqual(response.json['data']['auctions'][0]['status'], 'cancelled')
     self.assertEqual(response.json['data']['auctions'][1]['status'], 'cancelled')
     self.assertEqual(response.json['data']['auctions'][2]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['contracts'][0]['status'], 'cancelled')
 
     # Create new lot in 'pending.deleted' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1602,6 +1603,7 @@ def change_pending_deleted_lot(self):
     self.assertEqual(response.json['data']['auctions'][0]['status'], 'cancelled')
     self.assertEqual(response.json['data']['auctions'][1]['status'], 'cancelled')
     self.assertEqual(response.json['data']['auctions'][2]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['contracts'][0]['status'], 'cancelled')
 
     # Create new lot in 'pending.deleted' status
     self.app.authorization = ('Basic', ('broker', ''))
