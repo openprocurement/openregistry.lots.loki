@@ -907,6 +907,19 @@ def change_verification_lot(self):
     for status in STATUS_BLACKLIST['verification']['Administrator']:
         check_patch_status_403(self, '/{}'.format(lot['id']), status)
 
+    self.app.authorization = ('Basic', ('broker', ''))
+    response = create_single_lot(self, draft_lot)
+    lot = response.json['data']
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+
+    # Move from 'verification' to 'composing' status
+    self.app.authorization = ('Basic', ('concierge', ''))
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing')
+
 
 def change_pending_lot(self):
 

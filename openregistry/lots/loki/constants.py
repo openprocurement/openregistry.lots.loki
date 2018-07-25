@@ -31,6 +31,7 @@ STATUS_CHANGES = {
     "verification": {
         "editing_permissions": ["concierge"],
         "next_status": {
+            "composing": ["concierge"],
             "pending": ["concierge"],
             "invalid": ["concierge"],
         }
