@@ -8,6 +8,7 @@ from schematics.types.serializable import serializable
 from zope.interface import implementer
 from openregistry.lots.core.constants import (
     SANDBOX_MODE,
+    DEFAULT_CURRENCY
 )
 
 from openregistry.lots.core.models import (
@@ -43,7 +44,9 @@ from openregistry.lots.loki.constants import (
     AUCTION_DOCUMENT_TYPES,
     DEFAULT_REGISTRATION_FEE,
     DAYS_AFTER_RECTIFICATION_PERIOD,
-    CONTRACT_STATUSES
+    CONTRACT_STATUSES,
+    LOT_DOCUMENT_TYPES,
+    CURRENCY_CHOICES
 )
 from openregistry.lots.loki.roles import (
     lot_roles,
@@ -69,7 +72,19 @@ class AuctionDocument(Document):
     documentOf = StringType(choices=['auction'])
 
 
-class RegistrationFee(Guarantee):
+class LotDocument(Document):
+    documentType = StringType(choices=LOT_DOCUMENT_TYPES, required=True)
+
+
+class LokiValue(Value):
+    currency = StringType(required=True, default=DEFAULT_CURRENCY, choices=CURRENCY_CHOICES, max_length=3, min_length=3)
+
+
+class LokiGuarantee(Guarantee):
+    currency = StringType(required=True, default=DEFAULT_CURRENCY, choices=CURRENCY_CHOICES, max_length=3, min_length=3)
+
+
+class RegistrationFee(LokiGuarantee):
     amount = FloatType(min_value=0, default=DEFAULT_REGISTRATION_FEE)
 
 
@@ -99,9 +114,9 @@ class Auction(Model):
     procurementMethodType = StringType(choices=['sellout.english', 'sellout.insider'])
     tenderAttempts = IntType(min_value=1, max_value=3)
     auctionPeriod = ModelType(StartDateRequiredPeriod)
-    value = ModelType(Value)
-    minimalStep = ModelType(Value)
-    guarantee = ModelType(Guarantee)
+    value = ModelType(LokiValue)
+    minimalStep = ModelType(LokiValue)
+    guarantee = ModelType(LokiGuarantee)
     registrationFee = ModelType(RegistrationFee, default={})
     bankAccount = ModelType(BankAccount)
     documents = ListType(ModelType(AuctionDocument), default=list())
@@ -186,7 +201,7 @@ class Lot(BaseLot):
     lotHolder = ModelType(AssetHolder, serialize_when_none=False)
     officialRegistrationID = StringType(serialize_when_none=False)
     items = ListType(ModelType(Item), default=list(), validators=[validate_items_uniq])
-    documents = ListType(ModelType(Document), default=list())
+    documents = ListType(ModelType(LotDocument), default=list())
     decisions = ListType(ModelType(LotDecision), default=list())
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
     auctions = ListType(ModelType(Auction), default=list(), max_size=3)

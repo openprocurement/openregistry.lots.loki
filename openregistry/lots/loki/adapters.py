@@ -15,7 +15,8 @@ from openregistry.lots.core.utils import (
 )
 from openregistry.lots.loki.utils import (
     check_status,
-    update_auctions
+    update_auctions,
+    process_lot_status_change
 )
 from .constants import (
     STATUS_CHANGES,
@@ -23,6 +24,8 @@ from .constants import (
     ITEM_EDITING_STATUSES,
     DEFAULT_DUTCH_STEPS,
     DECISION_EDITING_STATUSES
+    CONTRACT_TYPE,
+    PLATFORM_LEGAL_DETAILS_DOC_DATA
 )
 from .validation import (
     validate_pending_status,
@@ -83,12 +86,19 @@ class LokiLotManagerAdapter(LotManagerAdapter):
     def _create_contracts(self, request):
         lot = request.validated['lot']
         contract_class = lot.__class__.contracts.model_class
-        lot.contracts.append(contract_class({'type': lot.lotType}))
+        lot.contracts.append(contract_class({'type': CONTRACT_TYPE}))
+
+    def _add_x_PlatformLegalDetails_document(self, request):
+        lot = request.validated['lot']
+        document_class = lot.__class__.documents.model_class
+        document = document_class(PLATFORM_LEGAL_DETAILS_DOC_DATA)
+        lot.documents.append(document)
 
     def create_lot(self, request):
         self._validate(request, self.create_validation)
         self._create_auctions(request)
         self._create_contracts(request)
+        self._add_x_PlatformLegalDetails_document(request)
 
     def change_lot(self, request):
         self._validate(request, self.change_validation)
@@ -98,3 +108,7 @@ class LokiLotManagerAdapter(LotManagerAdapter):
             save_lot(request)
         elif request.validated['data'].get('status') == 'pending' and not request.context.rectificationPeriod:
             self._set_rectificationPeriod(request)
+
+        if request.authenticated_role in ('concierge', 'Administrator'):
+            process_lot_status_change(request)
+            request.validated['lot_src'] = self.context.serialize('plain')

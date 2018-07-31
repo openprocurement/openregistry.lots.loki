@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
+from copy import copy
 from datetime import timedelta
+from openregistry.lots.core.constants import LOKI_DOCUMENT_TYPES
 
 
 AUCTION_STATUSES = ['scheduled', 'active', 'complete',  'unsuccessful', 'cancelled']
 CONTRACT_STATUSES = ['scheduled', 'cancelled', 'active', 'unsuccessful', 'complete']
+
+CONTRACT_TYPE = 'yoke'
 
 LOT_STATUSES = [
     "draft", "composing", "verification",  "pending", "pending.deleted", "deleted", "active.salable",
@@ -27,6 +31,7 @@ STATUS_CHANGES = {
     "verification": {
         "editing_permissions": ["concierge"],
         "next_status": {
+            "composing": ["concierge"],
             "pending": ["concierge"],
             "invalid": ["concierge"],
         }
@@ -107,6 +112,21 @@ AUCTION_DOCUMENT_TYPES = [
     'x_dgfAssetFamiliarization'
 ]
 
+LOT_DOCUMENT_TYPES = copy(LOKI_DOCUMENT_TYPES)
+LOT_DOCUMENT_TYPES.extend(
+    ['x_PlatformLegalDetails']
+)
+
+PLATFORM_LEGAL_DETAILS_DOC_DATA = {
+    'title': u'Перелік та реквізити авторизованих електронних майданчиків',
+    'description': u'Перелік та реквізити авторизованих електронних майданчиків '
+                   u'(найменування установи банку, її адреса та номери рахунків, '
+                   u'відкритих для внесення гарантійного внеску, реєстраційного внеску)',
+    'url': 'https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2',
+    'documentOf': 'lot',
+    'documentType': 'x_PlatformLegalDetails',
+}
+
 RECTIFICATION_PERIOD_DURATION = timedelta(days=2)
 DAYS_AFTER_RECTIFICATION_PERIOD = timedelta(days=2)
 
@@ -117,3 +137,4 @@ DEFAULT_LOT_TYPE = 'loki'
 DEFAULT_REGISTRATION_FEE = 744.6
 
 DECISION_EDITING_STATUSES = ['pending', 'composing']
+CURRENCY_CHOICES = ['UAH']

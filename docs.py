@@ -189,7 +189,6 @@ class LotResourceTest(BaseLotWebTest):
 
         with open('docs/source/tutorial/listing-with-some-lots.http', 'w') as self.app.file_obj:
             response = self.app.get(request_path)
-            import ipdb; ipdb.set_trace()
             self.assertEqual(response.status, '200 OK')
 
         # Modifying lot

@@ -23,7 +23,8 @@ from openregistry.lots.loki.constants import (
     LOT_STATUSES,
     DEFAULT_DUTCH_STEPS,
     RECTIFICATION_PERIOD_DURATION,
-    DAYS_AFTER_RECTIFICATION_PERIOD
+    DAYS_AFTER_RECTIFICATION_PERIOD,
+    PLATFORM_LEGAL_DETAILS_DOC_DATA
 )
 from openregistry.lots.loki.tests.base import (
     create_single_lot,
@@ -825,6 +826,19 @@ def change_verification_lot(self):
     for status in STATUS_BLACKLIST['verification']['Administrator']:
         check_patch_status_403(self, '/{}'.format(lot['id']), status)
 
+    self.app.authorization = ('Basic', ('broker', ''))
+    response = create_single_lot(self, draft_lot)
+    lot = response.json['data']
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+
+    # Move from 'verification' to 'composing' status
+    self.app.authorization = ('Basic', ('concierge', ''))
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing')
+
 
 def change_pending_lot(self):
 
@@ -1493,6 +1507,11 @@ def change_pending_deleted_lot(self):
 
     self.app.authorization = ('Basic', ('concierge', ''))
     check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted')
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['auctions'][0]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][1]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][2]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['contracts'][0]['status'], 'cancelled')
 
     # Create new lot in 'pending.deleted' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1522,6 +1541,11 @@ def change_pending_deleted_lot(self):
 
     self.app.authorization = ('Basic', ('administrator', ''))
     check_patch_status_200(self, '/{}'.format(lot['id']), 'deleted')
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertEqual(response.json['data']['auctions'][0]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][1]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['auctions'][2]['status'], 'cancelled')
+    self.assertEqual(response.json['data']['contracts'][0]['status'], 'cancelled')
 
     # Create new lot in 'pending.deleted' status
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1711,3 +1735,39 @@ def check_contract_status_workflow(self):
 
     contract = response.json['data']['contracts'][0]
     self.assertEqual(contract['status'], 'complete')
+
+
+def adding_platformLegalDetails_doc(self):
+    response = self.app.post_json('/', {'data': self.initial_data})
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(len(response.json['data']['documents']), 1)
+    document = response.json['data']['documents'][0]
+    self.assertEqual(document['title'], PLATFORM_LEGAL_DETAILS_DOC_DATA['title'])
+    self.assertEqual(document['url'], PLATFORM_LEGAL_DETAILS_DOC_DATA['url'])
+    self.assertEqual(document['documentOf'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentOf'])
+    self.assertEqual(document['documentType'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentType'])
+    self.assertIsNotNone(document.get('id'))
+
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+
+    lot_id = response.json['data']['id']
+    doc_id = document['id']
+
+    response = self.app.get('/{}/documents/{}'.format(lot_id, doc_id))
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.json['data']['title'], PLATFORM_LEGAL_DETAILS_DOC_DATA['title'])
+    self.assertEqual(response.json['data']['description'], PLATFORM_LEGAL_DETAILS_DOC_DATA['description'])
+    self.assertEqual(response.json['data']['url'], PLATFORM_LEGAL_DETAILS_DOC_DATA['url'])
+    self.assertEqual(response.json['data']['documentOf'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentOf'])
+    self.assertEqual(response.json['data']['documentType'], PLATFORM_LEGAL_DETAILS_DOC_DATA['documentType'])
+
+    check_patch_status_200(self, '/{}'.format(lot_id), 'composing', access_header)
+
+    response = self.app.patch_json(
+        '/{}/documents/{}'.format(lot_id, doc_id),
+        params={'data': {'title': 'another'}},
+        headers=access_header
+    )
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.json['data']['title'], 'another')
