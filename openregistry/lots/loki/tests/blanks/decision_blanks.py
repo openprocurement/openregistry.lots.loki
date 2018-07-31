@@ -11,6 +11,7 @@ from openregistry.lots.loki.models import (
     Lot,
     Period
 )
+from openregistry.lots.loki.tests.json_data import test_loki_item_data
 from openregistry.lots.loki.tests.base import (
     add_lot_decision,
     add_auctions,
@@ -59,7 +60,7 @@ def patch_decision(self):
 
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(self.resource_id), 'pending')
+    check_patch_status_200(self, '/{}'.format(self.resource_id), 'pending', extra={'items': [test_loki_item_data]})
 
     self.app.authorization = ('Basic', ('broker', ''))
     decisions = self.app.get('/{}/decisions'.format(self.resource_id)).json['data']

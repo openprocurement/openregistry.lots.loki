@@ -16,7 +16,8 @@ from openregistry.lots.core.constants import (
 from openregistry.lots.loki.models import Lot
 from openregistry.lots.loki.tests.json_data import (
     auction_english_data,
-    auction_second_english_data
+    auction_second_english_data,
+    test_loki_item_data
 )
 from openregistry.lots.loki.constants import (
     STATUS_CHANGES,
@@ -292,6 +293,19 @@ def check_change_to_verification(self):
         response.json['errors'][0]['description'],
         'Can\'t switch to pending while decisions not available.'
     )
+    add_decisions(self, lot)
+    response = self.app.patch_json(
+        '/{}'.format(lot['id']),
+        headers=access_header,
+        params={'data': {'status': 'pending'}},
+        status=403
+    )
+    self.assertEqual(response.status, '403 Forbidden')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'][0]['description'],
+        'Can\'t switch to pending while items in asset not available.'
+    )
 
 
 def rectificationPeriod_workflow(self):
@@ -320,7 +334,7 @@ def rectificationPeriod_workflow(self):
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
     response = self.app.patch_json('/{}'.format(lot['id']),
-                                   params={'data': {'status': 'pending'}})
+                                   params={'data': {'status': 'pending', 'items': [test_loki_item_data]}})
     self.assertIn('rectificationPeriod', response.json['data'])
     startDate = parse_datetime(response.json['data']['rectificationPeriod']['startDate'])
     endDate = parse_datetime(response.json['data']['rectificationPeriod']['endDate'])
@@ -516,7 +530,7 @@ def simple_patch(self):
 
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
     self.app.authorization = ('Basic', ('broker', ''))
     patch_data = {
@@ -787,7 +801,7 @@ def change_verification_lot(self):
     # Move from 'verification' to 'pending' status
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
 
     self.app.authorization = ('Basic', ('broker', ''))
@@ -875,7 +889,7 @@ def change_pending_lot(self):
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification')
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
     self.app.authorization = ('Basic', ('broker', ''))
 
@@ -915,7 +929,7 @@ def change_pending_lot(self):
     self.app.authorization = ('Basic', ('concierge', ''))
     # Move from 'composing' to 'pending' status
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
 
     # Move from 'pending' to one of 'blacklist' status
@@ -986,7 +1000,7 @@ def change_pending_lot(self):
     # Move from 'verification' to 'pending' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification')
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
 
     self.app.authorization = ('Basic', ('administrator', ''))
@@ -1030,7 +1044,7 @@ def change_deleted_lot(self):
     self.app.authorization = ('Basic', ('concierge', ''))
     # Move from 'composing' to 'pending' status
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
 
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1101,6 +1115,15 @@ def change_active_salable_lot(self):
     lot = json['data']
     self.assertEqual(lot['status'], 'active.salable')
 
+    self.app.authorization = ('Basic', ('concierge', ''))
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing')
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertNotIn('rectificationPeriod', response.json['data'])
+
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.salable')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.salable')
 
     self.app.authorization = ('Basic', ('chronograph', ''))
     for status in STATUS_BLACKLIST['active.salable']['chronograph']:
@@ -1114,6 +1137,16 @@ def change_active_salable_lot(self):
         check_patch_status_403(self, '/{}'.format(lot['id']), status)
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'active.auction')
+
+    self.app.authorization = ('Basic', ('broker', ''))
+    json = create_single_lot(self, lot_info, 'active.salable')
+    lot = json['data']
+    self.assertEqual(lot['status'], 'active.salable')
+
+    self.app.authorization = ('Basic', ('administrator', ''))
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing')
+    response = self.app.get('/{}'.format(lot['id']))
+    self.assertNotIn('rectificationPeriod', response.json['data'])
 
 
 def change_active_auction_lot(self):
@@ -1495,7 +1528,7 @@ def change_pending_deleted_lot(self):
 
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
     self.app.authorization = ('Basic', ('broker', ''))
     add_cancellationDetails_document(self, lot, access_header)
 
@@ -1525,7 +1558,7 @@ def change_pending_deleted_lot(self):
 
     self.app.authorization = ('Basic', ('concierge', ''))
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
     self.app.authorization = ('Basic', ('broker', ''))
     add_cancellationDetails_document(self, lot, access_header)
 
