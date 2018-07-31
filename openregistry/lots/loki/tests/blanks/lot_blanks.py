@@ -833,6 +833,7 @@ def change_verification_lot(self):
     access_header = {'X-Access-Token': str(token)}
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
     add_auctions(self, lot, access_header)
+    add_lot_decision(self, lot['id'], access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Move from 'verification' to 'composing' status
