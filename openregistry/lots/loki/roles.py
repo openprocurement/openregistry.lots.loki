@@ -60,7 +60,7 @@ auction_period_roles = {
 }
 
 
-lot_create_role = (whitelist('status', 'assets', 'lotType', 'lotIdentifier', 'mode', 'sandboxParameters'))
+lot_create_role = (whitelist('status', 'assets', 'lotType', 'lotIdentifier', 'mode', 'sandboxParameters', 'decisions'))
 lot_edit_role = (blacklist(
     'owner_token', 'owner', '_attachments', 'contracts',
     'revisions', 'date', 'dateModified', 'documents', 'auctions',
@@ -74,7 +74,7 @@ concierge_role = (blacklist(
 
 decision_roles = {
     'view': (schematics_default_role + blacklist()),
-    'create': blacklist('id', 'decisionOf', 'relatedItem'),
+    'create': blacklist('decisionOf', 'relatedItem'),
     'edit': blacklist('id', 'decisionOf', 'relatedItem')
 }
 

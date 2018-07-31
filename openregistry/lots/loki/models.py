@@ -27,7 +27,10 @@ from openregistry.lots.core.models import (
     AuctionParameters
 )
 
-from openregistry.lots.core.validation import validate_items_uniq
+from openregistry.lots.core.validation import (
+    validate_items_uniq,
+    validate_decision_uniq
+)
 from openregistry.lots.core.models import (
     ILot,
     Lot as BaseLot,
@@ -202,7 +205,7 @@ class Lot(BaseLot):
     officialRegistrationID = StringType(serialize_when_none=False)
     items = ListType(ModelType(Item), default=list(), validators=[validate_items_uniq])
     documents = ListType(ModelType(LotDocument), default=list())
-    decisions = ListType(ModelType(LotDecision), default=list())
+    decisions = ListType(ModelType(LotDecision), default=list(), validators=[validate_decision_uniq])
     assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
     auctions = ListType(ModelType(Auction), default=list(), max_size=3)
     contracts = ListType(ModelType(Contract), default=list())
