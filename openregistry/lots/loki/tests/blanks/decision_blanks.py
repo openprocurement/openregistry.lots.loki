@@ -247,3 +247,34 @@ def patch_decisions_with_lot_by_broker(self):
         headers=self.access_header
     )
     self.assertNotIn('decisions', response.json)
+
+
+def create_decisions_with_lot(self):
+    data = deepcopy(self.initial_data)
+    decision_1 = {'id': '1' * 32,  'decisionID': 'decID',  'decisionDate': get_now().isoformat()}
+    decision_2 = deepcopy(decision_1)
+    decision_2['id'] = '2' * 32
+    data['decisions'] = [
+       decision_1, decision_2
+    ]
+    response = self.app.post_json('/', params={'data': data})
+    decision_1['decisionOf'] = 'lot'
+    decision_2['decisionOf'] = 'lot'
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(len(response.json['data']['decisions']), 2)
+    self.assertEqual(response.json['data']['decisions'][0], decision_1)
+    self.assertEqual(response.json['data']['decisions'][1], decision_2)
+
+    del decision_1['decisionOf']
+    del decision_2['decisionOf']
+
+    decision_2['id'] = '1' * 32
+    data['decisions'] = [
+       decision_1, decision_2
+    ]
+    response = self.app.post_json('/', params={'data': data}, status=422)
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(
+        response.json['errors'][0]['description'][0],
+        u'Decision id should be unique for all decisions'
+    )

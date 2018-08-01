@@ -48,7 +48,6 @@ class LotDecisionResource(APIResource):
     def collection_post(self):
         """Lot Decision Upload"""
         decision = self.request.validated['decision']
-        decision.decisionOf = 'lot'
         self.context.decisions.append(decision)
         if save_lot(self.request):
             self.LOGGER.info(
