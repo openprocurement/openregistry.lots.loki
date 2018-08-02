@@ -300,3 +300,28 @@ def validate_pending_status(request, error_handler):
             error_handler,
             'Can\'t switch to pending while decisions not available.'
         )
+
+
+# Related process validation
+def validate_related_process_data(request, error_handler, **kwargs):
+    update_logging_context(request, {'relatedProcess_id': '__new__'})
+    context = request.context if 'relatedProcesses' in request.context else request.context.__parent__
+    model = type(context).relatedProcesses.model_class
+    validate_data(request, model, "relatedProcess")
+
+
+def validate_patch_related_process_data(request, error_handler, **kwargs):
+    update_logging_context(request, {'relatedProcess_id': '__new__'})
+    context = request.context if 'relatedProcess' in request.context else request.context.__parent__
+    model = type(context).relatedProcesses.model_class
+    validate_data(request, model)
+
+
+def validate_related_process_operation_in_not_allowed_lot_status(request, error_handler, **kwargs):
+    status = request.validated['lot_status']
+    if request.authenticated_role == 'concierge' and status not in ['verification']:
+        raise_operation_error(request, error_handler,
+                              'Can\'t update relatedProcess in current ({}) lot status by concierge'.format(status))
+    if request.authenticated_role == 'lot_owner' and status not in ['draft', 'composing']:
+        raise_operation_error(request, error_handler,
+                              'Can\'t update relatedProcess in current ({}) lot status'.format(status))
