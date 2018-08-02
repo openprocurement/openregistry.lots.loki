@@ -111,3 +111,8 @@ test_lot_contract_data = {
     'contractID': 'contractID',
     'relatedProcessID': '1' * 32
 }
+
+test_related_process_data = {
+    'relatedProcessID': '1' * 32,
+    'type': 'asset'
+}
