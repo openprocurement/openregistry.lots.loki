@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from openregistry.lots.core.adapters import (
     LotConfigurator,
-    LotManagerAdapter
+    LotManagerAdapter,
+    Manager,
+    ValidateMixin
 )
 from openregistry.lots.core.validation import (
     validate_post_lot_role,
@@ -43,6 +45,19 @@ class LokiLotConfigurator(LotConfigurator):
     decision_editing_allowed_statuses = DECISION_EDITING_STATUSES
 
 
+class RelatedProcessManager(Manager, ValidateMixin):
+
+    def create(self, request):
+        self.lot.relatedProcesses.append(request.validated['relatedProcess'])
+
+    def update(self, request):
+        pass
+
+    def delete(self, request):
+        self.lot.relatedProcesses.remove(request.validated['relatedProcess'])
+        self.lot.modified = False
+
+
 class LokiLotManagerAdapter(LotManagerAdapter):
     name = 'Loki Lot Manager'
     create_validation = (
@@ -62,6 +77,13 @@ class LokiLotManagerAdapter(LotManagerAdapter):
             RECTIFICATION_PERIOD_DURATION,
             context=request.context)
         request.context.rectificationPeriod = type(request.context).rectificationPeriod.model_class(data)
+
+    def __init__(self, *args, **kwargs):
+        super(LokiLotManagerAdapter, self).__init__(*args, **kwargs)
+        self.related_processes_manager = RelatedProcessManager(
+            parent=self.context,
+            parent_name='lot'
+        )
 
     def _create_auctions(self, request):
         lot = request.validated['lot']
