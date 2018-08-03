@@ -266,6 +266,16 @@ def validate_verification_status(request, error_handler):
             request.errors.status = 422
             raise error_handler(request)
 
+        if len(lot.relatedProcesses) == 0:
+            request.errors.add(
+                'body',
+                'mode',
+                'You can set verification status '
+                'only when lot have at least one relatedProcess'
+            )
+            request.errors.status = 422
+            raise error_handler(request)
+
         if request.errors:
             raise error_handler(request)
 
