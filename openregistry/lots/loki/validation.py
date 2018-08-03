@@ -266,7 +266,7 @@ def validate_verification_status(request, error_handler):
             request.errors.status = 422
             raise error_handler(request)
 
-        if len(lot.relatedProcesses) == 0:
+        if not lot.relatedProcesses:
             request.errors.add(
                 'body',
                 'mode',
