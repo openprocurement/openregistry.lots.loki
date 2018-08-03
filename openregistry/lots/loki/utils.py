@@ -64,6 +64,8 @@ def process_lot_status_change(request):
         for auction in lot.auctions:
             auction.status = 'cancelled'
         lot.contracts[0].status = 'cancelled'
+    elif lot.status == 'active.salable' and request.validated['data'].get('status') == 'composing':
+        lot.rectificationPeriod = None
 
 
 def process_caravan_contract_report_result(request):

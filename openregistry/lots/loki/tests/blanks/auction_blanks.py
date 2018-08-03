@@ -12,6 +12,7 @@ from openregistry.lots.loki.models import Lot
 from openregistry.lots.core.constants import SANDBOX_MODE, TZ
 from openregistry.lots.loki.constants import DEFAULT_DUTCH_STEPS, DEFAULT_REGISTRATION_FEE
 
+from openregistry.lots.loki.tests.json_data import test_loki_item_data
 from openregistry.lots.loki.tests.base import (
     create_single_lot,
     check_patch_status_200,
@@ -48,10 +49,9 @@ def patch_auctions_with_lot(self):
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification')
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
     self.app.authorization = ('Basic', ('broker', ''))
-
 
     data = deepcopy(lot)
     del data['decisions']

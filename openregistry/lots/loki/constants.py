@@ -13,7 +13,7 @@ LOT_STATUSES = [
     "draft", "composing", "verification",  "pending", "pending.deleted", "deleted", "active.salable",
     "active.auction", "active.contracting", "pending.sold", "pending.dissolution", "sold", "dissolved", "invalid"]
 
-ITEM_EDITING_STATUSES = ['draft', 'composing', 'pending']
+ITEM_EDITING_STATUSES = ['pending']
 
 STATUS_CHANGES = {
     "draft": {
@@ -56,7 +56,8 @@ STATUS_CHANGES = {
     "active.salable": {
         "editing_permissions": ["Administrator", "concierge"],
         "next_status": {
-            "active.auction": ["Administrator", "concierge"]
+            "active.auction": ["Administrator", "concierge"],
+            "composing": ["Administrator", "concierge"],
         }
     },
     "active.auction": {

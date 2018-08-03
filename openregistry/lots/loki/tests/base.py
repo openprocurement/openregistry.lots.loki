@@ -16,7 +16,8 @@ from openregistry.lots.core.tests.base import (
 from openregistry.lots.loki.tests.json_data import (
     test_loki_lot_data,
     auction_english_data,
-    auction_second_english_data
+    auction_second_english_data,
+    test_loki_item_data
 )
 
 DEFAULT_ACCELERATION = 1440
@@ -77,10 +78,12 @@ def add_auctions(self, lot, access_header):
     self.assertEqual(response.content_type, 'application/json')
 
 
-def check_patch_status_200(self, path, lot_status, headers=None):
+def check_patch_status_200(self, path, lot_status, headers=None, extra={}):
+    data = {'status': lot_status}
+    data.update(extra)
     response = self.app.patch_json(path,
                                    headers=headers,
-                                   params={'data': {'status': lot_status}})
+                                   params={'data': data})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], lot_status)

@@ -9,6 +9,7 @@ from openregistry.lots.core.utils import (
 )
 from openregistry.lots.core.models import Period
 from openregistry.lots.loki.models import Lot
+from openregistry.lots.loki.tests.json_data import test_loki_item_data
 from openregistry.lots.loki.tests.base import (
     add_decisions,
     add_lot_decision,
@@ -17,6 +18,7 @@ from openregistry.lots.loki.tests.base import (
     create_single_lot,
     add_lot_related_process
 )
+
 
 def item_listing(self):
     response = self.app.get('/{}'.format(self.resource_id))
@@ -200,7 +202,7 @@ def patch_items_with_lot(self):
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification')
     add_decisions(self, lot)
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending')
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'pending', extra={'items': [test_loki_item_data]})
 
     self.app.authorization = ('Basic', ('broker', ''))
 
@@ -232,7 +234,7 @@ def patch_items_with_lot(self):
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(len(response.json['data']['items']), 2)
+    self.assertEqual(len(response.json['data']['items']), 3)
 
     data = {
         'items': [initial_item_data]

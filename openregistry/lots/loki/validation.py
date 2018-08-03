@@ -304,11 +304,22 @@ def validate_pending_status(request, error_handler):
         decision['decisionOf'] == 'asset' for decision in request.validated['data'].get('decisions', [])
     )
 
-    if request.json['data'].get('status') == 'pending' and not (is_decision_in_data or is_decisions_in_context):
+    status_check = bool(
+        request.json['data'].get('status') == 'pending' and
+        request.context.status == 'verification'
+    )
+
+    if status_check and not (is_decision_in_data or is_decisions_in_context):
         raise_operation_error(
             request,
             error_handler,
             'Can\'t switch to pending while decisions not available.'
+        )
+    if status_check and not request.json['data'].get('items', []):
+        raise_operation_error(
+            request,
+            error_handler,
+            'Can\'t switch to pending while items in asset not available.'
         )
 
 
