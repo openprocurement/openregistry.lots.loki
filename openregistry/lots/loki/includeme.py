@@ -19,9 +19,13 @@ def includeme(config, plugin_config=None):
     for adapter in (configurator, manager):
         config.registry.registerAdapter(*adapter)
 
+
     lot_types = plugin_config.get('aliases', [])
     if plugin_config.get('use_default', False):
         lot_types.append(DEFAULT_LOT_TYPE)
     for lt in lot_types:
         config.add_lotType(Lot, lt)
     LOGGER.info("Included openregistry.lots.loki plugin", extra={'MESSAGE_ID': 'included_plugin'})
+
+    # add accreditation level
+    config.registry.accreditations['lot'][DEFAULT_LOT_TYPE] = plugin_config['accreditation']
