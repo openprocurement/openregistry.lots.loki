@@ -33,6 +33,7 @@ from .validation import (
     validate_pending_status,
     validate_deleted_status,
     validate_verification_status,
+    validate_related_process_operation_in_not_allowed_lot_status
 )
 
 
@@ -46,14 +47,25 @@ class LokiLotConfigurator(LotConfigurator):
 
 
 class RelatedProcessManager(Manager, ValidateMixin):
+    create_validators = (
+        validate_related_process_operation_in_not_allowed_lot_status,
+    )
+    update_validators = (
+        validate_related_process_operation_in_not_allowed_lot_status,
+    )
+    delete_validators = (
+        validate_related_process_operation_in_not_allowed_lot_status,
+    )
 
     def create(self, request):
+        self._validate(request, self.create_validators)
         self.lot.relatedProcesses.append(request.validated['relatedProcess'])
 
     def update(self, request):
-        pass
+        self._validate(request, self.update_validators)
 
     def delete(self, request):
+        self._validate(request, self.delete_validators)
         self.lot.relatedProcesses.remove(request.validated['relatedProcess'])
         self.lot.modified = False
 

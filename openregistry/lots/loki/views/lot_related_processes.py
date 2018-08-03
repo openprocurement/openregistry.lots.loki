@@ -17,14 +17,9 @@ from openregistry.lots.loki.validation import (
 
 post_validators = (
     validate_related_process_data,
-    validate_related_process_operation_in_not_allowed_lot_status
 )
 patch_validators = (
     validate_patch_related_process_data,
-    validate_related_process_operation_in_not_allowed_lot_status
-)
-delete_validators = (
-    validate_related_process_operation_in_not_allowed_lot_status
 )
 
 
@@ -78,7 +73,7 @@ class LotRelatedProcessResource(APIResource):
             )
             return {'data': self.request.context.serialize("view")}
 
-    @json_view(permission='upload_lot_related_processes', validators=delete_validators)
+    @json_view(permission='upload_lot_related_processes')
     def delete(self):
         """Lot Related Process Delete"""
         self.request.registry.getAdapter(self.request.validated['lot'], ILotManager).related_processes_manager.delete(self.request)
