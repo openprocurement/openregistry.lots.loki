@@ -33,7 +33,8 @@ from openregistry.lots.loki.tests.base import (
     add_decisions,
     add_auctions,
     add_lot_decision,
-    DEFAULT_ACCELERATION
+    DEFAULT_ACCELERATION,
+    add_lot_related_process
 )
 
 ROLES = ['lot_owner', 'Administrator', 'concierge', 'convoy', 'chronograph']
@@ -44,7 +45,6 @@ STATUS_BLACKLIST = create_blacklist(STATUS_CHANGES, LOT_STATUSES, ROLES)
 def simple_add_lot(self):
     u = Lot(self.initial_data)
     u.lotID = "UA-X"
-    u.assets = [uuid4().hex]
 
     assert u.id is None
     assert u.rev is None
@@ -123,7 +123,6 @@ def auction_autocreation(self):
 def check_change_to_verification(self):
     # Create lot in 'draft' status
     draft_lot = deepcopy(self.initial_data)
-    draft_lot['assets'] = [uuid4().hex]
     response = create_single_lot(self, draft_lot)
     lot = response.json['data']
     token = response.json['access']['token']
@@ -252,6 +251,7 @@ def check_change_to_verification(self):
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
 
+    lot = add_lot_related_process(self, lot['id'], access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Check when decisions not available
@@ -275,7 +275,8 @@ def check_change_to_verification(self):
         response.json['errors'][0]['description'],
         'Can\'t switch to verification while lot decisions not available.'
     )
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     self.app.authorization = ('Basic', ('concierge', ''))
@@ -293,6 +294,32 @@ def check_change_to_verification(self):
         'Can\'t switch to pending while decisions not available.'
     )
 
+    # Check when relatedProcess not available
+    self.app.authorization = ('Basic', ('broker', ''))
+
+    response = create_single_lot(self, self.initial_data)
+    lot = response.json['data']
+    token = response.json['access']['token']
+    access_header = {'X-Access-Token': str(token)}
+
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
+    add_auctions(self, lot, access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    response = self.app.patch_json(
+        '/{}'.format(lot['id']),
+        {"data": {'status': 'verification'}},
+        status=422,
+        headers=access_header
+    )
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(
+        response.json['errors'][0]['description'],
+        'You can set verification status '
+        'only when lot have at least one relatedProcess'
+    )
+    lot = add_lot_related_process(self, lot['id'], access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+
 
 def rectificationPeriod_workflow(self):
     response = create_single_lot(self, self.initial_data)
@@ -309,7 +336,8 @@ def rectificationPeriod_workflow(self):
     self.assertNotIn('rectificationPeriod', response.json['data'])
     self.assertNotIn('next_check', response.json['data'])
 
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     response = self.app.patch_json('/{}'.format(lot['id']),
                                    headers=access_header,
@@ -509,7 +537,8 @@ def simple_patch(self):
     self.assertEqual(response.json['data'], lot)
 
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -528,28 +557,6 @@ def simple_patch(self):
     self.assertEqual(response.json['data']['officialRegistrationID'], patch_data['data']['officialRegistrationID'])
 
 
-def check_lot_assets(self):
-
-    # lot with a single assets
-    self.initial_data["assets"] = [uuid4().hex]
-    lot = create_single_lot(self, self.initial_data).json['data']
-    response = self.app.get('/{}'.format(lot['id']))
-    self.assertEqual(response.status, '200 OK')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(set(response.json['data']), set(lot))
-    self.assertEqual(response.json['data'], lot)
-
-    # # lot with no assets
-    self.initial_data["assets"] = []
-    response = self.app.post_json('/', {"data": self.initial_data}, status=422)
-    self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['status'], 'error')
-    self.assertEqual(response.json['errors'], [
-        {u'description': [u"Please provide at least 1 item."], u'location': u'body', u'name': u'assets'}
-    ])
-
-
 def change_draft_lot(self):
     response = self.app.get('/')
     self.assertEqual(response.status, '200 OK')
@@ -559,7 +566,6 @@ def change_draft_lot(self):
 
     # Create lot in 'draft' status
     draft_lot = deepcopy(self.initial_data)
-    draft_lot['assets'] = [uuid4().hex]
     response = create_single_lot(self, draft_lot)
     lot = response.json['data']
     token = response.json['access']['token']
@@ -661,7 +667,6 @@ def change_composing_lot(self):
 
     # Create lot in 'draft' status
     draft_lot = deepcopy(self.initial_data)
-    draft_lot['assets'] = [uuid4().hex]
     response = create_single_lot(self, draft_lot)
     lot = response.json['data']
     token = response.json['access']['token']
@@ -680,13 +685,13 @@ def change_composing_lot(self):
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
     # Move from 'verification' to 'composing' status
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Create lot in 'draft' status
     draft_lot = deepcopy(self.initial_data)
-    draft_lot['assets'] = [uuid4().hex]
     response = create_single_lot(self, draft_lot)
     lot = response.json['data']
     token = response.json['access']['token']
@@ -718,18 +723,18 @@ def change_composing_lot(self):
 
 
     self.app.authorization = ('Basic', ('broker', ''))
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
 
 
     self.app.authorization = ('Basic', ('administrator', ''))
     # Move from 'verification' to 'composing' status
-    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
+    check_patch_status_200(self, '/{}'.format(lot['id']), 'verification')
 
     # Create lot in 'draft' status
     self.app.authorization = ('Basic', ('broker', ''))
     draft_lot = deepcopy(self.initial_data)
-    draft_lot['assets'] = [uuid4().hex]
     response = create_single_lot(self, draft_lot)
     lot = response.json['data']
     token = response.json['access']['token']
@@ -753,7 +758,6 @@ def change_verification_lot(self):
 
     # Create lot in 'draft' status
     draft_lot = deepcopy(self.initial_data)
-    draft_lot['assets'] = [uuid4().hex]
     response = create_single_lot(self, draft_lot)
     lot = response.json['data']
     token = response.json['access']['token']
@@ -772,7 +776,8 @@ def change_verification_lot(self):
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
 
     # Move from 'composing' to 'verification' status
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -796,7 +801,8 @@ def change_verification_lot(self):
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -811,7 +817,8 @@ def change_verification_lot(self):
     token = response.json['access']['token']
     access_header = {'X-Access-Token': str(token)}
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -834,6 +841,7 @@ def change_verification_lot(self):
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
     add_auctions(self, lot, access_header)
     add_lot_decision(self, lot['id'], access_header)
+    add_lot_related_process(self, lot['id'], access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     # Move from 'verification' to 'composing' status
@@ -866,7 +874,8 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'pending' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -908,7 +917,8 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -978,7 +988,8 @@ def change_pending_lot(self):
 
     # Move from 'draft' to 'composing' status
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -1022,7 +1033,8 @@ def change_deleted_lot(self):
 
     # Move from 'draft' to 'composing'
     check_patch_status_200(self, '/{}'.format(lot['id']), 'composing', access_header)
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     add_auctions(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
@@ -1490,7 +1502,8 @@ def change_pending_deleted_lot(self):
     lot = json['data']
     token = json['access']['token']
     access_header = {'X-Access-Token': str(token)}
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     self.app.authorization = ('Basic', ('concierge', ''))
@@ -1520,7 +1533,8 @@ def change_pending_deleted_lot(self):
     lot = json['data']
     token = json['access']['token']
     access_header = {'X-Access-Token': str(token)}
-    lot = add_lot_decision(self, lot['id'], access_header)
+    add_lot_decision(self, lot['id'], access_header)
+    lot = add_lot_related_process(self, lot['id'], access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'verification', access_header)
 
     self.app.authorization = ('Basic', ('concierge', ''))

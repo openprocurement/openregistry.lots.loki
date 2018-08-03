@@ -75,8 +75,7 @@ test_lot_auctions_data = {
 test_loki_lot_data = {
     "title": u"Тестовий лот",
     "description": u"Щось там тестове",
-    "lotType": "loki",
-    "assets": []
+    "lotType": "loki"
 }
 test_decision_data = {
     'decisionID': 'someDecisionID',

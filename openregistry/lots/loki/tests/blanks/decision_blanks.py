@@ -15,7 +15,8 @@ from openregistry.lots.loki.tests.base import (
     add_lot_decision,
     add_auctions,
     add_decisions,
-    check_patch_status_200
+    check_patch_status_200,
+    add_lot_related_process
 )
 
 
@@ -53,7 +54,8 @@ def patch_decision(self):
     self.create_resource()
 
     check_patch_status_200(self, '/{}'.format(self.resource_id), 'composing', self.access_header)
-    lot = add_lot_decision(self, self.resource_id, self.access_header)
+    add_lot_decision(self, self.resource_id, self.access_header)
+    lot = add_lot_related_process(self, self.resource_id, self.access_header)
     add_auctions(self, lot, self.access_header)
     check_patch_status_200(self, '/{}'.format(self.resource_id), 'verification', self.access_header)
 
@@ -107,7 +109,8 @@ def patch_decisions_with_lot_by_concierge(self):
     }
 
     check_patch_status_200(self, '/{}'.format(self.resource_id), 'composing', self.access_header)
-    lot = add_lot_decision(self, self.resource_id, self.access_header)
+    add_lot_decision(self, self.resource_id, self.access_header)
+    lot = add_lot_related_process(self, self.resource_id, self.access_header)
     add_auctions(self, lot, self.access_header)
     check_patch_status_200(self, '/{}'.format(self.resource_id), 'verification', self.access_header)
 
@@ -139,6 +142,7 @@ def create_or_patch_decision_in_not_allowed_status(self):
 
     check_patch_status_200(self, '/{}'.format(self.resource_id), 'composing', self.access_header)
     lot = add_lot_decision(self, self.resource_id, self.access_header)
+    add_lot_related_process(self, self.resource_id, self.access_header)
     add_auctions(self, lot, self.access_header)
     check_patch_status_200(self, '/{}'.format(self.resource_id), 'verification', self.access_header)
 
