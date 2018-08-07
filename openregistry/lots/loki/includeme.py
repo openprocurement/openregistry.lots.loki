@@ -28,4 +28,4 @@ def includeme(config, plugin_config=None):
     LOGGER.info("Included openregistry.lots.loki plugin", extra={'MESSAGE_ID': 'included_plugin'})
 
     # add accreditation level
-    config.registry.accreditations['lot'][DEFAULT_LOT_TYPE] = plugin_config['accreditation']
+    config.registry.accreditation['lot'][Lot._internal_type] = plugin_config['accreditation']
