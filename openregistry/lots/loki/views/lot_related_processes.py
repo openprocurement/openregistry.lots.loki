@@ -34,7 +34,7 @@ class LotRelatedProcessResource(APIResource):
         collection_data = [i.serialize("view") for i in self.context.relatedProcesses]
         return {'data': collection_data}
 
-    @json_view(content_type="application/json", permission='upload_lot_related_processes', validators=post_validators)
+    @json_view(content_type="application/json", permission='edit_lot_related_processes', validators=post_validators)
     def collection_post(self):
         """Lot Related Process Upload"""
         related_process = self.request.validated['relatedProcess']
@@ -63,7 +63,7 @@ class LotRelatedProcessResource(APIResource):
         related_process = self.request.validated['relatedProcess']
         return {'data': related_process.serialize("view")}
 
-    @json_view(content_type="application/json", permission='upload_lot_related_processes', validators=patch_validators)
+    @json_view(content_type="application/json", permission='edit_lot_related_processes', validators=patch_validators)
     def patch(self):
         """Lot Related Process Update"""
         self.request.registry.getAdapter(
@@ -77,7 +77,7 @@ class LotRelatedProcessResource(APIResource):
             )
             return {'data': self.request.context.serialize("view")}
 
-    @json_view(permission='upload_lot_related_processes')
+    @json_view(permission='edit_lot_related_processes')
     def delete(self):
         """Lot Related Process Delete"""
         self.request.registry.getAdapter(
