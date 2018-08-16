@@ -22,8 +22,8 @@ patch_validators = (
 
 
 @oplotsresource(name='loki:Lot Related Processes',
-                collection_path='/lots/{lot_id}/related-processes',
-                path='/lots/{lot_id}/related-processes/{relatedProcess_id}',
+                collection_path='/lots/{lot_id}/related_processes',
+                path='/lots/{lot_id}/related_processes/{relatedProcess_id}',
                 _internal_type='loki',
                 description="Lot related process")
 class LotRelatedProcessResource(APIResource):

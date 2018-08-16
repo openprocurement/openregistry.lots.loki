@@ -171,7 +171,7 @@ def add_lot_related_process(self, lot_id, headers):
         'relatedProcessID': uuid4().hex,
     }
     response = self.app.post_json(
-        '/{}/related-processes'.format(lot_id),
+        '/{}/related_processes'.format(lot_id),
         {"data": rP_data},
         headers=headers
     )
