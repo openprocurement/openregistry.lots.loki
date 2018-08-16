@@ -54,11 +54,16 @@ def from0to1(registry):
     for i in results:
         lot = i.doc
         model = registry.lotTypes.get(lot['lotType'])
-        migrate_assets_to_related_processes(lot, model._internal_type, registry)
+
+        if model._internal_type != 'loki':
+            return
+
+        migrate_assets_to_related_processes(lot, registry)
         if model:
             try:
                 lot = model(lot)
                 lot.__parent__ = root
+                lot.validate()
                 lot = lot.to_primitive()
             except: # pragma: no cover
                 LOGGER.error("Failed migration of lot {} to schema 1.".format(lot.id), extra={'MESSAGE_ID': 'migrate_data_failed', 'LOT_ID': lot.id})
@@ -72,10 +77,7 @@ def from0to1(registry):
         registry.db.update(docs)
 
 
-def migrate_assets_to_related_processes(lot, internal_type, registry):
-    if internal_type != 'loki':
-        return
-
+def migrate_assets_to_related_processes(lot, registry):
     lot['relatedProcesses'] = []
     for asset_id in lot['assets']:
         related_process = {

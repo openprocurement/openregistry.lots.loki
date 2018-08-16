@@ -45,10 +45,13 @@ class MigrateTest(BaseLotWebTest):
         response = self.app.get('/{}'.format(self.resource_id))
         self.assertNotIn('assets', response.json['data'])
         self.assertEqual(len(response.json['data']['relatedProcesses']), len(assets))
-        for asset_id, related_process in zip(assets, response.json['data']['relatedProcesses']):
-            self.assertEqual(related_process['relatedProcessID'], asset_id)
-            self.assertEqual(related_process['type'], 'asset')
-            self.assertIn('id', related_process)
+
+        asset_id = assets[0]
+        related_process = response.json['data']['relatedProcesses'][0]
+
+        self.assertEqual(related_process['relatedProcessID'], asset_id)
+        self.assertEqual(related_process['type'], 'asset')
+        self.assertIn('id', related_process)
 
         # Test patch goes well
         response = self.app.patch_json(
@@ -60,6 +63,16 @@ class MigrateTest(BaseLotWebTest):
 
         response = self.app.get('/{}'.format(self.resource_id))
         self.assertEqual(response.json['data']['status'], 'composing')
+
+        # Get relatedProcesses
+        response = self.app.get('/{}/related_processes'.format(self.resource_id))
+        self.assertEqual(len(response.json['data']), 1)
+        rp_id = response.json['data'][0]['id']
+
+        response = self.app.get('/{}/related_processes/{}'.format(self.resource_id, rp_id))
+        self.assertEqual(response.json['data']['id'], rp_id)
+        self.assertEqual(response.json['data']['relatedProcessID'], assets[0])
+        self.assertEqual(response.json['data']['type'], 'asset')
 
     def test_migrate_pending_lot(self):
         # Create situation when we need migration for lot in status pending
@@ -89,11 +102,14 @@ class MigrateTest(BaseLotWebTest):
         response = self.app.get('/{}'.format(self.resource_id))
         self.assertNotIn('assets', response.json['data'])
         self.assertEqual(len(response.json['data']['relatedProcesses']), len(assets))
-        for asset_id, related_process in zip(assets, response.json['data']['relatedProcesses']):
-            self.assertEqual(related_process['relatedProcessID'], asset_id)
-            self.assertEqual(related_process['type'], 'asset')
-            self.assertEqual(related_process['identifier'], asset_1_data['assetID'])
-            self.assertIn('id', related_process)
+
+        asset_id = assets[0]
+        related_process = response.json['data']['relatedProcesses'][0]
+
+        self.assertEqual(related_process['relatedProcessID'], asset_id)
+        self.assertEqual(related_process['type'], 'asset')
+        self.assertEqual(related_process['identifier'], asset_1_data['assetID'])
+        self.assertIn('id', related_process)
 
         # Test patch goes well
         self.app.authorization = ('Basic', ('broker', ''))
@@ -118,6 +134,17 @@ class MigrateTest(BaseLotWebTest):
 
         response = self.app.get('/{}'.format(self.resource_id))
         self.assertEqual(response.json['data']['status'], 'pending.deleted')
+
+        # Get relatedProcesses
+        response = self.app.get('/{}/related_processes'.format(self.resource_id))
+        self.assertEqual(len(response.json['data']), 1)
+        rp_id = response.json['data'][0]['id']
+
+        response = self.app.get('/{}/related_processes/{}'.format(self.resource_id, rp_id))
+        self.assertEqual(response.json['data']['id'], rp_id)
+        self.assertEqual(response.json['data']['relatedProcessID'], assets[0])
+        self.assertEqual(response.json['data']['type'], 'asset')
+        self.assertEqual(response.json['data']['identifier'], asset_1_data['assetID'])
 
 
 def suite():
