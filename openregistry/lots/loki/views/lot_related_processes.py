@@ -46,7 +46,9 @@ class LotRelatedProcessResource(APIResource):
         if save_lot(self.request):
             self.LOGGER.info(
                 'Created lot related process {}'.format(related_process.id),
-                extra=context_unpack(self.request, {'MESSAGE_ID': 'lot_related_processes_create'}, {'related_process': related_process.id})
+                extra=context_unpack(
+                    self.request, {'MESSAGE_ID': 'lot_related_processes_create'},
+                    {'related_process': related_process.id})
             )
             self.request.response.status = 201
             related_process_route = self.request.matched_route.name.replace("collection_", "")

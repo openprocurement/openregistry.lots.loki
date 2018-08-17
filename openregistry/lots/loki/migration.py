@@ -33,7 +33,10 @@ def migrate_data(registry, destination=None):
     if cur_version == SCHEMA_VERSION:
         return cur_version
     for step in xrange(cur_version, destination or SCHEMA_VERSION):
-        LOGGER.info("Migrate openregistry loki lot schema from {} to {}".format(step, step + 1), extra={'MESSAGE_ID': 'migrate_data'})
+        LOGGER.info(
+            "Migrate openregistry loki lot schema from {} to {}".format(step, step + 1),
+            extra={'MESSAGE_ID': 'migrate_data'}
+        )
         migration_func = globals().get('from{}to{}'.format(step, step + 1))
         if migration_func:
             migration_func(registry)
@@ -65,8 +68,11 @@ def from0to1(registry):
                 lot.__parent__ = root
                 lot.validate()
                 lot = lot.to_primitive()
-            except: # pragma: no cover
-                LOGGER.error("Failed migration of lot {} to schema 1.".format(lot.id), extra={'MESSAGE_ID': 'migrate_data_failed', 'LOT_ID': lot.id})
+            except:  # noqa E722
+                LOGGER.error(
+                    "Failed migration of lot {} to schema 1.".format(lot.id),
+                    extra={'MESSAGE_ID': 'migrate_data_failed', 'LOT_ID': lot.id}
+                )
             else:
                 lot['dateModified'] = get_now().isoformat()
                 docs.append(lot)
