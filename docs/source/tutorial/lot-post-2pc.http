@@ -1,81 +1,109 @@
-POST /api/2.4/lots?opt_pretty=1 HTTP/1.0
+POST /api/2.5/lots?opt_pretty=1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 362
+Content-Length: 318
 Content-Type: application/json
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
 DATA:
 {
   "data": {
     "lotType": "loki", 
-    "description": "Щось там тестове", 
     "decisions": [
       {
-        "decisionDate": "2018-05-25T18:39:50.545256+03:00", 
-        "decisionID": "decisionLotID"
+        "decisionDate": "2018-08-17T14:51:46.296048+03:00", 
+        "decisionID": "initialDecisionID"
       }
     ], 
-    "assets": [
-      "83e2013200da46a99e618a23ee840b93"
-    ], 
+    "description": "Щось там тестове", 
     "title": "Тестовий лот"
   }
 }
 
 Response: 201 Created
 Content-Type: application/json
-Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.4/lots/8286cc7863814271afe23cb2646237ed
+Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.5/lots/ce437a4384f44fcdb5b75f9675ca0a82
 X-Content-Type-Options: nosniff
 {
   "access": {
-    "token": "696900bbe76b405891282adaf3d9bf56"
+    "transfer": "6f3d1999ca8c43778dd211fba9def8b2", 
+    "token": "43027267d2f645f9b1e36244f6d8a207"
   }, 
   "data": {
     "status": "draft", 
-    "lotID": "UA-LR-DGF-2018-05-25-000001", 
-    "assets": [
-      "83e2013200da46a99e618a23ee840b93"
+    "lotID": "UA-LR-DGF-2018-08-17-000001", 
+    "contracts": [
+      {
+        "status": "scheduled", 
+        "type": "yoke", 
+        "id": "eb686e3fbb0a4c989d316af8150d4f0b"
+      }
     ], 
     "lotType": "loki", 
-    "dateModified": "2018-05-25T18:39:51.637310+03:00", 
+    "dateModified": "2018-08-17T14:51:46.337965+03:00", 
     "owner": "broker", 
+    "documents": [
+      {
+        "description": "Перелік та реквізити авторизованих електронних майданчиків (найменування установи банку, її адреса та номери рахунків, відкритих для внесення гарантійного внеску, реєстраційного внеску)", 
+        "title": "Перелік та реквізити авторизованих електронних майданчиків", 
+        "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
+        "documentOf": "lot", 
+        "datePublished": "2018-08-17T14:51:46.321690+03:00", 
+        "documentType": "x_PlatformLegalDetails", 
+        "dateModified": "2018-08-17T14:51:46.321716+03:00", 
+        "id": "a8b73c7d1fa042dd8db9f5f5203668cd"
+      }
+    ], 
     "auctions": [
       {
         "status": "scheduled", 
         "tenderAttempts": 1, 
         "procurementMethodType": "sellout.english", 
+        "id": "6e42e3cd9527444f93cce6d9b8dc4617", 
         "auctionParameters": {
           "type": "english"
         }, 
-        "id": "daad73e4924547f691a846f9333302ca"
+        "registrationFee": {
+          "currency": "UAH", 
+          "amount": 744.6
+        }
       }, 
       {
         "status": "scheduled", 
         "tenderAttempts": 2, 
         "procurementMethodType": "sellout.english", 
+        "id": "7fc01ac1e0444a5e844ca954c2e5e418", 
         "auctionParameters": {
           "type": "english"
         }, 
-        "id": "45db8a103dc4425792f5df042d63676e"
+        "registrationFee": {
+          "currency": "UAH", 
+          "amount": 744.6
+        }
       }, 
       {
         "status": "scheduled", 
         "tenderAttempts": 3, 
         "procurementMethodType": "sellout.insider", 
+        "id": "8b77bbfd12a84d2283314457cf62fb29", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
         }, 
-        "id": "96f0ba0f16f14dd5b29545fdc3f4cf3e"
+        "registrationFee": {
+          "currency": "UAH", 
+          "amount": 744.6
+        }
       }
     ], 
-    "date": "2018-05-25T18:39:51.633631+03:00", 
+    "date": "2018-08-17T14:51:46.335316+03:00", 
     "decisions": [
       {
-        "decisionDate": "2018-05-25T18:39:50.545256+03:00", 
-        "decisionID": "decisionLotID"
+        "decisionDate": "2018-08-17T14:51:46.296048+03:00", 
+        "decisionID": "initialDecisionID", 
+        "id": "eb331f5bdfb443619a91a7dc58173883", 
+        "decisionOf": "lot"
       }
     ], 
-    "id": "8286cc7863814271afe23cb2646237ed"
+    "id": "ce437a4384f44fcdb5b75f9675ca0a82"
   }
 }
 

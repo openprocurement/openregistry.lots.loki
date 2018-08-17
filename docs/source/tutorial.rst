@@ -53,6 +53,11 @@ Now let's add extra auction conditions. Note that the information is being added
 .. literalinclude:: tutorial/compose_lot_patch_2.http
    :language: javascript
 
+Now let's add relatedProcesses:
+
+.. literalinclude:: tutorial/add_related_process_1.http
+   :language: javascript
+
 To enable further manipulations with the lot, its status should be manually switched to `verification`.
 
 .. literalinclude:: tutorial/lot-to-varification.http
@@ -202,16 +207,19 @@ As long as a new procedure is being automatically created, the lot will be given
    :language: javascript
 
 In case of that lot has not been sold (either `contract` has become `unsuccessful` or a procedure has received `cancelled` status or third procedure (`procurementMethodType: sellout.insider`) has turned to `unsuccessful`) , its status becomes `pending.dissolution`:
+This happens if all three auctions has status unsuccessful or one has cancelled
 
 .. literalinclude:: tutorial/patch-lot-to-pending.dissolution.http
    :language: javascript
 
 When contract has been successfully created within the Module of Contracting, lot's status turns to `active.contracting`:
+Convoy patch auction to status complete
 
 .. literalinclude:: tutorial/switch-lot-active.contracting.http
    :language: javascript
 
 When contract reaches `terminated` status, lot automatically becomes `pending.sold`:
+When caravan patch contract to complete
 
 .. literalinclude:: tutorial/switch-lot-to-pending.sold.http
    :language: javascript

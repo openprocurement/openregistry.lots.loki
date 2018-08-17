@@ -1,33 +1,42 @@
-PATCH /api/2.4/lots/8286cc7863814271afe23cb2646237ed/auctions/daad73e4924547f691a846f9333302ca HTTP/1.0
+PATCH /api/2.5/lots/ce437a4384f44fcdb5b75f9675ca0a82/auctions/6e42e3cd9527444f93cce6d9b8dc4617 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 388
+Content-Length: 507
 Content-Type: application/json
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
-X-Access-Token: 696900bbe76b405891282adaf3d9bf56
+X-Access-Token: 43027267d2f645f9b1e36244f6d8a207
 DATA:
 {
   "data": {
+    "bankAccount": {
+      "accountIdentification": [
+        {
+          "scheme": "accountNumber", 
+          "id": "111111-8", 
+          "description": "some description"
+        }
+      ], 
+      "bankName": "name of bank"
+    }, 
     "minimalStep": {
       "currency": "UAH", 
-      "amount": 300, 
+      "amount": 300.87, 
       "valueAddedTaxIncluded": true
     }, 
     "auctionPeriod": {
-      "startDate": "2018-05-30T18:39:50.545034+03:00", 
-      "endDate": "2018-06-04T18:39:50.545034+03:00"
+      "startDate": "2018-08-23T14:56:45.642186+03:00"
     }, 
     "registrationFee": {
       "currency": "UAH", 
-      "amount": 700
+      "amount": 700.87
     }, 
     "value": {
       "currency": "UAH", 
-      "amount": 3000, 
+      "amount": 3000.87, 
       "valueAddedTaxIncluded": true
     }, 
     "guarantee": {
       "currency": "UAH", 
-      "amount": 700
+      "amount": 700.87
     }
   }
 }
@@ -38,33 +47,42 @@ X-Content-Type-Options: nosniff
 {
   "data": {
     "status": "scheduled", 
+    "bankAccount": {
+      "accountIdentification": [
+        {
+          "scheme": "accountNumber", 
+          "id": "111111-8", 
+          "description": "some description"
+        }
+      ], 
+      "bankName": "name of bank"
+    }, 
     "minimalStep": {
       "currency": "UAH", 
-      "amount": 300.0, 
+      "amount": 300.87, 
       "valueAddedTaxIncluded": true
     }, 
     "auctionPeriod": {
-      "startDate": "2018-05-30T18:39:50.545034+03:00", 
-      "endDate": "2018-06-04T18:39:50.545034+03:00"
+      "startDate": "2018-08-23T14:56:45.642186+03:00"
     }, 
     "registrationFee": {
       "currency": "UAH", 
-      "amount": 700.0
+      "amount": 700.87
     }, 
     "procurementMethodType": "sellout.english", 
     "value": {
       "currency": "UAH", 
-      "amount": 3000.0, 
+      "amount": 3000.87, 
       "valueAddedTaxIncluded": true
     }, 
-    "id": "daad73e4924547f691a846f9333302ca", 
+    "id": "6e42e3cd9527444f93cce6d9b8dc4617", 
     "auctionParameters": {
       "type": "english"
     }, 
     "tenderAttempts": 1, 
     "guarantee": {
       "currency": "UAH", 
-      "amount": 700.0
+      "amount": 700.87
     }
   }
 }

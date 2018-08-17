@@ -1,12 +1,12 @@
-PATCH /api/2.4/lots/0482cb9c32ed46dc9301084d935dc90e HTTP/1.0
-Authorization: Basic Y29udm95Og==
-Content-Length: 36
+PATCH /api/2.5/lots/f2bb47f00ba54ce1beba70d442fa934d/contracts/b5d4265a0dd746bdac85effb9ff4139c HTTP/1.0
+Authorization: Basic Y2FyYXZhbjo=
+Content-Length: 32
 Content-Type: application/json
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
 DATA:
 {
   "data": {
-    "status": "pending.sold"
+    "status": "complete"
   }
 }
 
@@ -15,122 +15,9 @@ Content-Type: application/json
 X-Content-Type-Options: nosniff
 {
   "data": {
-    "status": "pending.sold", 
-    "rectificationPeriod": {
-      "startDate": "2018-05-22T18:40:41.031201+03:00", 
-      "endDate": "2018-05-23T18:40:41.031201+03:00"
-    }, 
-    "lotID": "UA-LR-DGF-2018-05-25-000006", 
-    "assets": [
-      "838bd7a94eae4f4f95b0cbd029c8daa5"
-    ], 
-    "title": "title", 
-    "lotType": "loki", 
-    "dateModified": "2018-05-25T18:40:41.414430+03:00", 
-    "owner": "broker", 
-    "next_check": "2018-05-23T18:40:41.031201+03:00", 
-    "auctions": [
-      {
-        "status": "scheduled", 
-        "minimalStep": {
-          "currency": "UAH", 
-          "amount": 300.0, 
-          "valueAddedTaxIncluded": true
-        }, 
-        "auctionPeriod": {
-          "startDate": "2018-05-30T18:39:50.545034+03:00", 
-          "endDate": "2018-06-04T18:39:50.545034+03:00"
-        }, 
-        "registrationFee": {
-          "currency": "UAH", 
-          "amount": 700.0
-        }, 
-        "procurementMethodType": "sellout.english", 
-        "value": {
-          "currency": "UAH", 
-          "amount": 3000.0, 
-          "valueAddedTaxIncluded": true
-        }, 
-        "id": "f1b68733888245658f0b98f3aa4b2bb7", 
-        "auctionParameters": {
-          "type": "english"
-        }, 
-        "tenderAttempts": 1, 
-        "guarantee": {
-          "currency": "UAH", 
-          "amount": 700.0
-        }
-      }, 
-      {
-        "status": "scheduled", 
-        "minimalStep": {
-          "currency": "UAH", 
-          "amount": 150.0, 
-          "valueAddedTaxIncluded": true
-        }, 
-        "registrationFee": {
-          "currency": "UAH", 
-          "amount": 350.0
-        }, 
-        "procurementMethodType": "sellout.english", 
-        "value": {
-          "currency": "UAH", 
-          "amount": 1500.0, 
-          "valueAddedTaxIncluded": true
-        }, 
-        "tenderingDuration": "P25DT12H", 
-        "id": "d49c358de4644eb0b53f5b07a25a2190", 
-        "auctionParameters": {
-          "type": "english"
-        }, 
-        "tenderAttempts": 2, 
-        "guarantee": {
-          "currency": "UAH", 
-          "amount": 350.0
-        }
-      }, 
-      {
-        "status": "scheduled", 
-        "minimalStep": {
-          "currency": "UAH", 
-          "amount": 0, 
-          "valueAddedTaxIncluded": true
-        }, 
-        "registrationFee": {
-          "currency": "UAH", 
-          "amount": 350.0
-        }, 
-        "procurementMethodType": "sellout.insider", 
-        "value": {
-          "currency": "UAH", 
-          "amount": 1500.0, 
-          "valueAddedTaxIncluded": true
-        }, 
-        "tenderingDuration": "P25DT12H", 
-        "id": "3715f3bf70db4fdc99576ce7c1ee23f0", 
-        "auctionParameters": {
-          "type": "insider", 
-          "dutchSteps": 99
-        }, 
-        "tenderAttempts": 3, 
-        "guarantee": {
-          "currency": "UAH", 
-          "amount": 350.0
-        }
-      }
-    ], 
-    "date": "2018-05-25T18:40:41.414232+03:00", 
-    "decisions": [
-      {
-        "decisionDate": "2018-05-25T18:40:41.043143+03:00", 
-        "decisionID": "decisionAssetID"
-      }, 
-      {
-        "decisionDate": "2018-05-25T18:40:41.043168+03:00", 
-        "decisionID": "decisionAssetID"
-      }
-    ], 
-    "id": "0482cb9c32ed46dc9301084d935dc90e"
+    "status": "complete", 
+    "type": "yoke", 
+    "id": "b5d4265a0dd746bdac85effb9ff4139c"
   }
 }
 

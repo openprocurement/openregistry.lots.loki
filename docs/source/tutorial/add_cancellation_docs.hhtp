@@ -1,13 +1,13 @@
-POST /api/2.4/lots/8286cc7863814271afe23cb2646237ed/documents HTTP/1.0
+POST /api/2.5/lots/ce437a4384f44fcdb5b75f9675ca0a82/documents HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 348
+Content-Length: 358
 Content-Type: application/json
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
-X-Access-Token: 696900bbe76b405891282adaf3d9bf56
+X-Access-Token: 43027267d2f645f9b1e36244f6d8a207
 DATA:
 {
   "data": {
-    "url": "http://localhost/get/f519a53095f04822a3f1a01bca3dae91?KeyID=172d32c8&Signature=RDhDQNZFmN7yiFxcV1vYvl9dB5QGAQGSJIhihBp4YENRd%2FMKedDduCyykCpVB3FRfYZdqiCStD2qgGg1PQZmDQ%3D%3D", 
+    "url": "http://localhost/get/6b2cf2eb5c9945338e63054f33bccf9f?KeyID=172d32c8&Signature=%2Fu6U87P%2BZr0yqjOtsnhQgFQ69p2JP8IQnST2tgN4aaXID%2BzIZTkWTjH%2BjbS8%2BfDPKueMBAdhQoJLcIKn%2FrssAw%3D%3D", 
     "title": "укр.doc", 
     "format": "application/msword", 
     "hash": "md5:00000000000000000000000000000000", 
@@ -17,20 +17,20 @@ DATA:
 
 Response: 201 Created
 Content-Type: application/json
-Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.4/lots/8286cc7863814271afe23cb2646237ed/documents/b8b33bf7cd80457c9043064cea2ca9e8
+Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.5/lots/ce437a4384f44fcdb5b75f9675ca0a82/documents/509f7eec259447c4897c9d19c783f293
 X-Content-Type-Options: nosniff
 {
   "data": {
-    "dateModified": "2018-05-25T18:40:38.228386+03:00", 
     "hash": "md5:00000000000000000000000000000000", 
-    "format": "application/msword", 
-    "url": "http://localhost/get/f519a53095f04822a3f1a01bca3dae91?KeyID=172d32c8&Signature=7DCJvqsnremic3%2FP5tUMmm%252BKHAoDiPH%2FXGt1BDvq9FDl5k4eh5M5rH1GhkuKK7pcKALjWz644LdnsRcT47TrCw%253D%253D", 
     "author": "lot_owner", 
-    "documentOf": "lot", 
-    "datePublished": "2018-05-25T18:40:38.228355+03:00", 
-    "documentType": "cancellationDetails", 
     "title": "укр.doc", 
-    "id": "b8b33bf7cd80457c9043064cea2ca9e8"
+    "url": "http://localhost/get/6b2cf2eb5c9945338e63054f33bccf9f?KeyID=172d32c8&Signature=NuFvA%2FZC9zlhEPaF7G%252BDUYjPg2bEW6yKrB5NpQ8a091EnQqlCFhqmXaFJiB7XgswKpn3fr67X%2Ff9c5jhbSmpDw%253D%253D", 
+    "format": "application/msword", 
+    "documentOf": "lot", 
+    "datePublished": "2018-08-17T14:51:47.118765+03:00", 
+    "documentType": "cancellationDetails", 
+    "dateModified": "2018-08-17T14:51:47.118798+03:00", 
+    "id": "509f7eec259447c4897c9d19c783f293"
   }
 }
 

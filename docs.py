@@ -2,11 +2,13 @@
 from copy import deepcopy
 from requests import Session
 from datetime import timedelta
+from uuid import uuid4
 
 from openregistry.lots.core.tests.base import PrefixedRequestClass, DumpsTestAppwebtest
 from openregistry.lots.loki.tests.base import BaseLotWebTest
 from openregistry.lots.loki.tests.json_data import (
     test_loki_lot_data,
+    test_loki_item_data,
     auction_english_data,
     auction_second_english_data
 )
@@ -20,11 +22,10 @@ SESSION = Session()
 
 
 class LotResourceTest(BaseLotWebTest):
+    record_http = True
 
     def setUp(self):
         super(LotResourceTest, self).setUp()
-        self.app = DumpsTestAppwebtest(
-            "config:tests.ini", relative_to=self.relative_to)
         self.app.RequestClass = PrefixedRequestClass
         self.app.authorization = ('Basic', ('broker', ''))
         self.couchdb_server = self.app.app.registry.couchdb_server
@@ -40,6 +41,12 @@ class LotResourceTest(BaseLotWebTest):
 
     def from_initial_to_decisions(self):
         request_path = '/?opt_pretty=1'
+        self.initial_data['decisions'] = [
+            {
+                'decisionDate': get_now().isoformat(),
+                'decisionID': 'initialDecisionID'
+            }
+        ]
 
         response = self.app.post_json(request_path, {"data": self.initial_data})
         self.assertEqual(response.status, '201 Created')
@@ -74,6 +81,18 @@ class LotResourceTest(BaseLotWebTest):
             params={'data': auction_second_english_data}, headers=access_header)
         self.assertEqual(response.status, '200 OK')
 
+        # Add relatedProcess to lot
+        #
+        related_process = {
+            'relatedProcessID': uuid4().hex,
+            'type': 'asset'
+        }
+        response = self.app.post_json(
+            '/{}/related_processes'.format(lot_id),
+            params={'data': related_process}, headers=access_header)
+        self.assertEqual(response.status, '201 Created')
+
+
         # Switch to 'verification'
         response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
                                        {'data': {"status": 'verification'}})
@@ -86,6 +105,12 @@ class LotResourceTest(BaseLotWebTest):
 
     def test_docs_tutorial(self):
         request_path = '/?opt_pretty=1'
+        self.initial_data['decisions'] = [
+            {
+                'decisionDate': get_now().isoformat(),
+                'decisionID': 'initialDecisionID'
+            }
+        ]
 
         # Exploring basic rules
         #
@@ -145,6 +170,19 @@ class LotResourceTest(BaseLotWebTest):
                 '/{}/auctions/{}'.format(lot_id, second_english['id']),
                 params={'data': auction_second_english_data}, headers=access_header)
             self.assertEqual(response.status, '200 OK')
+
+        # Add relatedProcess to lot
+        #
+        related_process = {
+            'relatedProcessID': uuid4().hex,
+            'type': 'asset'
+        }
+        with open('docs/source/tutorial/add_related_process_1.http', 'w') as self.app.file_obj:
+            response = self.app.post_json(
+                '/{}/related_processes'.format(lot_id),
+                params={'data': related_process}, headers=access_header)
+            self.assertEqual(response.status, '201 Created')
+
 
         # Switch to 'verification'
         #
@@ -213,9 +251,10 @@ class LotResourceTest(BaseLotWebTest):
  
         # Switch first lot to 'pending'
         #
+        asset_items = [test_loki_item_data]
         with open('docs/source/tutorial/lot-patch-2pc.http', 'w') as self.app.file_obj:
             response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                           {'data': {"status": 'pending'}})
+                                           {'data': {"status": 'pending', 'items': asset_items}})
             self.assertEqual(response.status, '200 OK')
 
         # Switch first lot to 'pending.deleted'
@@ -252,9 +291,10 @@ class LotResourceTest(BaseLotWebTest):
         access_header = {'X-Access-Token': str(owner_token)}
 
           # switch lot to 'pending'
+        asset_items = [test_loki_item_data]
         with open('docs/source/tutorial/switch-lot-to-pending.http', 'w') as self.app.file_obj:
             response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                           {'data': {"status": 'pending'}})
+                                           {'data': {"status": 'pending', 'items': asset_items}})
             self.assertEqual(response.status, '200 OK')
 
         self.app.authorization = ('Basic', ('broker', ''))
@@ -273,8 +313,9 @@ class LotResourceTest(BaseLotWebTest):
         access_header = {'X-Access-Token': str(owner_token)}
 
           # switch lot to 'pending'
+        asset_items = [test_loki_item_data]
         response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                       {'data': {"status": 'pending'}})
+                                       {'data': {"status": 'pending', 'items': asset_items}})
         self.assertEqual(response.status, '200 OK')
 
         rectificationPeriod = Period()
@@ -327,17 +368,28 @@ class LotResourceTest(BaseLotWebTest):
             self.assertEqual(response.status, '200 OK')
 
         self.app.authorization = ('Basic', ('convoy', ''))
+        auction_id = lot['auctions'][0]['id']
 
         with open('docs/source/tutorial/switch-lot-active.contracting.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}'.format(lot_id),
-                                           {'data': {"status": 'active.contracting'}})
+            response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
+                                           {'data': {"status": 'complete'}})
             self.assertEqual(response.status, '200 OK')
 
-          # switch to 'pending.dissolution'
+        fromdb = self.db.get(lot['id'])
+        fromdb = self.lot_model(fromdb)
+
+        fromdb.status = 'active.auction'
+        fromdb.auctions[0].status = 'active'
+        fromdb.store(self.db)
+
+            # switch to 'pending.dissolution'
+
         with open('docs/source/tutorial/patch-lot-to-pending.dissolution.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}'.format(lot_id),
-                                           {'data': {"status": 'pending.dissolution'}})
+            response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
+                                           {'data': {"status": 'cancelled'}})
             self.assertEqual(response.status, '200 OK')
+
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.json['data']['status'], 'pending.dissolution')
 
         self.app.authorization = ('Basic', ('concierge', ''))
@@ -358,7 +410,7 @@ class LotResourceTest(BaseLotWebTest):
 
           # switch lot to 'pending'
         response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                       {'data': {"status": 'pending'}})
+                                       {'data': {"status": 'pending', 'items': asset_items}})
         self.assertEqual(response.status, '200 OK')
 
         rectificationPeriod = Period()
@@ -412,14 +464,18 @@ class LotResourceTest(BaseLotWebTest):
           # switch to 'active.contracting'
         self.app.authorization = ('Basic', ('convoy', ''))
 
-        response = self.app.patch_json('/{}'.format(lot_id),
-                                       {'data': {"status": 'active.contracting'}})
+        auction_id = lot['auctions'][0]['id']
+        response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
+                                       {'data': {"status": 'complete'}})
         self.assertEqual(response.status, '200 OK')
 
           # switch to 'pending.sold'
+        self.app.authorization = ('Basic', ('caravan', ''))
+        contract_id = lot['contracts'][0]['id']
+
         with open('docs/source/tutorial/switch-lot-to-pending.sold.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}'.format(lot_id),
-                                           {'data': {"status": 'pending.sold'}})
+            response = self.app.patch_json('/{}/contracts/{}'.format(lot_id, contract_id),
+                                           {'data': {"status": 'complete'}})
             self.assertEqual(response.status, '200 OK')
 
           # switch to 'sold'
