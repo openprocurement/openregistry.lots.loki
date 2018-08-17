@@ -1,78 +1,38 @@
-PATCH /api/2.5/lots/f2bb47f00ba54ce1beba70d442fa934d HTTP/1.0
+GET /api/2.5/lots/72e4ea5b310e47cf919a4c66f72d8301 HTTP/1.0
 Authorization: Basic Y29uY2llcmdlOg==
-Content-Length: 28
-Content-Type: application/json
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
-DATA:
-{
-  "data": {
-    "status": "sold"
-  }
-}
 
 Response: 200 OK
 Content-Type: application/json
 X-Content-Type-Options: nosniff
 {
   "data": {
-    "status": "sold", 
-    "rectificationPeriod": {
-      "startDate": "2018-08-14T14:51:50.565078+03:00", 
-      "endDate": "2018-08-15T14:51:50.565078+03:00"
-    }, 
-    "lotID": "UA-LR-DGF-2018-08-17-000004", 
-    "title": "title", 
+    "status": "invalid", 
+    "lotID": "UA-LR-DGF-2018-08-17-000001", 
     "contracts": [
       {
-        "status": "complete", 
+        "status": "scheduled", 
         "type": "yoke", 
-        "id": "b5d4265a0dd746bdac85effb9ff4139c"
+        "id": "5ead86e36ab34eb5a89ed667a4c46aff"
       }
     ], 
-    "items": [
-      {
-        "registrationDetails": {
-          "status": "unknown"
-        }, 
-        "description": "футляри до державних нагород", 
-        "classification": {
-          "scheme": "CPV", 
-          "description": "Description", 
-          "id": "73110000-6"
-        }, 
-        "additionalClassifications": [
-          {
-            "scheme": "UA-EDR", 
-            "description": "папір і картон гофровані, паперова й картонна тара", 
-            "id": "111111-4"
-          }
-        ], 
-        "address": {
-          "countryName": "Ukraine"
-        }, 
-        "id": "0", 
-        "unit": {
-          "code": "code"
-        }, 
-        "quantity": 5.0001
-      }
-    ], 
-    "lotType": "loki", 
     "decisions": [
       {
-        "decisionDate": "2018-08-17T14:51:50.583013+03:00", 
-        "decisionID": "decisionAssetID", 
-        "id": "5a3515440f0a435b91bbd49f87f03cac", 
+        "decisionDate": "2018-08-17T19:15:22.107764+03:00", 
+        "decisionID": "initialDecisionID", 
+        "id": "d6e2501a0c9c44cb89668158278dd44d", 
         "decisionOf": "lot"
       }, 
       {
-        "decisionDate": "2018-08-17T14:51:50.583041+03:00", 
+        "relatedItem": "11111111111111111111111111111111", 
+        "decisionDate": "2018-08-17T19:15:22.460736+03:00", 
         "decisionID": "decisionAssetID", 
-        "id": "404ea5789e1844e19d45865a5e7410a5", 
-        "decisionOf": "lot"
+        "id": "bba45fe7993d409db4be2d08947e16df", 
+        "decisionOf": "asset"
       }
     ], 
-    "dateModified": "2018-08-17T14:51:51.151158+03:00", 
+    "lotType": "loki", 
+    "dateModified": "2018-08-17T19:15:22.625736+03:00", 
     "owner": "broker", 
     "documents": [
       {
@@ -80,15 +40,15 @@ X-Content-Type-Options: nosniff
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-17T14:51:50.024222+03:00", 
+        "datePublished": "2018-08-17T19:15:22.115212+03:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-17T14:51:50.024242+03:00", 
-        "id": "501f63f43659458fb3f48ea13e985038"
+        "dateModified": "2018-08-17T19:15:22.115252+03:00", 
+        "id": "b5d5a429747e4717b296b1f14e5b8ee5"
       }
     ], 
     "auctions": [
       {
-        "status": "complete", 
+        "status": "scheduled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -105,7 +65,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "auctionPeriod": {
-          "startDate": "2018-08-23T14:56:45.642186+03:00"
+          "startDate": "2018-08-23T19:20:19.767990+03:00"
         }, 
         "registrationFee": {
           "currency": "UAH", 
@@ -117,7 +77,7 @@ X-Content-Type-Options: nosniff
           "amount": 3000.87, 
           "valueAddedTaxIncluded": true
         }, 
-        "id": "86123a8067ab43e8b3378d33d2a77ee1", 
+        "id": "60acf2459c15405f9f63b8f9bfb7ed75", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -128,7 +88,7 @@ X-Content-Type-Options: nosniff
         }
       }, 
       {
-        "status": "cancelled", 
+        "status": "scheduled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -155,7 +115,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "aa0bf1bb8a14484090abe19bdf45b073", 
+        "id": "6ad318206ec24fa9937e69ed878b9869", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -166,7 +126,7 @@ X-Content-Type-Options: nosniff
         }
       }, 
       {
-        "status": "cancelled", 
+        "status": "scheduled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -193,7 +153,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "2f57befe69024b7ea1ab523423ca7709", 
+        "id": "051674ad27704157aa4bd5913f72d018", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -205,15 +165,15 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-17T14:51:51.150931+03:00", 
+    "date": "2018-08-17T19:15:22.625549+03:00", 
     "relatedProcesses": [
       {
         "type": "asset", 
-        "id": "187b4ea69dc640fe9a0df4cf1cd19afc", 
-        "relatedProcessID": "2914712f2f544bd297744ff9ba2b6b9d"
+        "id": "721f058e3aad4d8aaeaf1c372615c9ed", 
+        "relatedProcessID": "4e09f263778349a28fcd133b8393f930"
       }
     ], 
-    "id": "f2bb47f00ba54ce1beba70d442fa934d"
+    "id": "72e4ea5b310e47cf919a4c66f72d8301"
   }
 }
 

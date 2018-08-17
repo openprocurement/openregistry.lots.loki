@@ -252,9 +252,35 @@ class LotResourceTest(BaseLotWebTest):
         # Switch first lot to 'pending'
         #
         asset_items = [test_loki_item_data]
-        with open('docs/source/tutorial/lot-patch-2pc.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                           {'data': {"status": 'pending', 'items': asset_items}})
+
+        lot = self.app.get('/{}'.format(lot_id)).json['data']
+        related_process_id = lot['relatedProcesses'][0]['id']
+        response = self.app.patch_json('/{}/related_processes/{}'.format(lot_id, related_process_id),
+                                       {'data': {'identifier': 'UA-AR-P-2018-08-17-000002-1'}})
+        self.assertEqual(response.status, '200 OK')
+
+        concierge_patch = {
+            'status': 'pending',
+            'items': asset_items,
+            'title': 'Нежитлове приміщення',
+            'description': 'Нежитлове приміщення для збереження насіння',
+            'lotHolder': {'name': 'Власник лоту', 'identifier': {'scheme': 'AE-ADCD', 'id': '11111-4'}},
+            'lotCustodian': {
+                'name': 'Зберігач лоту',
+                'address': {'countryName': 'Україна'},
+                'identifier': {'scheme': 'AE-ADCD', 'id': '11111-4'},
+                'contactPoint': {'name': 'Сергій', 'email': 'segiy@mail.com'}
+            },
+            'decisions': [
+                lot['decisions'][0], {'decisionID': '11111-4-5', 'relatedItem': uuid4().hex, 'decisionOf': 'asset'}
+            ]
+        }
+        response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
+                                       {'data': concierge_patch})
+        self.assertEqual(response.status, '200 OK')
+
+        with open('docs/source/tutorial/lot-after-concierge-patch-pending-1.http', 'w') as self.app.file_obj:
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
 
         # Switch first lot to 'pending.deleted'
@@ -280,10 +306,14 @@ class LotResourceTest(BaseLotWebTest):
         lot, lot_id, owner_token = self.from_initial_to_decisions()
 
         self.app.authorization = ('Basic', ('concierge', ''))
-        with open('docs/source/tutorial/switch-lot-to-invalid.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}'.format(lot_id),
-                                           params={'data': {"status": 'invalid'}})
+        response = self.app.patch_json('/{}'.format(lot_id),
+                                       params={'data': {"status": 'invalid'}})
+        self.assertEqual(response.status, '200 OK')
+
+        with open('docs/source/tutorial/lot-after-concierge-switch-to-invalid.http', 'w') as self.app.file_obj:
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
+
 
         ### Switch to deleted workflow ###
         self.app.authorization = ('Basic', ('broker', ''))
@@ -292,18 +322,53 @@ class LotResourceTest(BaseLotWebTest):
 
           # switch lot to 'pending'
         asset_items = [test_loki_item_data]
-        with open('docs/source/tutorial/switch-lot-to-pending.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                           {'data': {"status": 'pending', 'items': asset_items}})
+
+        lot = self.app.get('/{}'.format(lot_id)).json['data']
+        related_process_id = lot['relatedProcesses'][0]['id']
+        response = self.app.patch_json('/{}/related_processes/{}'.format(lot_id, related_process_id),
+                                       {'data': {'identifier': 'UA-AR-P-2018-08-17-000002-1'}})
+        self.assertEqual(response.status, '200 OK')
+
+        concierge_patch = {
+            'status': 'pending',
+            'items': asset_items,
+            'title': 'Нежитлове приміщення',
+            'description': 'Нежитлове приміщення для збереження насіння',
+            'lotHolder': {'name': 'Власник лоту', 'identifier': {'scheme': 'AE-ADCD', 'id': '11111-4'}},
+            'lotCustodian': {
+                'name': 'Зберігач лоту',
+                'address': {'countryName': 'Україна'},
+                'identifier': {'scheme': 'AE-ADCD', 'id': '11111-4'},
+                'contactPoint': {'name': 'Сергій', 'email': 'segiy@mail.com'}
+            },
+            'decisions': [
+                lot['decisions'][0], {'decisionID': '11111-4-5', 'relatedItem': uuid4().hex, 'decisionOf': 'asset'}
+            ]
+        }
+        response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
+                                       {'data': concierge_patch})
+        self.assertEqual(response.status, '200 OK')
+
+        with open('docs/source/tutorial/lot-after-concierge-patch-pending-2.http', 'w') as self.app.file_obj:
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
 
         self.app.authorization = ('Basic', ('broker', ''))
         add_cancellationDetails_document(self, lot, access_header)
 
           # switch lot to 'deleted'
+        response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
+                                       {'data': {"status": 'pending.deleted'}})
+        self.assertEqual(response.status, '200 OK')
+
+        self.app.authorization = ('Basic', ('concierge', ''))
+        response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
+                                       {'data': {"status": 'deleted'}})
+        self.assertEqual(response.status, '200 OK')
+
+        self.app.authorization = ('Basic', ('broker', ''))
         with open('docs/source/tutorial/lot-delete-3pc.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                           {'data': {"status": 'pending.deleted'}})
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
 
         ### Switch to pending.dissolution workflow ###
@@ -314,8 +379,31 @@ class LotResourceTest(BaseLotWebTest):
 
           # switch lot to 'pending'
         asset_items = [test_loki_item_data]
+
+        lot = self.app.get('/{}'.format(lot_id)).json['data']
+        related_process_id = lot['relatedProcesses'][0]['id']
+        response = self.app.patch_json('/{}/related_processes/{}'.format(lot_id, related_process_id),
+                                       {'data': {'identifier': 'UA-AR-P-2018-08-17-000002-1'}})
+        self.assertEqual(response.status, '200 OK')
+
+        concierge_patch = {
+            'status': 'pending',
+            'items': asset_items,
+            'title': 'Нежитлове приміщення',
+            'description': 'Нежитлове приміщення для збереження насіння',
+            'lotHolder': {'name': 'Власник лоту', 'identifier': {'scheme': 'AE-ADCD', 'id': '11111-4'}},
+            'lotCustodian': {
+                'name': 'Зберігач лоту',
+                'address': {'countryName': 'Україна'},
+                'identifier': {'scheme': 'AE-ADCD', 'id': '11111-4'},
+                'contactPoint': {'name': 'Сергій', 'email': 'segiy@mail.com'}
+            },
+            'decisions': [
+                lot['decisions'][0], {'decisionID': '11111-4-5', 'relatedItem': uuid4().hex, 'decisionOf': 'asset'}
+            ]
+        }
         response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                       {'data': {"status": 'pending', 'items': asset_items}})
+                                       {'data': concierge_patch})
         self.assertEqual(response.status, '200 OK')
 
         rectificationPeriod = Period()
@@ -370,9 +458,12 @@ class LotResourceTest(BaseLotWebTest):
         self.app.authorization = ('Basic', ('convoy', ''))
         auction_id = lot['auctions'][0]['id']
 
-        with open('docs/source/tutorial/switch-lot-active.contracting.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
-                                           {'data': {"status": 'complete'}})
+        response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
+                                       {'data': {"status": 'complete'}})
+        self.assertEqual(response.status, '200 OK')
+
+        with open('docs/source/tutorial/lot-after-convoy-patch-auction-complete.http', 'w') as self.app.file_obj:
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
 
         fromdb = self.db.get(lot['id'])
@@ -382,25 +473,31 @@ class LotResourceTest(BaseLotWebTest):
         fromdb.auctions[0].status = 'active'
         fromdb.store(self.db)
 
-            # switch to 'pending.dissolution'
+        # switch to 'pending.dissolution'
 
-        with open('docs/source/tutorial/patch-lot-to-pending.dissolution.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
-                                           {'data': {"status": 'cancelled'}})
-            self.assertEqual(response.status, '200 OK')
+        response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
+                                       {'data': {"status": 'cancelled'}})
+        self.assertEqual(response.status, '200 OK')
 
+        response = self.app.get('/{}'.format(lot_id))
+        self.assertEqual(response.json['data']['status'], 'pending.dissolution')
+
+        with open('docs/source/tutorial/lot-after-convoy-patch-auction-cancelled.http', 'w') as self.app.file_obj:
             response = self.app.get('/{}'.format(lot_id))
-            self.assertEqual(response.json['data']['status'], 'pending.dissolution')
+            self.assertEqual(response.status, '200 OK')
 
         self.app.authorization = ('Basic', ('concierge', ''))
 
-          # Switch to 'dissolved'
+        # Switch to 'dissolved'
 
-        with open('docs/source/tutorial/patch-lot-to-dissolved.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}'.format(lot_id),
-                                           {'data': {"status": 'dissolved'}})
+        response = self.app.patch_json('/{}'.format(lot_id),
+                                       {'data': {"status": 'dissolved'}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.json['data']['status'], 'dissolved')
+
+        with open('docs/source/tutorial/lot-after-concierge-patch-lot-dissolved.http', 'w') as self.app.file_obj:
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
-            self.assertEqual(response.json['data']['status'], 'dissolved')
 
         ### Switch to sold workflow ###
 
@@ -473,14 +570,21 @@ class LotResourceTest(BaseLotWebTest):
         self.app.authorization = ('Basic', ('caravan', ''))
         contract_id = lot['contracts'][0]['id']
 
-        with open('docs/source/tutorial/switch-lot-to-pending.sold.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}/contracts/{}'.format(lot_id, contract_id),
-                                           {'data': {"status": 'complete'}})
+        response = self.app.patch_json('/{}/contracts/{}'.format(lot_id, contract_id),
+                                       {'data': {"status": 'complete'}})
+        self.assertEqual(response.status, '200 OK')
+
+        with open('docs/source/tutorial/lot-after-caravan-patch-contract-complete.http', 'w') as self.app.file_obj:
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
 
-          # switch to 'sold'
-        with open('docs/source/tutorial/switch-lot-to-sold.http', 'w') as self.app.file_obj:
-            self.app.authorization = ('Basic', ('concierge', ''))
-            response = self.app.patch_json('/{}'.format(lot_id),
-                                           {'data': {"status": 'sold'}})
+
+        # switch to 'sold'
+        self.app.authorization = ('Basic', ('concierge', ''))
+        response = self.app.patch_json('/{}'.format(lot_id),
+                                       {'data': {"status": 'sold'}})
+        self.assertEqual(response.status, '200 OK')
+
+        with open('docs/source/tutorial/lot-after-concierge-patch-lot-sold.http', 'w') as self.app.file_obj:
+            response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')

@@ -1,59 +1,24 @@
-PATCH /api/2.5/lots/61ac9647306149f8aaca119e789b0020?acc_token=f1ebffd6a4b147fea413d60be4aceebe HTTP/1.0
-Authorization: Basic Y29uY2llcmdlOg==
-Content-Length: 795
-Content-Type: application/json
+GET /api/2.5/lots/04ecebe1469a426aa854c2feab78b151 HTTP/1.0
+Authorization: Basic Y2FyYXZhbjo=
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
-DATA:
-{
-  "data": {
-    "status": "pending", 
-    "items": [
-      {
-        "registrationDetails": {
-          "status": "unknown"
-        }, 
-        "description": "футляри до державних нагород", 
-        "classification": {
-          "scheme": "CPV", 
-          "id": "73110000-6", 
-          "description": "Description"
-        }, 
-        "additionalClassifications": [
-          {
-            "scheme": "UA-EDR", 
-            "id": "111111-4", 
-            "description": "папір і картон гофровані, паперова й картонна тара"
-          }
-        ], 
-        "address": {
-          "countryName": "Ukraine"
-        }, 
-        "id": "0", 
-        "unit": {
-          "code": "code"
-        }, 
-        "quantity": 5.0001
-      }
-    ]
-  }
-}
 
 Response: 200 OK
 Content-Type: application/json
 X-Content-Type-Options: nosniff
 {
   "data": {
-    "status": "pending", 
+    "status": "pending.sold", 
     "rectificationPeriod": {
-      "startDate": "2018-08-17T14:51:48.520122+03:00", 
-      "endDate": "2018-08-19T14:51:48.520122+03:00"
+      "startDate": "2018-08-14T19:15:25.748036+03:00", 
+      "endDate": "2018-08-15T19:15:25.748036+03:00"
     }, 
-    "lotID": "UA-LR-DGF-2018-08-17-000002", 
+    "lotID": "UA-LR-DGF-2018-08-17-000004", 
+    "title": "title", 
     "contracts": [
       {
-        "status": "scheduled", 
+        "status": "complete", 
         "type": "yoke", 
-        "id": "3ac4d5ec4ebd43d8b38f91bc4d6e0ebf"
+        "id": "6e6968f86b5043429595b4d6a7284351"
       }
     ], 
     "items": [
@@ -87,20 +52,19 @@ X-Content-Type-Options: nosniff
     "lotType": "loki", 
     "decisions": [
       {
-        "decisionDate": "2018-08-17T14:51:47.954823+03:00", 
-        "decisionID": "initialDecisionID", 
-        "id": "3effacda43334c6c8aef7f83a24b8473", 
+        "decisionDate": "2018-08-17T19:15:25.772636+03:00", 
+        "decisionID": "decisionAssetID", 
+        "id": "c18b98a2f1944e3dba7c9eb4aa799ff5", 
         "decisionOf": "lot"
       }, 
       {
-        "relatedItem": "11111111111111111111111111111111", 
-        "decisionDate": "2018-08-17T14:51:48.342975+03:00", 
+        "decisionDate": "2018-08-17T19:15:25.772665+03:00", 
         "decisionID": "decisionAssetID", 
-        "id": "12339143a6b2403695b7f62a6fb41700", 
-        "decisionOf": "asset"
+        "id": "902889483a2e442ea5a1e449a810bea9", 
+        "decisionOf": "lot"
       }
     ], 
-    "dateModified": "2018-08-17T14:51:48.536198+03:00", 
+    "dateModified": "2018-08-17T19:15:26.166494+03:00", 
     "owner": "broker", 
     "documents": [
       {
@@ -108,16 +72,15 @@ X-Content-Type-Options: nosniff
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-17T14:51:47.966046+03:00", 
+        "datePublished": "2018-08-17T19:15:25.183049+03:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-17T14:51:47.966076+03:00", 
-        "id": "1e3b85ac0d4548a7b5cee6d6c83c1965"
+        "dateModified": "2018-08-17T19:15:25.183078+03:00", 
+        "id": "d882a6085cf54aeaa1f777e62b76b637"
       }
     ], 
-    "next_check": "2018-08-19T14:51:48.520122+03:00", 
     "auctions": [
       {
-        "status": "scheduled", 
+        "status": "complete", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -134,7 +97,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "auctionPeriod": {
-          "startDate": "2018-08-23T14:56:45.642186+03:00"
+          "startDate": "2018-08-23T19:20:19.767990+03:00"
         }, 
         "registrationFee": {
           "currency": "UAH", 
@@ -146,7 +109,7 @@ X-Content-Type-Options: nosniff
           "amount": 3000.87, 
           "valueAddedTaxIncluded": true
         }, 
-        "id": "dfdd7c9300b044d79c115b970f874830", 
+        "id": "1b28f9152dbd41bfac2ae96281a45d38", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -157,7 +120,7 @@ X-Content-Type-Options: nosniff
         }
       }, 
       {
-        "status": "scheduled", 
+        "status": "cancelled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -184,7 +147,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "0059d108611242628333685ece995823", 
+        "id": "7a963db62e3e4407a1ccce90d5a5c5f3", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -195,7 +158,7 @@ X-Content-Type-Options: nosniff
         }
       }, 
       {
-        "status": "scheduled", 
+        "status": "cancelled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -222,7 +185,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "17fd76828a4c40159ff7792b7a1f3186", 
+        "id": "a5eaf79f5600439290585f6b6ddfd91a", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -234,15 +197,15 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-17T14:51:48.535907+03:00", 
+    "date": "2018-08-17T19:15:26.165995+03:00", 
     "relatedProcesses": [
       {
         "type": "asset", 
-        "id": "5f57278093cf41eb88880a7adcac5773", 
-        "relatedProcessID": "6f33f2dc789c408d8405a8555571f5ad"
+        "id": "c21eeffaf1ac459d8f226077f7171c95", 
+        "relatedProcessID": "e7844d63d12f465194c084bea990f4b9"
       }
     ], 
-    "id": "61ac9647306149f8aaca119e789b0020"
+    "id": "04ecebe1469a426aa854c2feab78b151"
   }
 }
 

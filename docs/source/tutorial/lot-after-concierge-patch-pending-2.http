@@ -1,5 +1,5 @@
 GET /api/2.5/lots/4ae4a62c3b7e414c999d326404a51373 HTTP/1.0
-Authorization: Basic YnJva2VyOg==
+Authorization: Basic Y29uY2llcmdlOg==
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
 
 Response: 200 OK
@@ -7,7 +7,7 @@ Content-Type: application/json
 X-Content-Type-Options: nosniff
 {
   "data": {
-    "status": "deleted", 
+    "status": "pending", 
     "rectificationPeriod": {
       "startDate": "2018-08-17T19:15:23.264109+03:00", 
       "endDate": "2018-08-19T19:15:23.264109+03:00"
@@ -17,7 +17,7 @@ X-Content-Type-Options: nosniff
     "title": "Нежитлове приміщення", 
     "contracts": [
       {
-        "status": "cancelled", 
+        "status": "scheduled", 
         "type": "yoke", 
         "id": "229d02246dc64299af4bbe0d1f77ef55"
       }
@@ -73,7 +73,7 @@ X-Content-Type-Options: nosniff
         "decisionOf": "asset"
       }
     ], 
-    "dateModified": "2018-08-17T19:15:23.639340+03:00", 
+    "dateModified": "2018-08-17T19:15:23.280215+03:00", 
     "owner": "broker", 
     "lotCustodian": {
       "contactPoint": {
@@ -89,9 +89,10 @@ X-Content-Type-Options: nosniff
         "countryName": "Україна"
       }
     }, 
+    "next_check": "2018-08-19T19:15:23.264109+03:00", 
     "auctions": [
       {
-        "status": "cancelled", 
+        "status": "scheduled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -131,7 +132,7 @@ X-Content-Type-Options: nosniff
         }
       }, 
       {
-        "status": "cancelled", 
+        "status": "scheduled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -169,7 +170,7 @@ X-Content-Type-Options: nosniff
         }
       }, 
       {
-        "status": "cancelled", 
+        "status": "scheduled", 
         "bankAccount": {
           "accountIdentification": [
             {
@@ -208,7 +209,7 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-17T19:15:23.639149+03:00", 
+    "date": "2018-08-17T19:15:23.279954+03:00", 
     "documents": [
       {
         "description": "Перелік та реквізити авторизованих електронних майданчиків (найменування установи банку, її адреса та номери рахунків, відкритих для внесення гарантійного внеску, реєстраційного внеску)", 
@@ -219,18 +220,6 @@ X-Content-Type-Options: nosniff
         "documentType": "x_PlatformLegalDetails", 
         "dateModified": "2018-08-17T19:15:22.692585+03:00", 
         "id": "b2b6af0f33114f7495eac781b572324f"
-      }, 
-      {
-        "hash": "md5:00000000000000000000000000000000", 
-        "author": "lot_owner", 
-        "title": "укр.doc", 
-        "url": "http://localhost/get/5a384680f4484dd6b1489d5909af629f?KeyID=172d32c8&Signature=R4P4LJ9DNKvnJUPPSnZdTbYLDEp33ilyfPLvmaxgjuEaA2hLxwxE06Jhx3Jccxa%252Bf46HYXhlKyDsm%2Fq%252B%252B3CDDg%253D%253D", 
-        "format": "application/msword", 
-        "documentOf": "lot", 
-        "datePublished": "2018-08-17T19:15:23.370401+03:00", 
-        "documentType": "cancellationDetails", 
-        "dateModified": "2018-08-17T19:15:23.370422+03:00", 
-        "id": "c5d72bfcb98c43cfb917698077abf8cd"
       }
     ], 
     "relatedProcesses": [
