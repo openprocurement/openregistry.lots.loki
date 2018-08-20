@@ -154,34 +154,34 @@ Concierge operations
 
 For lot to be formed, you need to specify id of the asset which is to be included 
 in that lot. If this assets is available, it will be attached to lot 
-and status of a lot itself will be changed to `pending`. Lot after this:
+and status of a lot itself will be changed to `pending`. The given lot becomes:
 
 .. literalinclude:: tutorial/lot-after-concierge-patch-pending-2.http
    :language: javascript
 
 In case of this assets is unavailable, status of the current lot will turn to `invalid`
-Lot after this:
+The given lot becomes:
 
 .. literalinclude:: tutorial/lot-after-concierge-switch-to-invalid.http
    :language: javascript
 
 When bot finds that status of lot is `pending.deleted`, it
-turns status of the asset being attached to that lot to `pending`. Status of the lot itself will become `deleted`
-Lot after this:
+turns status of the asset being attached to that lot to `pending`. Status of the lot itself will become `deleted`.
+The given lot becomes:
 
 .. literalinclude:: tutorial/lot-delete-3pc.http
    :language: javascript
 
 When bot finds that status of lot is `pending.dissolution`, it
-turns status of the asset being attached to that lot to `pending`. Status of the lot itself will become `dissolved`
-Lot after this:
+turns status of the asset being attached to that lot to `pending`. Status of the lot itself will become `dissolved`.
+The given lot becomes:
    
 .. literalinclude:: tutorial/lot-after-concierge-patch-lot-dissolved.http
    :language: javascript
 
 When bot finds that status of lot is `pending.sold`, it
 turns status of the asset being attached to that lot to `complete`. Status of the lot itself
-turns to `sold`. Lot after this:
+turns to `sold`. The given lot becomes:
 
 .. literalinclude:: tutorial/lot-after-concierge-patch-lot-sold.http
    :language: javascript
@@ -209,20 +209,17 @@ As long as a new procedure is being automatically created, the lot will be given
 .. literalinclude:: tutorial/switch-lot-active.auction.http
    :language: javascript
 
-In case of that lot has not been sold (either `contract` has become `unsuccessful` or a procedure has received `cancelled` status or third procedure (`procurementMethodType: sellout.insider`) has turned to `unsuccessful`) , its status becomes `pending.dissolution`:
-This happens if all three auctions has status unsuccessful or one has cancelled. Lot after this:
+In case of that lot has not been sold (either `contract` has become `unsuccessful` or a procedure has received `cancelled` status or third procedure (`procurementMethodType: sellout.insider`) has turned to `unsuccessful`) , its status becomes `pending.dissolution`. This happens if all three auctions are in `unsuccessful` status or one has been given `cancelled`. The given lot becomes:
 
 .. literalinclude:: tutorial/lot-after-convoy-patch-auction-cancelled.http
    :language: javascript
 
-When contract has been successfully created within the Module of Contracting, lot's status turns to `active.contracting`:
-Convoy patch auction to status complete Lot after this:
+When contract has been successfully created within the Module of Contracting, lot's status turns to `active.contracting`, after what lot becomes `complete`:
 
 .. literalinclude:: tutorial/lot-after-convoy-patch-auction-complete.http
    :language: javascript
 
-When contract reaches `terminated` status, lot automatically becomes `pending.sold`:
-When caravan patch contract to complete. Lot after this:
+When contract reaches `terminated` status, lot automatically becomes `pending.sold`, after what lot becomes `complete`:
 
 .. literalinclude:: tutorial/lot-after-caravan-patch-contract-complete.http
    :language: javascript
