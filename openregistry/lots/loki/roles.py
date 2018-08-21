@@ -67,7 +67,10 @@ related_process_roles = {
 }
 
 
-lot_create_role = (whitelist('status', 'assets', 'lotType', 'lotIdentifier', 'mode', 'sandboxParameters', 'decisions'))
+lot_create_role = (whitelist(
+    'status', 'assets', 'lotType', 'lotIdentifier', 'mode', 'sandboxParameters',
+    'decisions', 'relatedProcesses')
+)
 lot_edit_role = (blacklist(
     'owner_token', 'owner', '_attachments', 'contracts',
     'revisions', 'date', 'dateModified', 'documents', 'auctions', 'relatedProcesses',

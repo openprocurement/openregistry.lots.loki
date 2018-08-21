@@ -262,13 +262,54 @@ def patch_with_concierge(self):
     self.assertNotEqual(response.json['data']['relatedProcessID'], new_data['relatedProcessID'])
     self.assertEqual(response.json['data']['identifier'], new_data['identifier'])
 
-    response = self.app.get(
-        '/{}/related_processes/{}'.format(self.resource_id, related_process_id),
-        params={
-            'data': new_data
-        },
-    )
+    response = self.app.get('/{}/related_processes/{}'.format(self.resource_id, related_process_id))
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.json['data']['id'], related_process_id)
     self.assertNotEqual(response.json['data']['relatedProcessID'], new_data['relatedProcessID'])
     self.assertEqual(response.json['data']['identifier'], new_data['identifier'])
+
+
+def create_related_process_batch_mode(self):
+    data = deepcopy(self.initial_data)
+    related_process_1 = {
+        'id': '1' * 32,
+        'identifier': 'SOME-IDENTIFIER',
+        'type': 'asset',
+        'relatedProcessID': '2' * 32
+    }
+    data['relatedProcesses'] = [
+       related_process_1
+    ]
+    response = self.app.post_json('/', params={'data': data})
+    lot_id = response.json['data']['id']
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(len(response.json['data']['relatedProcesses']), 1)
+    self.assertEqual(response.json['data']['relatedProcesses'][0]['type'], related_process_1['type'])
+    self.assertEqual(
+        response.json['data']['relatedProcesses'][0]['relatedProcessID'],
+        related_process_1['relatedProcessID']
+    )
+    self.assertNotEqual(response.json['data']['relatedProcesses'][0]['id'], related_process_1['id'])
+    self.assertNotIn('identifier', response.json['data']['relatedProcesses'][0])
+
+    related_process_id = response.json['data']['relatedProcesses'][0]['id']
+
+    # Check relatedProcess resource
+    response = self.app.get('/{}/related_processes/{}'.format(lot_id, related_process_id))
+    self.assertEqual(response.json['data']['type'], related_process_1['type'])
+    self.assertEqual(response.json['data']['relatedProcessID'], related_process_1['relatedProcessID'])
+    self.assertNotEqual(response.json['data']['id'], related_process_1['id'])
+    self.assertNotIn('identifier', response.json['data'])
+
+    # More than one related process
+    data['relatedProcesses'] = [
+       related_process_1,
+       related_process_1
+    ]
+    response = self.app.post_json(
+        '/',
+        params={'data': data},
+        status=422,
+        headers=self.access_header
+    )
+    self.assertEqual(response.json['errors'][0]['description'][0], 'Please provide no more than 1 item.')

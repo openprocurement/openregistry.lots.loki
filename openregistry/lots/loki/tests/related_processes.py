@@ -11,7 +11,8 @@ from openregistry.lots.loki.tests.blanks.related_processes_blanks import (
     create_related_process,
     patch_related_process,
     delete_related_process,
-    patch_with_concierge
+    patch_with_concierge,
+    create_related_process_batch_mode
 )
 from openregistry.lots.loki.tests.base import (
     LotContentWebTest
@@ -27,6 +28,7 @@ class LotRelatedProcessResourceTest(LotContentWebTest):
     test_patch_related_process = snitch(patch_related_process)
     test_delete_related_process = snitch(delete_related_process)
     test_patch_with_concierge = snitch(patch_with_concierge)
+    test_create_related_process_batch_mode = snitch(create_related_process_batch_mode)
 
 
 def suite():
