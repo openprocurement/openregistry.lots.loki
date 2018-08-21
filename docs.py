@@ -128,6 +128,20 @@ class LotResourceTest(BaseLotWebTest):
                 request_path, 'data', content_type='application/json', status=422)
             self.assertEqual(response.status, '422 Unprocessable Entity')
 
+        # Creating lot in draft status with relatedProcesses
+        #
+        data_with_rPs = deepcopy(self.initial_data)
+        data_with_rPs['relatedProcesses'] = [
+            {
+                'relatedProcessID': uuid4().hex,
+                'type': 'asset'
+            }
+        ]
+
+        with open('docs/source/tutorial/lot-post-with-rPs.http', 'w') as self.app.file_obj:
+            response = self.app.post_json(request_path, {"data": data_with_rPs})
+            self.assertEqual(response.status, '201 Created')
+
         # Creating lot in draft status
         #
         with open('docs/source/tutorial/lot-post-2pc.http', 'w') as self.app.file_obj:

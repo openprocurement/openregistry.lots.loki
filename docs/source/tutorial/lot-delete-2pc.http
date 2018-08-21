@@ -1,4 +1,4 @@
-PATCH /api/2.5/lots/d66e3d4476144d8bbdd201b4a80f480b?acc_token=295fc83d59cc4905968796f48dbbcbfb HTTP/1.0
+PATCH /api/2.5/lots/ea37278d119147d3bad3442da5f4c342?acc_token=2743b3ba5c844b4498ccb51233fc714b HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 39
 Content-Type: application/json
@@ -17,17 +17,17 @@ X-Content-Type-Options: nosniff
   "data": {
     "status": "pending.deleted", 
     "rectificationPeriod": {
-      "startDate": "2018-08-17T19:15:21.341284+03:00", 
-      "endDate": "2018-08-19T19:15:21.341284+03:00"
+      "startDate": "2018-08-21T17:17:28.234146+03:00", 
+      "endDate": "2018-08-23T17:17:28.234146+03:00"
     }, 
-    "lotID": "UA-LR-DGF-2018-08-17-000001", 
+    "lotID": "UA-LR-DGF-2018-08-21-000002", 
     "description": "Нежитлове приміщення для збереження насіння", 
     "title": "Нежитлове приміщення", 
     "contracts": [
       {
         "status": "scheduled", 
         "type": "yoke", 
-        "id": "d4b5856ed4bc4d188d3ac50bb18a3c21"
+        "id": "8ea3d00b129c48e792e2c7c2339a4870"
       }
     ], 
     "items": [
@@ -68,20 +68,20 @@ X-Content-Type-Options: nosniff
     }, 
     "decisions": [
       {
-        "decisionDate": "2018-08-17T19:15:20.535025+03:00", 
+        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
         "decisionID": "initialDecisionID", 
-        "id": "b0fda3de47d2461591c35150ac46b4ce", 
+        "id": "02658077e8564589a6ee9ad258c7801d", 
         "decisionOf": "lot"
       }, 
       {
-        "relatedItem": "5e72c5a08e27424a81b0a67e7747d3f7", 
-        "decisionDate": "2018-08-17T19:15:21.121681+03:00", 
+        "relatedItem": "1e9b357668314d3b80084e4dc5f0e212", 
+        "decisionDate": "2018-08-21T17:17:28.025945+03:00", 
         "decisionID": "11111-4-5", 
-        "id": "10eca403a82d45e5b44ae22fabe18df2", 
+        "id": "6bdf15ef01224601aed5fa0df47eb148", 
         "decisionOf": "asset"
       }
     ], 
-    "dateModified": "2018-08-17T19:15:21.576920+03:00", 
+    "dateModified": "2018-08-21T17:17:28.467761+03:00", 
     "owner": "broker", 
     "lotCustodian": {
       "contactPoint": {
@@ -116,7 +116,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "auctionPeriod": {
-          "startDate": "2018-08-23T19:20:19.767990+03:00"
+          "startDate": "2018-08-29T17:22:26.797647+03:00"
         }, 
         "registrationFee": {
           "currency": "UAH", 
@@ -128,7 +128,7 @@ X-Content-Type-Options: nosniff
           "amount": 3000.87, 
           "valueAddedTaxIncluded": true
         }, 
-        "id": "519ff21c00a2492199a888c55a59c0bd", 
+        "id": "d61da6b1dcd64c4d83ebdc841190ece3", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -166,7 +166,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "707810f2ff1d48758ca10bd8707ce015", 
+        "id": "f2da3d4a5020423997f4ea91adf0c74a", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -204,7 +204,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "5fe43b480d1043e48628a3bc2a09d10a", 
+        "id": "80e86d8af7754472b017a05619822cc4", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -216,40 +216,40 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-17T19:15:21.576697+03:00", 
+    "date": "2018-08-21T17:17:28.467445+03:00", 
     "documents": [
       {
         "description": "Перелік та реквізити авторизованих електронних майданчиків (найменування установи банку, її адреса та номери рахунків, відкритих для внесення гарантійного внеску, реєстраційного внеску)", 
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-17T19:15:20.558830+03:00", 
+        "datePublished": "2018-08-21T17:17:27.485162+03:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-17T19:15:20.558881+03:00", 
-        "id": "b6aee7b17eb84f839ecfb9d67f06f042"
+        "dateModified": "2018-08-21T17:17:27.485189+03:00", 
+        "id": "abc3a975dcf844deb027d02785a1aff5"
       }, 
       {
         "hash": "md5:00000000000000000000000000000000", 
         "author": "lot_owner", 
         "title": "укр.doc", 
-        "url": "http://localhost/get/2b177e5c618947aeaaecf98d6d026a84?KeyID=172d32c8&Signature=nnBo9gTfZoDfvXDKu3LFu7XqKyq%2F9Bz%252BWTY54ayHU8QcPVlXZA74v2hM7UVZUWsC4h4duCwPedWnvYwAzbEoCQ%253D%253D", 
+        "url": "http://localhost/get/11b23ef83757435da023dd869374691e?KeyID=172d32c8&Signature=Ze8Jm7hkrTMP8YAJ0%2F4xBM4%2F06bD2cWu%252BGIdtEQ9H6UtapSF%2FPjstuIEuKeyAkruP4WpMKVHzW8dpW5ikYKJBQ%253D%253D", 
         "format": "application/msword", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-17T19:15:21.439622+03:00", 
+        "datePublished": "2018-08-21T17:17:28.335482+03:00", 
         "documentType": "cancellationDetails", 
-        "dateModified": "2018-08-17T19:15:21.439658+03:00", 
-        "id": "e113dd2d1a0e460d96764159c544e770"
+        "dateModified": "2018-08-21T17:17:28.335503+03:00", 
+        "id": "5d6b8a95abf8405cb30bcdf957d1e411"
       }
     ], 
     "relatedProcesses": [
       {
         "identifier": "UA-AR-P-2018-08-17-000002-1", 
         "type": "asset", 
-        "id": "8352df3d3c0e490ebe1773cfdceeefa9", 
-        "relatedProcessID": "ad0a74947d804f809597c5d42a92a31f"
+        "id": "614bbcf886284589a76666f8e7210771", 
+        "relatedProcessID": "2d7b237ee4774feba1fb3092e20ba396"
       }
     ], 
-    "id": "d66e3d4476144d8bbdd201b4a80f480b"
+    "id": "ea37278d119147d3bad3442da5f4c342"
   }
 }
 

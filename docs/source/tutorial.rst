@@ -32,11 +32,18 @@ Error states that no `data` has been found in JSON body.
 
 Creating lot
 ------------
+You can create lot with relatedProcesses at once.
+It`s called a batch mode.
+
+.. literalinclude:: tutorial/lot-post-with-rPs.http
+   :language: javascript
+
 
 Let's create lot with the minimal data set:
 
 .. literalinclude:: tutorial/lot-post-2pc.http
    :language: javascript
+
 
 The object you're trying to add initially receives `draft` status. You should manually switch this object from `draft` to `composing` (2 Phase Commit mechanism) so that to add the auction conditions (value.amount, minimalStep.amount, etc.):
 
