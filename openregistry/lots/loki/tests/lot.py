@@ -3,10 +3,15 @@ import os
 import unittest
 
 from openregistry.lots.core.tests.base import BaseWebTest, snitch
-from openregistry.lots.core.tests.blanks.mixins import ResourceTestMixin
-from openregistry.lots.loki.tests.base import (
-    BaseLotWebTest
+from openregistry.lots.core.tests.blanks.mixins import (
+    ResourceTestMixin,
+    ExtractCredentialsMixin
 )
+from openregistry.lots.loki.tests.base import (
+    BaseLotWebTest,
+    LotContentWebTest
+)
+
 from openregistry.lots.loki.tests.json_data import test_loki_lot_data
 from openregistry.lots.loki.tests.blanks.lot_blanks import (
     dateModified_resource,
@@ -33,7 +38,7 @@ from openregistry.lots.loki.tests.blanks.lot_blanks import (
     adding_platformLegalDetails_doc,
     # LotTest
     simple_add_lot,
-    simple_patch
+    simple_patch,
 )
 from openregistry.lots.loki.models import Lot
 
@@ -75,9 +80,14 @@ class LotResourceTest(BaseLotWebTest, ResourceTestMixin):
     test_adding_platformLegalDetails_doc = snitch(adding_platformLegalDetails_doc)
 
 
+class LotExtractCredentialsTest(LotContentWebTest, ExtractCredentialsMixin):
+    pass
+
+
 def suite():
     tests = unittest.TestSuite()
     tests.addTest(unittest.makeSuite(LotResourceTest))
+    tests.addTest(unittest.makeSuite(LotExtractCredentialsTest))
     tests.addTest(unittest.makeSuite(LotTest))
     return tests
 
