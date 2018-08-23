@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from openregistry.lots.core.utils import get_now, context_unpack, LOGGER
+from decimal import Decimal, ROUND_HALF_UP
 
 
 def check_status(request):
@@ -83,6 +84,7 @@ def process_caravan_contract_report_result(request):
 
 
 def update_auctions(lot):
+    prec = Decimal('0.01')
     auctions = sorted(lot.auctions, key=lambda a: a.tenderAttempts)
     english = auctions[0]
     second_english = auctions[1]
@@ -102,7 +104,7 @@ def update_auctions(lot):
             else:
                 auction[key]['amount'] = (
                     0 if key == 'minimalStep' and auction.procurementMethodType == 'sellout.insider'
-                    else round(english[key]['amount'] / 2, 2)
+                    else (english[key]['amount'] / 2).quantize(prec, ROUND_HALF_UP)
                 )
 
     insider.tenderingDuration = second_english.tenderingDuration
