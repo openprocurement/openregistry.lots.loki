@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from copy import deepcopy
+from decimal import Decimal, ROUND_HALF_UP
 from uuid import uuid4
 
 from openregistry.lots.loki.utils import get_now
@@ -25,6 +26,11 @@ DEFAULT_ACCELERATION = 1440
 
 if SANDBOX_MODE:
     test_loki_lot_data['sandboxParameters'] = 'quick, accelerator={}'.format(DEFAULT_ACCELERATION)
+
+
+def round_to_two_decimal_places(value):
+    prec = Decimal('0.01')
+    return float(Decimal(str(value)).quantize(prec, ROUND_HALF_UP).normalize())
 
 
 def add_decisions(self, lot):
