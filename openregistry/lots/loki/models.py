@@ -56,7 +56,8 @@ from openregistry.lots.loki.roles import (
     auction_roles,
     decision_roles,
     auction_period_roles,
-    contracts_roles
+    contracts_roles,
+    related_process_roles
 )
 
 
@@ -190,6 +191,25 @@ class Contract(Model):
         return role
 
 
+class RelatedProcess(Model):
+    id = StringType(required=True, min_length=1, default=lambda: uuid4().hex)
+    type = StringType(default='asset', choices=['asset'])
+    relatedProcessID = MD5Type(required=True)
+    identifier = StringType()
+
+    class Options:
+        roles = related_process_roles
+
+    def get_role(self):
+        root = self.__parent__.__parent__
+        request = root.request
+        if request.authenticated_role == 'concierge':
+            role = 'concierge'
+        else:
+            role = 'edit'
+        return role
+
+
 @implementer(ILokiLot)
 class Lot(BaseLot):
     class Options:
@@ -206,9 +226,10 @@ class Lot(BaseLot):
     items = ListType(ModelType(Item), default=list(), validators=[validate_items_uniq])
     documents = ListType(ModelType(LotDocument), default=list())
     decisions = ListType(ModelType(LotDecision), default=list(), validators=[validate_decision_uniq])
-    assets = ListType(MD5Type(), required=True, min_size=1, max_size=1)
+    relatedProcesses = ListType(ModelType(RelatedProcess), default=list(), max_size=1)
     auctions = ListType(ModelType(Auction), default=list(), max_size=3)
     contracts = ListType(ModelType(Contract), default=list())
+
     _internal_type = 'loki'
 
     def get_role(self):
@@ -248,7 +269,9 @@ class Lot(BaseLot):
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_items'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_auctions'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_lot_decisions'),
+            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'edit_lot_related_processes'),
             (Allow, 'g:concierge', 'upload_lot_auctions'),
+            (Allow, 'g:concierge', 'edit_lot_related_processes'),
             (Allow, 'g:convoy', 'upload_lot_auctions'),
             (Allow, 'g:convoy', 'upload_lot_contracts'),
             (Allow, 'g:caravan', 'upload_lot_contracts'),

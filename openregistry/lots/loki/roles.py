@@ -59,11 +59,21 @@ auction_period_roles = {
 
 }
 
+related_process_roles = {
+    'view': (schematics_default_role + blacklist()),
+    'create': blacklist('id', 'identifier'),
+    'edit': blacklist('id', 'identifier'),
+    'concierge': whitelist('identifier')
+}
 
-lot_create_role = (whitelist('status', 'assets', 'lotType', 'lotIdentifier', 'mode', 'sandboxParameters', 'decisions'))
+
+lot_create_role = (whitelist(
+    'status', 'assets', 'lotType', 'lotIdentifier', 'mode', 'sandboxParameters',
+    'decisions', 'relatedProcesses')
+)
 lot_edit_role = (blacklist(
     'owner_token', 'owner', '_attachments', 'contracts',
-    'revisions', 'date', 'dateModified', 'documents', 'auctions',
+    'revisions', 'date', 'dateModified', 'documents', 'auctions', 'relatedProcesses',
     'lotID', 'mode', 'doc_id', 'rectificationPeriod', 'decisions') + lots_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + lots_embedded_role)
 

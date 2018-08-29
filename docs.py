@@ -41,6 +41,12 @@ class LotResourceTest(BaseLotWebTest):
 
     def from_initial_to_decisions(self):
         request_path = '/?opt_pretty=1'
+        self.initial_data['decisions'] = [
+            {
+                'decisionDate': get_now().isoformat(),
+                'decisionID': 'initialDecisionID'
+            }
+        ]
 
         response = self.app.post_json(request_path, {"data": self.initial_data})
         self.assertEqual(response.status, '201 Created')
@@ -75,6 +81,18 @@ class LotResourceTest(BaseLotWebTest):
             params={'data': auction_second_english_data}, headers=access_header)
         self.assertEqual(response.status, '200 OK')
 
+        # Add relatedProcess to lot
+        #
+        related_process = {
+            'relatedProcessID': uuid4().hex,
+            'type': 'asset'
+        }
+        response = self.app.post_json(
+            '/{}/related_processes'.format(lot_id),
+            params={'data': related_process}, headers=access_header)
+        self.assertEqual(response.status, '201 Created')
+
+
         # Switch to 'verification'
         response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
                                        {'data': {"status": 'verification'}})
@@ -87,6 +105,12 @@ class LotResourceTest(BaseLotWebTest):
 
     def test_docs_tutorial(self):
         request_path = '/?opt_pretty=1'
+        self.initial_data['decisions'] = [
+            {
+                'decisionDate': get_now().isoformat(),
+                'decisionID': 'initialDecisionID'
+            }
+        ]
 
         # Exploring basic rules
         #
@@ -103,6 +127,20 @@ class LotResourceTest(BaseLotWebTest):
             response = self.app.post(
                 request_path, 'data', content_type='application/json', status=422)
             self.assertEqual(response.status, '422 Unprocessable Entity')
+
+        # Creating lot in draft status with relatedProcesses
+        #
+        data_with_rPs = deepcopy(self.initial_data)
+        data_with_rPs['relatedProcesses'] = [
+            {
+                'relatedProcessID': uuid4().hex,
+                'type': 'asset'
+            }
+        ]
+
+        with open('docs/source/tutorial/lot-post-with-rPs.http', 'w') as self.app.file_obj:
+            response = self.app.post_json(request_path, {"data": data_with_rPs})
+            self.assertEqual(response.status, '201 Created')
 
         # Creating lot in draft status
         #
@@ -146,6 +184,19 @@ class LotResourceTest(BaseLotWebTest):
                 '/{}/auctions/{}'.format(lot_id, second_english['id']),
                 params={'data': auction_second_english_data}, headers=access_header)
             self.assertEqual(response.status, '200 OK')
+
+        # Add relatedProcess to lot
+        #
+        related_process = {
+            'relatedProcessID': uuid4().hex,
+            'type': 'asset'
+        }
+        with open('docs/source/tutorial/add_related_process_1.http', 'w') as self.app.file_obj:
+            response = self.app.post_json(
+                '/{}/related_processes'.format(lot_id),
+                params={'data': related_process}, headers=access_header)
+            self.assertEqual(response.status, '201 Created')
+
 
         # Switch to 'verification'
         #
@@ -419,6 +470,7 @@ class LotResourceTest(BaseLotWebTest):
             self.assertEqual(response.status, '200 OK')
 
         self.app.authorization = ('Basic', ('convoy', ''))
+        auction_id = lot['auctions'][0]['id']
 
         response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
                                        {'data': {"status": 'complete'}})
@@ -469,7 +521,7 @@ class LotResourceTest(BaseLotWebTest):
 
           # switch lot to 'pending'
         response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
-                                       {'data': {"status": 'pending'}})
+                                       {'data': {"status": 'pending', 'items': asset_items}})
         self.assertEqual(response.status, '200 OK')
 
         rectificationPeriod = Period()
@@ -523,8 +575,9 @@ class LotResourceTest(BaseLotWebTest):
           # switch to 'active.contracting'
         self.app.authorization = ('Basic', ('convoy', ''))
 
-        response = self.app.patch_json('/{}'.format(lot_id),
-                                       {'data': {"status": 'active.contracting'}})
+        auction_id = lot['auctions'][0]['id']
+        response = self.app.patch_json('/{}/auctions/{}'.format(lot_id, auction_id),
+                                       {'data': {"status": 'complete'}})
         self.assertEqual(response.status, '200 OK')
 
           # switch to 'pending.sold'
