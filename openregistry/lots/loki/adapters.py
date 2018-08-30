@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from openregistry.lots.core.adapters import (
     LotConfigurator,
-    LotManagerAdapter
+    LotManagerAdapter,
+    Manager,
+    ValidateMixin
 )
 from openregistry.lots.core.validation import (
     validate_post_lot_role,
@@ -31,6 +33,7 @@ from .validation import (
     validate_pending_status,
     validate_deleted_status,
     validate_verification_status,
+    validate_related_process_operation_in_not_allowed_lot_status
 )
 
 
@@ -41,6 +44,30 @@ class LokiLotConfigurator(LotConfigurator):
     available_statuses = STATUS_CHANGES
     item_editing_allowed_statuses = ITEM_EDITING_STATUSES
     decision_editing_allowed_statuses = DECISION_EDITING_STATUSES
+
+
+class RelatedProcessManager(Manager, ValidateMixin):
+    create_validators = (
+        validate_related_process_operation_in_not_allowed_lot_status,
+    )
+    update_validators = (
+        validate_related_process_operation_in_not_allowed_lot_status,
+    )
+    delete_validators = (
+        validate_related_process_operation_in_not_allowed_lot_status,
+    )
+
+    def create(self, request):
+        self._validate(request, self.create_validators)
+        self.lot.relatedProcesses.append(request.validated['relatedProcess'])
+
+    def update(self, request):
+        self._validate(request, self.update_validators)
+
+    def delete(self, request):
+        self._validate(request, self.delete_validators)
+        self.lot.relatedProcesses.remove(request.validated['relatedProcess'])
+        self.lot.modified = False
 
 
 class LokiLotManagerAdapter(LotManagerAdapter):
@@ -62,6 +89,13 @@ class LokiLotManagerAdapter(LotManagerAdapter):
             RECTIFICATION_PERIOD_DURATION,
             context=request.context)
         request.context.rectificationPeriod = type(request.context).rectificationPeriod.model_class(data)
+
+    def __init__(self, *args, **kwargs):
+        super(LokiLotManagerAdapter, self).__init__(*args, **kwargs)
+        self.related_processes_manager = RelatedProcessManager(
+            parent=self.context,
+            parent_name='lot'
+        )
 
     def _create_auctions(self, request):
         lot = request.validated['lot']

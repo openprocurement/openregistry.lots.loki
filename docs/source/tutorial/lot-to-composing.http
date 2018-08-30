@@ -1,4 +1,4 @@
-PATCH /api/2.5/lots/d66e3d4476144d8bbdd201b4a80f480b?acc_token=295fc83d59cc4905968796f48dbbcbfb HTTP/1.0
+PATCH /api/2.5/lots/ea37278d119147d3bad3442da5f4c342?acc_token=2743b3ba5c844b4498ccb51233fc714b HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 33
 Content-Type: application/json
@@ -16,16 +16,16 @@ X-Content-Type-Options: nosniff
 {
   "data": {
     "status": "composing", 
-    "lotID": "UA-LR-DGF-2018-08-17-000001", 
+    "lotID": "UA-LR-DGF-2018-08-21-000002", 
     "contracts": [
       {
         "status": "scheduled", 
         "type": "yoke", 
-        "id": "d4b5856ed4bc4d188d3ac50bb18a3c21"
+        "id": "8ea3d00b129c48e792e2c7c2339a4870"
       }
     ], 
     "lotType": "loki", 
-    "dateModified": "2018-08-17T19:15:20.657172+03:00", 
+    "dateModified": "2018-08-21T17:17:27.588390+03:00", 
     "owner": "broker", 
     "documents": [
       {
@@ -33,10 +33,10 @@ X-Content-Type-Options: nosniff
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-17T19:15:20.558830+03:00", 
+        "datePublished": "2018-08-21T17:17:27.485162+03:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-17T19:15:20.558881+03:00", 
-        "id": "b6aee7b17eb84f839ecfb9d67f06f042"
+        "dateModified": "2018-08-21T17:17:27.485189+03:00", 
+        "id": "abc3a975dcf844deb027d02785a1aff5"
       }
     ], 
     "auctions": [
@@ -44,7 +44,7 @@ X-Content-Type-Options: nosniff
         "status": "scheduled", 
         "tenderAttempts": 1, 
         "procurementMethodType": "sellout.english", 
-        "id": "519ff21c00a2492199a888c55a59c0bd", 
+        "id": "d61da6b1dcd64c4d83ebdc841190ece3", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -57,7 +57,7 @@ X-Content-Type-Options: nosniff
         "status": "scheduled", 
         "tenderAttempts": 2, 
         "procurementMethodType": "sellout.english", 
-        "id": "707810f2ff1d48758ca10bd8707ce015", 
+        "id": "f2da3d4a5020423997f4ea91adf0c74a", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -70,7 +70,7 @@ X-Content-Type-Options: nosniff
         "status": "scheduled", 
         "tenderAttempts": 3, 
         "procurementMethodType": "sellout.insider", 
-        "id": "5fe43b480d1043e48628a3bc2a09d10a", 
+        "id": "80e86d8af7754472b017a05619822cc4", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -81,16 +81,16 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-17T19:15:20.656977+03:00", 
+    "date": "2018-08-21T17:17:27.588221+03:00", 
     "decisions": [
       {
-        "decisionDate": "2018-08-17T19:15:20.535025+03:00", 
+        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
         "decisionID": "initialDecisionID", 
-        "id": "b0fda3de47d2461591c35150ac46b4ce", 
+        "id": "02658077e8564589a6ee9ad258c7801d", 
         "decisionOf": "lot"
       }
     ], 
-    "id": "d66e3d4476144d8bbdd201b4a80f480b"
+    "id": "ea37278d119147d3bad3442da5f4c342"
   }
 }
 

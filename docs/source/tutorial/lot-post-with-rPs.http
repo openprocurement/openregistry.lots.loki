@@ -1,31 +1,58 @@
-PATCH /api/2.5/lots/9d44d47e1beb4f1d95ea663f9f69274b?acc_token=b802c036c44948f5a1c2bc0df06d1844 HTTP/1.0
+POST /api/2.5/lots?opt_pretty=1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 53
+Content-Length: 415
 Content-Type: application/json
 Host: lb.api-sandbox.registry.ea2.openprocurement.net
 DATA:
 {
   "data": {
-    "description": "Lot description modified"
+    "decisions": [
+      {
+        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
+        "decisionID": "initialDecisionID"
+      }
+    ], 
+    "lotType": "loki", 
+    "relatedProcesses": [
+      {
+        "type": "asset", 
+        "relatedProcessID": "78456d2cb60842c392a65c1272e52077"
+      }
+    ], 
+    "description": "Щось там тестове", 
+    "title": "Тестовий лот"
   }
 }
 
-Response: 200 OK
+Response: 201 Created
 Content-Type: application/json
+Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.5/lots/20d058d811884303a8452d7bd4dd49e2
 X-Content-Type-Options: nosniff
 {
+  "access": {
+    "transfer": "de421240bb3c464aad2f6b14751ad149", 
+    "token": "21b27f90714249f4a6004788b3176d8f"
+  }, 
   "data": {
-    "status": "composing", 
-    "lotID": "UA-LR-DGF-2018-08-21-000003", 
+    "status": "draft", 
+    "lotID": "UA-LR-DGF-2018-08-21-000001", 
     "contracts": [
       {
         "status": "scheduled", 
         "type": "yoke", 
-        "id": "a117b8aa709e4c1aa6e9e69bb041664b"
+        "id": "759727d026d04cf7b16fcd10abc612ff"
+      }
+    ], 
+    "decisions": [
+      {
+        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
+        "decisionID": "initialDecisionID", 
+        "id": "ac96914428c0448992903475b9e46960", 
+        "decisionOf": "lot"
       }
     ], 
     "lotType": "loki", 
-    "dateModified": "2018-08-21T17:17:27.950335+03:00", 
+    "dateModified": "2018-08-21T17:17:27.458188+03:00", 
     "owner": "broker", 
     "documents": [
       {
@@ -33,10 +60,10 @@ X-Content-Type-Options: nosniff
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-21T17:17:27.874113+03:00", 
+        "datePublished": "2018-08-21T17:17:27.444096+03:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-21T17:17:27.874134+03:00", 
-        "id": "dc4eb5d344374a1caddee3a5d9575204"
+        "dateModified": "2018-08-21T17:17:27.444125+03:00", 
+        "id": "591909ec57634a10b24f2ccd2eb16d27"
       }
     ], 
     "auctions": [
@@ -44,7 +71,7 @@ X-Content-Type-Options: nosniff
         "status": "scheduled", 
         "tenderAttempts": 1, 
         "procurementMethodType": "sellout.english", 
-        "id": "fd1b76b890d44b879106f4371bc8fc53", 
+        "id": "2f50a59c920a46f687d92560baa89465", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -57,7 +84,7 @@ X-Content-Type-Options: nosniff
         "status": "scheduled", 
         "tenderAttempts": 2, 
         "procurementMethodType": "sellout.english", 
-        "id": "3a433affcbd342a4b2b0ffb54f0c86a7", 
+        "id": "66f9e1de308b44ceb7adad40f2f83d65", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -70,7 +97,7 @@ X-Content-Type-Options: nosniff
         "status": "scheduled", 
         "tenderAttempts": 3, 
         "procurementMethodType": "sellout.insider", 
-        "id": "b58423542aa348de95274522f050a314", 
+        "id": "f70611babbb142118f5e53d3c49bf6ed", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -81,16 +108,15 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-21T17:17:27.950151+03:00", 
-    "decisions": [
+    "date": "2018-08-21T17:17:27.456370+03:00", 
+    "relatedProcesses": [
       {
-        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
-        "decisionID": "initialDecisionID", 
-        "id": "45cc20deb9384a8d82c2e30460c17453", 
-        "decisionOf": "lot"
+        "type": "asset", 
+        "id": "ceb86d4997ba43858e92ff7a4256078c", 
+        "relatedProcessID": "78456d2cb60842c392a65c1272e52077"
       }
     ], 
-    "id": "9d44d47e1beb4f1d95ea663f9f69274b"
+    "id": "20d058d811884303a8452d7bd4dd49e2"
   }
 }
 

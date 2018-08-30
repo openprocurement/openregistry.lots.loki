@@ -166,6 +166,32 @@ def add_lot_decision(self, lot_id, headers):
     return response.json['data']
 
 
+def add_lot_related_process(self, lot_id, headers):
+    old_authorization = self.app.authorization
+    self.app.authorization = ('Basic', ('broker', ''))
+
+    response = self.app.get('/{}'.format(lot_id))
+    old_related_processes = len(response.json['data'].get('relatedProcesses', []))
+
+    rP_data = {
+        'relatedProcessID': uuid4().hex,
+    }
+    response = self.app.post_json(
+        '/{}/related_processes'.format(lot_id),
+        {"data": rP_data},
+        headers=headers
+    )
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(response.json['data']['relatedProcessID'], rP_data['relatedProcessID'])
+
+    response = self.app.get('/{}'.format(lot_id))
+    present_related_processes = len(response.json['data'].get('relatedProcesses', []))
+    self.assertEqual(old_related_processes + 1, present_related_processes)
+
+    self.app.authorization = old_authorization
+    return response.json['data']
+
+
 MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG,
                                      base=BASE_MOCK_CONFIG,
                                      connector=('plugins', 'api', 'plugins',
@@ -179,7 +205,6 @@ class BaseLotWebTest(BaseLWT):
 
     def setUp(self):
         self.initial_data = deepcopy(test_loki_lot_data)
-        self.initial_data['assets'] = [uuid4().hex]
         super(BaseLotWebTest, self).setUp()
 
 
