@@ -3,7 +3,6 @@ from openregistry.lots.core.adapters import (
     LotConfigurator,
     LotManagerAdapter,
     Manager,
-    ValidateMixin
 )
 from openregistry.lots.core.validation import (
     validate_post_lot_role,
@@ -13,7 +12,8 @@ from openregistry.lots.core.utils import (
     get_now,
     calculate_business_date,
     apply_patch,
-    save_lot
+    save_lot,
+    validate_with,
 )
 from openregistry.lots.loki.utils import (
     check_status,
@@ -46,7 +46,7 @@ class LokiLotConfigurator(LotConfigurator):
     decision_editing_allowed_statuses = DECISION_EDITING_STATUSES
 
 
-class RelatedProcessManager(Manager, ValidateMixin):
+class RelatedProcessManager(Manager):
     create_validators = (
         validate_related_process_operation_in_not_allowed_lot_status,
     )
@@ -57,15 +57,16 @@ class RelatedProcessManager(Manager, ValidateMixin):
         validate_related_process_operation_in_not_allowed_lot_status,
     )
 
+    @validate_with(create_validators)
     def create(self, request):
-        self._validate(request, self.create_validators)
         self.lot.relatedProcesses.append(request.validated['relatedProcess'])
 
+    @validate_with(update_validators)
     def update(self, request):
-        self._validate(request, self.update_validators)
+        pass
 
+    @validate_with(delete_validators)
     def delete(self, request):
-        self._validate(request, self.delete_validators)
         self.lot.relatedProcesses.remove(request.validated['relatedProcess'])
         self.lot.modified = False
 

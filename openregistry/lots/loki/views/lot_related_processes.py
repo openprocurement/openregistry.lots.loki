@@ -8,7 +8,7 @@ from openregistry.lots.core.utils import (
     save_lot, oplotsresource, apply_patch,
 )
 from openregistry.lots.core.interfaces import ILotManager
-from openregistry.lots.loki.validation import (
+from openregistry.lots.core.validation import (
     validate_related_process_data,
     validate_patch_related_process_data,
 )

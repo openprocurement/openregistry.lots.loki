@@ -24,7 +24,8 @@ from openregistry.lots.core.models import (
     Period,
     Value,
     BankAccount,
-    AuctionParameters
+    AuctionParameters,
+    RelatedProcess,
 )
 
 from openregistry.lots.core.validation import (
@@ -57,7 +58,6 @@ from openregistry.lots.loki.roles import (
     decision_roles,
     auction_period_roles,
     contracts_roles,
-    related_process_roles
 )
 
 
@@ -188,25 +188,6 @@ class Contract(Model):
             role = 'caravan'
         if request.authenticated_role == 'convoy':
             role = 'convoy'
-        return role
-
-
-class RelatedProcess(Model):
-    id = StringType(required=True, min_length=1, default=lambda: uuid4().hex)
-    type = StringType(default='asset', choices=['asset'])
-    relatedProcessID = MD5Type(required=True)
-    identifier = StringType()
-
-    class Options:
-        roles = related_process_roles
-
-    def get_role(self):
-        root = self.__parent__.__parent__
-        request = root.request
-        if request.authenticated_role == 'concierge':
-            role = 'concierge'
-        else:
-            role = 'edit'
         return role
 
 

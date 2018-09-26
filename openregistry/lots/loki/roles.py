@@ -59,13 +59,6 @@ auction_period_roles = {
 
 }
 
-related_process_roles = {
-    'view': (schematics_default_role + blacklist()),
-    'create': blacklist('id', 'identifier'),
-    'edit': blacklist('id', 'identifier'),
-    'concierge': whitelist('identifier')
-}
-
 
 lot_create_role = (whitelist(
     'status', 'assets', 'lotType', 'lotIdentifier', 'mode', 'sandboxParameters',
