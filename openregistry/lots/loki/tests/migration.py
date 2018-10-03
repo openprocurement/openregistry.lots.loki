@@ -4,7 +4,7 @@ import unittest
 from openregistry.lots.loki.tests.base import BaseLotWebTest
 from openregistry.lots.loki.tests.json_data import test_loki_lot_data
 from openregistry.lots.loki.migration import (
-    migrate_data, SCHEMA_VERSION, get_db_schema_version, from0to1, migrate_assets_to_related_processes
+    migrate_data, SCHEMA_VERSION, get_db_schema_version, from0to1
 )
 
 
