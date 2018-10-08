@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+from openregistry.lots.core.traversal import Root
 from openregistry.lots.loki.tests.base import BaseLotWebTest
 from openregistry.lots.loki.tests.json_data import test_loki_lot_data
 from openregistry.lots.loki.migration import (
-    migrate_data, SCHEMA_VERSION, get_db_schema_version, from0to1
+    AddRelatedProcessesStep,
+    LokiMigrationsRunner,
 )
 
 
 class MigrateTest(BaseLotWebTest):
-    migrate_data = staticmethod(migrate_data)
-    get_db_schema_version = staticmethod(get_db_schema_version)
-
     initial_data = test_loki_lot_data
-    schema_version = SCHEMA_VERSION
     initial_status = 'draft'
     docservice = True
 
     def setUp(self):
         super(MigrateTest, self).setUp()
-        migrate_data(self.app.app.registry)
+        self.migration_runner = LokiMigrationsRunner(self.app.app.registry, Root)
 
     def test_migrate_draft_lot(self):
         # Create situation when we need migration for lot in status draft
@@ -38,7 +36,8 @@ class MigrateTest(BaseLotWebTest):
         lot['assets'] = assets
         self.db.save(lot)
 
-        from0to1(self.app.app.registry)
+        steps = (AddRelatedProcessesStep,)
+        self.migration_runner.migrate(steps, schema_version_max=1, check_plugins=False)
 
         # Test if api works well
         # Test if migration change document
@@ -95,7 +94,8 @@ class MigrateTest(BaseLotWebTest):
         lot['assets'] = assets
         self.db.save(lot)
 
-        from0to1(self.app.app.registry)
+        steps = (AddRelatedProcessesStep,)
+        self.migration_runner.migrate(steps, schema_version_max=1, check_plugins=False)
 
         # Test if api works well
         # Test if migration change document
@@ -121,9 +121,10 @@ class MigrateTest(BaseLotWebTest):
         )
         test_document_data['url'] = self.generate_docservice_url()
 
-        self.app.post_json('/{}/documents'.format(self.resource_id),
-                                      headers=self.access_header,
-                                      params={'data': test_document_data})
+        self.app.post_json(
+            '/{}/documents'.format(self.resource_id),
+            headers=self.access_header,
+            params={'data': test_document_data})
 
         response = self.app.patch_json(
             '/{}'.format(self.resource_id),
