@@ -4,9 +4,13 @@ import logging
 from pyramid.interfaces import IRequest
 
 from openregistry.lots.core.interfaces import IContentConfigurator, ILotManager
+from openregistry.lots.core.traversal import Root
 from openregistry.lots.loki.models import Lot, ILokiLot
 from openregistry.lots.loki.adapters import LokiLotConfigurator, LokiLotManagerAdapter
-from openregistry.lots.loki.migration import migrate_data
+from openregistry.lots.loki.migration import (
+    LokiMigrationsRunner,
+    MIGRATION_STEPS,
+)
 from openregistry.lots.loki.constants import (
     DEFAULT_LOT_TYPE,
     DEFAULT_LEVEL_OF_ACCREDITATION
@@ -33,7 +37,8 @@ def includeme(config, plugin_config=None):
 
     # migrate data
     if plugin_config.get('migration') is True:
-        migrate_data(config.registry)
+        runner = LokiMigrationsRunner(config.registry, Root)
+        runner.migrate(MIGRATION_STEPS)
 
     # add accreditation level
     if not plugin_config.get('accreditation'):
