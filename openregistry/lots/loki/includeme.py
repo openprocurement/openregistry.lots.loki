@@ -34,7 +34,6 @@ def includeme(config, plugin_config=None):
         config.add_lotType(Lot, lt)
     LOGGER.info("Included openregistry.lots.loki plugin", extra={'MESSAGE_ID': 'included_plugin'})
 
-
     # migrate data
     if plugin_config.get('migration') is True:
         runner = LokiMigrationsRunner(config.registry, Root)

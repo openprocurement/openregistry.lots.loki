@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from uuid import uuid4
 from pyramid.security import Allow
-from schematics.types import StringType, IntType, MD5Type, FloatType
+from schematics.types import StringType, IntType, FloatType
 from schematics.exceptions import ValidationError
 from schematics.types.compound import ModelType, ListType
 from schematics.types.serializable import serializable
