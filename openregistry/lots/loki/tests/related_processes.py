@@ -24,17 +24,19 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
     """
 
     def mixinSetUp(self):
-        self.base_resource_initial_data = test_loki_lot_data
-        self.rp_resource_collection_url = '/{}/related_processes'.format(self.resource_id)
-        self.base_resource_url = '/'
+        self.base_resource_url = '/{0}'.format(self.resource_id)
+        self.base_resource_collection_url = '/'
 
         token = self.db[self.resource_id]['owner_token']
         self.access_header = {'X-Access-Token': str(token)}
 
         self.initial_related_process_data = test_related_process_data
+        self.base_resource_initial_data = test_loki_lot_data
 
     def test_create_2_related_processes_in_the_batch_mode(self):
-        data = deepcopy(self.initial_data)
+        self.mixinSetUp()
+
+        data = deepcopy(self.base_resource_initial_data)
         related_process_1 = {
             'id': '1' * 32,
             'identifier': 'SOME-IDENTIFIER',
@@ -46,7 +48,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
            related_process_1,
         )
         response = self.app.post_json(
-            '/',
+            self.base_resource_collection_url,
             params={'data': data},
             status=422,
             headers=self.access_header
@@ -59,7 +61,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
         # Create relatedProcess
         data = deepcopy(self.initial_related_process_data)
         response = self.app.post_json(
-            self.rp_resource_collection_url,
+            self.base_resource_url + self.RESOURCE_POSTFIX,
             params={
                 'data': data
             },
@@ -73,7 +75,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
 
         self.set_status('pending')
         response = self.app.patch_json(
-            self.rp_resource_collection_url + '/' + related_process_id,
+            self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id),
             params={
                 'data': new_data
             },
@@ -90,7 +92,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
         self.mixinSetUp()
 
         response = self.app.post_json(
-            self.rp_resource_collection_url,
+            self.base_resource_url + self.RESOURCE_POSTFIX,
             params={
                 'data': self.initial_related_process_data
             },
@@ -104,7 +106,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
 
         self.set_status('pending')
         response = self.app.delete(
-            self.rp_resource_collection_url + '/' + related_process_id,
+            self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id),
             headers=self.access_header,
             status=403
         )
@@ -114,7 +116,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
             'Can\'t update relatedProcess in current ({}) lot status'.format('pending')
         )
 
-        response = self.app.get(self.rp_resource_collection_url)
+        response = self.app.get(self.base_resource_url + self.RESOURCE_POSTFIX)
         self.assertEqual(len(response.json['data']), 1)
 
     def test_patch_relatedProcess_in_not_allowed_status(self):
@@ -122,7 +124,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
 
         # Create relatedProcess
         response = self.app.post_json(
-            self.rp_resource_collection_url,
+            self.base_resource_url + self.RESOURCE_POSTFIX,
             params={
                 'data': self.initial_related_process_data
             },
@@ -138,7 +140,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
 
         self.app.authorization = ('Basic', ('concierge', ''))
         response = self.app.patch_json(
-            self.rp_resource_collection_url + '/' + related_process_id,
+            self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id),
             params={
                 'data': new_data
             },
@@ -150,7 +152,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
 
         # Patch relatedProcess
         response = self.app.patch_json(
-            self.rp_resource_collection_url + '/' + related_process_id,
+            self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id),
             params={'data': new_data}
         )
         self.assertEqual(response.status, '200 OK')
@@ -158,7 +160,7 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
         self.assertNotEqual(response.json['data']['relatedProcessID'], new_data['relatedProcessID'])
         self.assertEqual(response.json['data']['identifier'], new_data['identifier'])
 
-        response = self.app.get(self.rp_resource_collection_url + '/' + related_process_id)
+        response = self.app.get(self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.json['data']['id'], related_process_id)
         self.assertNotEqual(response.json['data']['relatedProcessID'], new_data['relatedProcessID'])

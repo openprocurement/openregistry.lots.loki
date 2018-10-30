@@ -4,7 +4,9 @@ import logging
 from pyramid.interfaces import IRequest
 
 from openregistry.lots.core.interfaces import IContentConfigurator, ILotManager
-from openregistry.lots.core.traversal import Root
+from openregistry.lots.core.traversal import Root, factory
+from openregistry.lots.core.utils import add_related_processes_views
+
 from openregistry.lots.loki.models import Lot, ILokiLot
 from openregistry.lots.loki.adapters import LokiLotConfigurator, LokiLotManagerAdapter
 from openregistry.lots.loki.migration import (
@@ -44,3 +46,5 @@ def includeme(config, plugin_config=None):
         config.registry.accreditation['lot'][Lot._internal_type] = DEFAULT_LEVEL_OF_ACCREDITATION
     else:
         config.registry.accreditation['lot'][Lot._internal_type] = plugin_config['accreditation']
+    # Related Processes
+    add_related_processes_views(config, '/lots/{lot_id}', factory)

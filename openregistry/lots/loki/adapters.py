@@ -60,15 +60,17 @@ class RelatedProcessManager(Manager):
     @validate_with(create_validators)
     def create(self, request):
         self.lot.relatedProcesses.append(request.validated['relatedProcess'])
+        return save_lot(request)
 
     @validate_with(update_validators)
     def update(self, request):
-        pass
+        return apply_patch(request, src=request.context.serialize())
 
     @validate_with(delete_validators)
     def delete(self, request):
         self.lot.relatedProcesses.remove(request.validated['relatedProcess'])
         self.lot.modified = False
+        return save_lot(request)
 
 
 class LokiLotManagerAdapter(LotManagerAdapter):
