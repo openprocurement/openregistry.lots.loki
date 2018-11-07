@@ -174,7 +174,7 @@ def patch_english_auction(self):
     )
     self.assertEqual(
         second_english['guarantee']['amount'],
-        round_to_two_decimal_places(english['guarantee']['amount'] / 2)
+        round_to_two_decimal_places(second_english['value']['amount'] / 100)
     )
     self.assertEqual(second_english['bankAccount'], english['bankAccount'])
     self.assertEqual(second_english['registrationFee'], english['registrationFee'])
@@ -191,7 +191,7 @@ def patch_english_auction(self):
     self.assertEqual(insider['minimalStep']['amount'], 0)
     self.assertEqual(
         insider['guarantee']['amount'],
-        round_to_two_decimal_places(english['guarantee']['amount'] / 2)
+        round_to_two_decimal_places(second_english['value']['amount'] / 100)
     )
     self.assertEqual(insider['bankAccount'], english['bankAccount'])
     self.assertEqual(insider['registrationFee'], english['registrationFee'])
@@ -236,7 +236,7 @@ def patch_english_auction(self):
     self.assertEqual(second_english['minimalStep']['amount'], english['minimalStep']['amount'] / 2)
     self.assertEqual(
         second_english['guarantee']['amount'],
-        round_to_two_decimal_places(english['guarantee']['amount'] / 2)
+        round_to_two_decimal_places(second_english['value']['amount'] / 100)
     )
     self.assertEqual(second_english['auctionParameters']['type'], 'english')
     self.assertNotIn('dutchSteps', second_english['auctionParameters'])
@@ -248,7 +248,7 @@ def patch_english_auction(self):
     self.assertEqual(insider['minimalStep']['amount'], 0)
     self.assertEqual(
         insider['guarantee']['amount'],
-        round_to_two_decimal_places(english['guarantee']['amount'] / 2)
+        round_to_two_decimal_places(second_english['value']['amount'] / 100)
     )
     self.assertEqual(insider['auctionParameters']['type'], 'insider')
     self.assertEqual(insider['auctionParameters']['dutchSteps'], DEFAULT_DUTCH_STEPS)
