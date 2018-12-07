@@ -7,9 +7,6 @@ from openregistry.lots.core.migration import (
     BaseMigrationsRunner,
     BaseMigrationStep,
 )
-from openregistry.lots.core.utils import (
-    get_now,
-)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,8 +24,6 @@ class AddRelatedProcessesStep(BaseMigrationStep):
         self.view = 'lot/all'
 
     def migrate_document(self, lot):
-        lot_id = lot['_id']
-
         if lot.get('relatedProcesses'):
             return
 
