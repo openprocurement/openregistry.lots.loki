@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from openregistry.lots.core.traversal import Root
 from openregistry.lots.loki.tests.base import BaseLotWebTest
 from openregistry.lots.loki.tests.json_data import test_loki_lot_data
 from openregistry.lots.loki.migration import (
@@ -17,7 +16,7 @@ class MigrateTest(BaseLotWebTest):
 
     def setUp(self):
         super(MigrateTest, self).setUp()
-        self.migration_runner = LokiMigrationsRunner(self.app.app.registry, Root)
+        self.migration_runner = LokiMigrationsRunner(self.db)
 
     def test_migrate_draft_lot(self):
         # Create situation when we need migration for lot in status draft
@@ -37,7 +36,7 @@ class MigrateTest(BaseLotWebTest):
         self.db.save(lot)
 
         steps = (AddRelatedProcessesStep,)
-        self.migration_runner.migrate(steps, schema_version_max=1, check_plugins=False)
+        self.migration_runner.migrate(steps, schema_version_max=1)
 
         # Test if api works well
         # Test if migration change document
@@ -95,7 +94,7 @@ class MigrateTest(BaseLotWebTest):
         self.db.save(lot)
 
         steps = (AddRelatedProcessesStep,)
-        self.migration_runner.migrate(steps, schema_version_max=1, check_plugins=False)
+        self.migration_runner.migrate(steps, schema_version_max=1)
 
         # Test if api works well
         # Test if migration change document

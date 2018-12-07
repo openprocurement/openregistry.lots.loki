@@ -29,35 +29,14 @@ class AddRelatedProcessesStep(BaseMigrationStep):
     def migrate_document(self, lot):
         lot_id = lot['_id']
 
-        model = self._registry.lotTypes.get(lot['lotType'])
-
-        if model._internal_type != 'loki':
-            return
-
         if lot.get('relatedProcesses'):
             return
 
-        if model:
-            try:
-                self._migrate_assets_to_related_processes(lot, self._registry)
-                lot = model(lot)
-                lot.__parent__ = self._root
-                lot.validate()
-                lot = lot.to_primitive()
-            except:  # noqa E722
-                LOGGER.error(
-                    "Failed migration of lot {} to schema 1.".format(lot_id),
-                    extra={'MESSAGE_ID': 'migrate_data_failed', 'LOT_ID': lot_id}
-                )
-            else:
-                LOGGER.info(
-                    "Migrated lot {} to schema 1.".format(lot_id),
-                    extra={'MESSAGE_ID': 'migrate_data', 'LOT_ID': lot_id}
-                )
-                lot['dateModified'] = get_now().isoformat()
-                return lot
+        self._migrate_assets_to_related_processes(lot)
 
-    def _migrate_assets_to_related_processes(self, lot, registry):
+        return lot
+
+    def _migrate_assets_to_related_processes(self, lot):
         lot['relatedProcesses'] = []
         for asset_id in lot['assets']:
             related_process = {
@@ -66,7 +45,7 @@ class AddRelatedProcessesStep(BaseMigrationStep):
                     'type': 'asset'
                 }
             if lot['status'] not in ['draft', 'composing', 'verification', 'invalid']:
-                asset = registry.db.get(asset_id)
+                asset = self.db.get(asset_id)
                 related_process['identifier'] = asset['assetID']
 
             lot['relatedProcesses'].append(related_process)
