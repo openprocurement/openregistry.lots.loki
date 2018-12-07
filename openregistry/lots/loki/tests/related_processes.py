@@ -119,53 +119,6 @@ class RelatedProcessesTestMixin(RelatedProcessesTestMixinBase):
         response = self.app.get(self.base_resource_url + self.RESOURCE_POSTFIX)
         self.assertEqual(len(response.json['data']), 1)
 
-    def test_patch_relatedProcess_in_not_allowed_status(self):
-        self.mixinSetUp()
-
-        # Create relatedProcess
-        response = self.app.post_json(
-            self.base_resource_url + self.RESOURCE_POSTFIX,
-            params={
-                'data': self.initial_related_process_data
-            },
-            headers=self.access_header
-        )
-        self.assertEqual(response.status, '201 Created')
-        related_process_id = response.json['data']['id']
-
-        new_data = {
-            'relatedProcessID': '2' * 32,
-            'identifier': 'UA-SOME-VALUE'
-        }
-
-        self.app.authorization = ('Basic', ('concierge', ''))
-        response = self.app.patch_json(
-            self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id),
-            params={
-                'data': new_data
-            },
-            status=403
-        )
-        self.assertEqual(response.status, '403 Forbidden')
-
-        self.set_status('verification')
-
-        # Patch relatedProcess
-        response = self.app.patch_json(
-            self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id),
-            params={'data': new_data}
-        )
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.json['data']['id'], related_process_id)
-        self.assertNotEqual(response.json['data']['relatedProcessID'], new_data['relatedProcessID'])
-        self.assertEqual(response.json['data']['identifier'], new_data['identifier'])
-
-        response = self.app.get(self.base_resource_url + self.RESOURCE_ID_POSTFIX.format(related_process_id))
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.json['data']['id'], related_process_id)
-        self.assertNotEqual(response.json['data']['relatedProcessID'], new_data['relatedProcessID'])
-        self.assertEqual(response.json['data']['identifier'], new_data['identifier'])
-
 
 class LotRelatedProcessResourceTest(LotContentWebTest, RelatedProcessesTestMixin):
     initial_status = 'draft'
