@@ -101,6 +101,8 @@ def update_auctions(lot):
             auction[key] = object_class(english[key].serialize())
             if key in ['registrationFee', 'bankAccount']:
                 continue
+            elif key in ['guarantee']:
+                auction[key]['amount'] = (second_english['value']['amount'] / 100).quantize(prec, ROUND_HALF_UP)
             else:
                 auction[key]['amount'] = (
                     0 if key == 'minimalStep' and auction.procurementMethodType == 'sellout.insider'
