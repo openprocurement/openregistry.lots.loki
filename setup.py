@@ -9,6 +9,9 @@ entry_points = {
     ],
     'openregistry.tests': [
         'lots.loki = openregistry.lots.loki.tests.main:suite'
+    ],
+    'lots.loki.migration': [
+        'main = openregistry.lots.loki.migration:migrate'
     ]
 }
 

@@ -51,3 +51,8 @@ class AddRelatedProcessesStep(BaseMigrationStep):
 MIGRATION_STEPS = (
     AddRelatedProcessesStep,
 )
+
+
+def migrate(db):
+    runner = LokiMigrationsRunner(db)
+    runner.migrate(MIGRATION_STEPS)
