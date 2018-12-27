@@ -46,11 +46,12 @@ from openregistry.lots.loki.constants import (
     LOT_STATUSES,
     AUCTION_STATUSES,
     AUCTION_DOCUMENT_TYPES,
-    DEFAULT_REGISTRATION_FEE,
     DAYS_AFTER_RECTIFICATION_PERIOD,
     CONTRACT_STATUSES,
     LOT_DOCUMENT_TYPES,
-    CURRENCY_CHOICES
+    CURRENCY_CHOICES,
+    DEFAULT_REGISTRATION_FEE_BEFORE_2019,
+    DEFAULT_REGISTRATION_FEE_AFTER_2019
 )
 from openregistry.lots.loki.roles import (
     lot_roles,
@@ -89,7 +90,18 @@ class LokiGuarantee(Guarantee):
 
 
 class RegistrationFee(LokiGuarantee):
-    amount = FloatType(min_value=0, default=DEFAULT_REGISTRATION_FEE)
+    amount = FloatType(min_value=0)
+
+    @serializable(serialized_name='amount', serialize_when_none=False, type=FloatType(min_value=0))
+    def serializable_amount(self):
+        if not self.amount:
+            if get_now().year >= 2019:
+                self.amount = DEFAULT_REGISTRATION_FEE_AFTER_2019
+            else:
+                self.amount = DEFAULT_REGISTRATION_FEE_BEFORE_2019
+            return self.amount
+
+        return self.amount
 
 
 class LotDecision(Decision):
