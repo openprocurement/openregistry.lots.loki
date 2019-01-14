@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from uuid import uuid4
+from datetime import  datetime
 from pyramid.security import Allow
 from schematics.types import StringType, IntType, FloatType
 from schematics.exceptions import ValidationError
@@ -8,7 +9,8 @@ from schematics.types.serializable import serializable
 from zope.interface import implementer
 from openregistry.lots.core.constants import (
     SANDBOX_MODE,
-    DEFAULT_CURRENCY
+    DEFAULT_CURRENCY,
+    TZ
 )
 
 from openregistry.lots.core.models import (
@@ -39,7 +41,8 @@ from openregistry.lots.core.models import (
 )
 from openregistry.lots.core.utils import (
     get_now,
-    calculate_business_date
+    calculate_business_date,
+    time_dependent_value
 )
 
 from openregistry.lots.loki.constants import (
@@ -95,12 +98,12 @@ class RegistrationFee(LokiGuarantee):
     @serializable(serialized_name='amount', serialize_when_none=False, type=FloatType(min_value=0))
     def serializable_amount(self):
         if not self.amount:
-            if get_now().year >= 2019:
-                self.amount = DEFAULT_REGISTRATION_FEE_AFTER_2019
-            else:
-                self.amount = DEFAULT_REGISTRATION_FEE_BEFORE_2019
-            return self.amount
-
+            border_date = datetime(year=2019, month=1, day=1, tzinfo=TZ)
+            self.amount = time_dependent_value(
+                border_date,
+                DEFAULT_REGISTRATION_FEE_BEFORE_2019,
+                DEFAULT_REGISTRATION_FEE_AFTER_2019
+            )
         return self.amount
 
 
