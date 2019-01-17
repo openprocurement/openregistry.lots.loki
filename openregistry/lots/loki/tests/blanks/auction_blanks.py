@@ -735,19 +735,29 @@ def registrationFee_default(self):
 
     # Need to mock get_now
     def get_now_2018():
-        now = datetime.now()
+        now = datetime.now(TZ)
         return now.replace(year=2018)
 
     def get_now_2019():
-        now = datetime.now()
+        now = datetime.now(TZ)
         return now.replace(year=2019)
 
     self.set_status('composing')
+    response = self.app.get('/{}/auctions'.format(self.resource_id))
+    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
+    english = auctions[0]
 
     # Check default registrationFee.amount before 2019
-    with mock.patch('openregistry.lots.loki.models.get_now', get_now_2018):
-        response = self.app.get('/{}/auctions'.format(self.resource_id))
+    data = {
+        'registrationFee': None
+    }
+    with mock.patch('openprocurement.api.utils.timestuff.get_now', get_now_2018):
+        self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
+            headers=self.access_header, params={
+                'data': data
+                })
 
+    response = self.app.get('/{}/auctions'.format(self.resource_id))
     auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
     english = auctions[0]
     second_english = auctions[1]
@@ -786,7 +796,7 @@ def registrationFee_default(self):
     data = {
         'registrationFee': None
     }
-    with mock.patch('openregistry.lots.loki.models.get_now', get_now_2019):
+    with mock.patch('openprocurement.api.utils.common.get_now', get_now_2019):
         response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
             headers=self.access_header, params={
                 'data': data
