@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from uuid import uuid4
-from datetime import  datetime
+from datetime import datetime
 from pyramid.security import Allow
 from schematics.types import StringType, IntType, FloatType
 from schematics.exceptions import ValidationError
