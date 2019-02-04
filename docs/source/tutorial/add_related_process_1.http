@@ -1,26 +1,26 @@
-POST /api/2.5/lots/ea37278d119147d3bad3442da5f4c342/related_processes HTTP/1.0
+POST /api/2.5/lots/962fa6efd16d4d55acd4b1f88bb7cec9/related_processes HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 83
 Content-Type: application/json
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
-X-Access-Token: 2743b3ba5c844b4498ccb51233fc714b
+Host: lb.api-sandbox.registry.ea.openprocurement.net
+X-Access-Token: f3e126c1e7734b1b8887cfbf17478baa
 DATA:
 {
   "data": {
     "type": "asset", 
-    "relatedProcessID": "2d7b237ee4774feba1fb3092e20ba396"
+    "relatedProcessID": "a9cbac9550db413284dcfbbf9f9cd028"
   }
 }
 
 Response: 201 Created
 Content-Type: application/json
-Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.5/lots/ea37278d119147d3bad3442da5f4c342/related_processes/614bbcf886284589a76666f8e7210771
+Location: http://lb.api-sandbox.registry.ea.openprocurement.net/api/2.5/lots/962fa6efd16d4d55acd4b1f88bb7cec9/related_processes/c9dd31ba70cf485fa30231f3a19a81dc
 X-Content-Type-Options: nosniff
 {
   "data": {
     "type": "asset", 
-    "id": "614bbcf886284589a76666f8e7210771", 
-    "relatedProcessID": "2d7b237ee4774feba1fb3092e20ba396"
+    "id": "c9dd31ba70cf485fa30231f3a19a81dc", 
+    "relatedProcessID": "a9cbac9550db413284dcfbbf9f9cd028"
   }
 }
 

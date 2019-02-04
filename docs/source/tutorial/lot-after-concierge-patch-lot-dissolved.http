@@ -1,6 +1,6 @@
-GET /api/2.5/lots/e9e3038d954349829906804353259fbe HTTP/1.0
+GET /api/2.5/lots/c800a330a0164b5f82db00d3a66a8cfe HTTP/1.0
 Authorization: Basic Y29uY2llcmdlOg==
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
+Host: lb.api-sandbox.registry.ea.openprocurement.net
 
 Response: 200 OK
 Content-Type: application/json
@@ -9,17 +9,17 @@ X-Content-Type-Options: nosniff
   "data": {
     "status": "dissolved", 
     "rectificationPeriod": {
-      "startDate": "2018-08-18T17:17:30.782605+03:00", 
-      "endDate": "2018-08-19T17:17:30.782605+03:00"
+      "startDate": "2019-02-01T16:38:20.573173+02:00", 
+      "endDate": "2019-02-02T16:38:20.573173+02:00"
     }, 
-    "lotID": "UA-LR-DGF-2018-08-21-000003", 
+    "lotID": "UA-LR-DGF-2019-02-04-000003", 
     "description": "Нежитлове приміщення для збереження насіння", 
     "title": "title", 
     "contracts": [
       {
         "status": "cancelled", 
         "type": "yoke", 
-        "id": "9b98d84c910b4fdea2a72dc849a21f1c"
+        "id": "175f7c3372aa4963a2ff79912cf96f9f"
       }
     ], 
     "items": [
@@ -60,19 +60,19 @@ X-Content-Type-Options: nosniff
     }, 
     "decisions": [
       {
-        "decisionDate": "2018-08-21T17:17:30.800691+03:00", 
+        "decisionDate": "2019-02-04T16:38:20.595686+02:00", 
         "decisionID": "decisionAssetID", 
-        "id": "53deb689ba3a41fbb28e0b72bb491fc3", 
+        "id": "e3f3218a13cc40ea92588e4868d47b7a", 
         "decisionOf": "lot"
       }, 
       {
-        "decisionDate": "2018-08-21T17:17:30.800720+03:00", 
+        "decisionDate": "2019-02-04T16:38:20.595708+02:00", 
         "decisionID": "decisionAssetID", 
-        "id": "81befcbd3a4844baad9391e64bc1f20b", 
+        "id": "8781ad18af62490da55de14d536d6971", 
         "decisionOf": "lot"
       }
     ], 
-    "dateModified": "2018-08-21T17:17:31.461394+03:00", 
+    "dateModified": "2019-02-04T16:38:21.260683+02:00", 
     "owner": "broker", 
     "lotCustodian": {
       "contactPoint": {
@@ -107,7 +107,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "auctionPeriod": {
-          "startDate": "2018-08-29T17:22:26.797647+03:00"
+          "startDate": "2019-02-08T16:43:16.610865+02:00"
         }, 
         "registrationFee": {
           "currency": "UAH", 
@@ -119,7 +119,7 @@ X-Content-Type-Options: nosniff
           "amount": 3000.87, 
           "valueAddedTaxIncluded": true
         }, 
-        "id": "b313b3ec74e24599be90058df3ad3f59", 
+        "id": "92f4666e1054495eb4b34aaf9e0565e2", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -153,11 +153,11 @@ X-Content-Type-Options: nosniff
         "procurementMethodType": "sellout.english", 
         "value": {
           "currency": "UAH", 
-          "amount": 1500.43, 
+          "amount": 1500.44, 
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "1bc5242088eb44a5bc8bafd1117aefdd", 
+        "id": "ef1c10575c634ed09e5abc9f13499fed", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -181,7 +181,7 @@ X-Content-Type-Options: nosniff
         }, 
         "minimalStep": {
           "currency": "UAH", 
-          "amount": 0.0, 
+          "amount": 0, 
           "valueAddedTaxIncluded": true
         }, 
         "registrationFee": {
@@ -191,11 +191,11 @@ X-Content-Type-Options: nosniff
         "procurementMethodType": "sellout.insider", 
         "value": {
           "currency": "UAH", 
-          "amount": 1500.43, 
+          "amount": 1500.44, 
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "fbeb1ec5cadd4590a8607ed1c4583cce", 
+        "id": "2f5fa2ed4d9e4d7c9698e647b2dfc6db", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -207,28 +207,28 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-21T17:17:31.461207+03:00", 
+    "date": "2019-02-04T16:38:21.260479+02:00", 
     "documents": [
       {
         "description": "Перелік та реквізити авторизованих електронних майданчиків (найменування установи банку, її адреса та номери рахунків, відкритих для внесення гарантійного внеску, реєстраційного внеску)", 
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-21T17:17:30.140673+03:00", 
+        "datePublished": "2019-02-04T16:38:20.008310+02:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-21T17:17:30.140701+03:00", 
-        "id": "f820515674164654994e518c9b6ca24b"
+        "dateModified": "2019-02-04T16:38:20.008329+02:00", 
+        "id": "5079eee05e114d06a0ba341f4a76dfe7"
       }
     ], 
     "relatedProcesses": [
       {
         "identifier": "UA-AR-P-2018-08-17-000002-1", 
         "type": "asset", 
-        "id": "46701ef2c0444d56bf92e1f95be160c7", 
-        "relatedProcessID": "15c02e069a0b42da8e0de2cc307a234b"
+        "id": "84b593d8ff7a461ca8a80441b5c9f1f0", 
+        "relatedProcessID": "c57eb8919087424e863a4a03bebc60ff"
       }
     ], 
-    "id": "e9e3038d954349829906804353259fbe"
+    "id": "c800a330a0164b5f82db00d3a66a8cfe"
   }
 }
 

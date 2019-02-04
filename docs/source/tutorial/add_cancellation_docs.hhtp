@@ -1,13 +1,13 @@
-POST /api/2.5/lots/ea37278d119147d3bad3442da5f4c342/documents HTTP/1.0
+POST /api/2.5/lots/962fa6efd16d4d55acd4b1f88bb7cec9/documents HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 354
+Content-Length: 350
 Content-Type: application/json
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
-X-Access-Token: 2743b3ba5c844b4498ccb51233fc714b
+Host: lb.api-sandbox.registry.ea.openprocurement.net
+X-Access-Token: f3e126c1e7734b1b8887cfbf17478baa
 DATA:
 {
   "data": {
-    "url": "http://localhost/get/11b23ef83757435da023dd869374691e?KeyID=172d32c8&Signature=nWR3b%2Fu10hCnf%2BgBBPzHrt2kFc4T72ebJnWiZBFICPEqNZvttOesvYproclLhO%2Bb5I%2FnCwSmSd7veoUB2ffvAg%3D%3D", 
+    "url": "http://localhost/get/48050771eb984a409570e74376eb5b2b?KeyID=172d32c8&Signature=OFKbmhKyZRsurc8dM4p1r%2BM5wBR%2F4FmU9YYWcnPmA1GGz8QMS8RGHZOaNcUGtNg0kdkYCpSdx5B6acm2ka3vBg%3D%3D", 
     "title": "укр.doc", 
     "format": "application/msword", 
     "hash": "md5:00000000000000000000000000000000", 
@@ -17,20 +17,20 @@ DATA:
 
 Response: 201 Created
 Content-Type: application/json
-Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.5/lots/ea37278d119147d3bad3442da5f4c342/documents/5d6b8a95abf8405cb30bcdf957d1e411
+Location: http://lb.api-sandbox.registry.ea.openprocurement.net/api/2.5/lots/962fa6efd16d4d55acd4b1f88bb7cec9/documents/ba0b14ec636c4082b4a85630d44169cd
 X-Content-Type-Options: nosniff
 {
   "data": {
     "hash": "md5:00000000000000000000000000000000", 
     "author": "lot_owner", 
     "title": "укр.doc", 
-    "url": "http://localhost/get/11b23ef83757435da023dd869374691e?KeyID=172d32c8&Signature=Ze8Jm7hkrTMP8YAJ0%2F4xBM4%2F06bD2cWu%252BGIdtEQ9H6UtapSF%2FPjstuIEuKeyAkruP4WpMKVHzW8dpW5ikYKJBQ%253D%253D", 
+    "url": "http://localhost/get/48050771eb984a409570e74376eb5b2b?KeyID=172d32c8&Signature=ej%2F8G%252B24t1Fu1zN2kxRy%2F2nR1569zAny9URT43NxthpXxlvtHba1g9HgTyZanWuwDjF60X8ZIIveYTZw5ZisBw%253D%253D", 
     "format": "application/msword", 
     "documentOf": "lot", 
-    "datePublished": "2018-08-21T17:17:28.335482+03:00", 
+    "datePublished": "2019-02-04T16:38:18.363290+02:00", 
     "documentType": "cancellationDetails", 
-    "dateModified": "2018-08-21T17:17:28.335503+03:00", 
-    "id": "5d6b8a95abf8405cb30bcdf957d1e411"
+    "dateModified": "2019-02-04T16:38:18.363310+02:00", 
+    "id": "ba0b14ec636c4082b4a85630d44169cd"
   }
 }
 

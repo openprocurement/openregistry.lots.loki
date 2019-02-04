@@ -1,9 +1,9 @@
-PATCH /api/2.5/lots/ea37278d119147d3bad3442da5f4c342/auctions/f2da3d4a5020423997f4ea91adf0c74a HTTP/1.0
+PATCH /api/2.5/lots/962fa6efd16d4d55acd4b1f88bb7cec9/auctions/ec32cd417be24997af164a661733756d HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 43
 Content-Type: application/json
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
-X-Access-Token: 2743b3ba5c844b4498ccb51233fc714b
+Host: lb.api-sandbox.registry.ea.openprocurement.net
+X-Access-Token: f3e126c1e7734b1b8887cfbf17478baa
 DATA:
 {
   "data": {
@@ -39,11 +39,11 @@ X-Content-Type-Options: nosniff
     "procurementMethodType": "sellout.english", 
     "value": {
       "currency": "UAH", 
-      "amount": 1500.43, 
+      "amount": 1500.44, 
       "valueAddedTaxIncluded": true
     }, 
     "tenderingDuration": "P25DT12H", 
-    "id": "f2da3d4a5020423997f4ea91adf0c74a", 
+    "id": "ec32cd417be24997af164a661733756d", 
     "auctionParameters": {
       "type": "english"
     }, 

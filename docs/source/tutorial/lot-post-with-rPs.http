@@ -2,13 +2,13 @@ POST /api/2.5/lots?opt_pretty=1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 415
 Content-Type: application/json
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
+Host: lb.api-sandbox.registry.ea.openprocurement.net
 DATA:
 {
   "data": {
     "decisions": [
       {
-        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
+        "decisionDate": "2019-02-04T16:38:17.514327+02:00", 
         "decisionID": "initialDecisionID"
       }
     ], 
@@ -16,7 +16,7 @@ DATA:
     "relatedProcesses": [
       {
         "type": "asset", 
-        "relatedProcessID": "78456d2cb60842c392a65c1272e52077"
+        "relatedProcessID": "ea369adce3f04fa8acc8fcd1afa953c4"
       }
     ], 
     "description": "Щось там тестове", 
@@ -26,33 +26,33 @@ DATA:
 
 Response: 201 Created
 Content-Type: application/json
-Location: http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.5/lots/20d058d811884303a8452d7bd4dd49e2
+Location: http://lb.api-sandbox.registry.ea.openprocurement.net/api/2.5/lots/082937c0a9a943e6a66002f38d8ab164
 X-Content-Type-Options: nosniff
 {
   "access": {
-    "transfer": "de421240bb3c464aad2f6b14751ad149", 
-    "token": "21b27f90714249f4a6004788b3176d8f"
+    "transfer": "91e654db1f7d494c85e264a5f30d94b9", 
+    "token": "c4cfb45bcafc4e79a3b534602a96e697"
   }, 
   "data": {
     "status": "draft", 
-    "lotID": "UA-LR-DGF-2018-08-21-000001", 
+    "lotID": "UA-LR-DGF-2019-02-04-000001", 
     "contracts": [
       {
         "status": "scheduled", 
         "type": "yoke", 
-        "id": "759727d026d04cf7b16fcd10abc612ff"
+        "id": "35ae4e36b10147e6a6ca4b0e314f654b"
       }
     ], 
     "decisions": [
       {
-        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
+        "decisionDate": "2019-02-04T16:38:17.514327+02:00", 
         "decisionID": "initialDecisionID", 
-        "id": "ac96914428c0448992903475b9e46960", 
+        "id": "bfeb1c6300c842798e53866e615d3f06", 
         "decisionOf": "lot"
       }
     ], 
     "lotType": "loki", 
-    "dateModified": "2018-08-21T17:17:27.458188+03:00", 
+    "dateModified": "2019-02-04T16:38:17.554481+02:00", 
     "owner": "broker", 
     "documents": [
       {
@@ -60,10 +60,10 @@ X-Content-Type-Options: nosniff
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-21T17:17:27.444096+03:00", 
+        "datePublished": "2019-02-04T16:38:17.542498+02:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-21T17:17:27.444125+03:00", 
-        "id": "591909ec57634a10b24f2ccd2eb16d27"
+        "dateModified": "2019-02-04T16:38:17.542517+02:00", 
+        "id": "6e14c66ae6774154a65580093cad49be"
       }
     ], 
     "auctions": [
@@ -71,52 +71,52 @@ X-Content-Type-Options: nosniff
         "status": "scheduled", 
         "tenderAttempts": 1, 
         "procurementMethodType": "sellout.english", 
-        "id": "2f50a59c920a46f687d92560baa89465", 
+        "id": "8912e301d220436297bfee78d1c98f50", 
         "auctionParameters": {
           "type": "english"
         }, 
         "registrationFee": {
           "currency": "UAH", 
-          "amount": 744.6
+          "amount": 834.6
         }
       }, 
       {
         "status": "scheduled", 
         "tenderAttempts": 2, 
         "procurementMethodType": "sellout.english", 
-        "id": "66f9e1de308b44ceb7adad40f2f83d65", 
+        "id": "599d9e97d8e64c60aa8412e59815bda0", 
         "auctionParameters": {
           "type": "english"
         }, 
         "registrationFee": {
           "currency": "UAH", 
-          "amount": 744.6
+          "amount": 834.6
         }
       }, 
       {
         "status": "scheduled", 
         "tenderAttempts": 3, 
         "procurementMethodType": "sellout.insider", 
-        "id": "f70611babbb142118f5e53d3c49bf6ed", 
+        "id": "71ccc567557a4837a1a43565db8653d9", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
         }, 
         "registrationFee": {
           "currency": "UAH", 
-          "amount": 744.6
+          "amount": 834.6
         }
       }
     ], 
-    "date": "2018-08-21T17:17:27.456370+03:00", 
+    "date": "2019-02-04T16:38:17.552130+02:00", 
     "relatedProcesses": [
       {
         "type": "asset", 
-        "id": "ceb86d4997ba43858e92ff7a4256078c", 
-        "relatedProcessID": "78456d2cb60842c392a65c1272e52077"
+        "id": "be09ce96c69a45a9bc419b0ba180392b", 
+        "relatedProcessID": "ea369adce3f04fa8acc8fcd1afa953c4"
       }
     ], 
-    "id": "20d058d811884303a8452d7bd4dd49e2"
+    "id": "082937c0a9a943e6a66002f38d8ab164"
   }
 }
 

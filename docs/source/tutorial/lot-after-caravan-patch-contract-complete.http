@@ -1,6 +1,6 @@
-GET /api/2.5/lots/040cb2ec4a784abfa902a73171fbbe12 HTTP/1.0
+GET /api/2.5/lots/7a664c41089f40e3836284db2f4ac963 HTTP/1.0
 Authorization: Basic Y2FyYXZhbjo=
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
+Host: lb.api-sandbox.registry.ea.openprocurement.net
 
 Response: 200 OK
 Content-Type: application/json
@@ -9,16 +9,16 @@ X-Content-Type-Options: nosniff
   "data": {
     "status": "pending.sold", 
     "rectificationPeriod": {
-      "startDate": "2018-08-18T17:17:32.095102+03:00", 
-      "endDate": "2018-08-19T17:17:32.095102+03:00"
+      "startDate": "2019-02-01T16:38:21.833935+02:00", 
+      "endDate": "2019-02-02T16:38:21.833935+02:00"
     }, 
-    "lotID": "UA-LR-DGF-2018-08-21-000004", 
+    "lotID": "UA-LR-DGF-2019-02-04-000004", 
     "title": "title", 
     "contracts": [
       {
         "status": "complete", 
         "type": "yoke", 
-        "id": "d9d7944103fa4b47925aa21daec31976"
+        "id": "d8bd7e5bc39c4653a37d762ccfd0d963"
       }
     ], 
     "items": [
@@ -52,19 +52,19 @@ X-Content-Type-Options: nosniff
     "lotType": "loki", 
     "decisions": [
       {
-        "decisionDate": "2018-08-21T17:17:32.111483+03:00", 
+        "decisionDate": "2019-02-04T16:38:21.849671+02:00", 
         "decisionID": "decisionAssetID", 
-        "id": "64b6eba3dcf04304bcc8806eb615bed8", 
+        "id": "14a8295ad72747a1b4d8b1ca2de90d7b", 
         "decisionOf": "lot"
       }, 
       {
-        "decisionDate": "2018-08-21T17:17:32.111502+03:00", 
+        "decisionDate": "2019-02-04T16:38:21.849690+02:00", 
         "decisionID": "decisionAssetID", 
-        "id": "63c6edfa4ced4f7dbe5bb66335cf9e8c", 
+        "id": "843f1c97f5964f51bb481192f206e163", 
         "decisionOf": "lot"
       }
     ], 
-    "dateModified": "2018-08-21T17:17:32.459262+03:00", 
+    "dateModified": "2019-02-04T16:38:22.201807+02:00", 
     "owner": "broker", 
     "documents": [
       {
@@ -72,10 +72,10 @@ X-Content-Type-Options: nosniff
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-21T17:17:31.559341+03:00", 
+        "datePublished": "2019-02-04T16:38:21.324619+02:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-21T17:17:31.559361+03:00", 
-        "id": "d9f25cdb41f8469da01f29989e93ece1"
+        "dateModified": "2019-02-04T16:38:21.324638+02:00", 
+        "id": "64d66805b9ee487f909e389871b0c08a"
       }
     ], 
     "auctions": [
@@ -97,7 +97,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "auctionPeriod": {
-          "startDate": "2018-08-29T17:22:26.797647+03:00"
+          "startDate": "2019-02-08T16:43:16.610865+02:00"
         }, 
         "registrationFee": {
           "currency": "UAH", 
@@ -109,7 +109,7 @@ X-Content-Type-Options: nosniff
           "amount": 3000.87, 
           "valueAddedTaxIncluded": true
         }, 
-        "id": "ab5c881c78b144288a2a474b9f243d81", 
+        "id": "efda1f6b06fd4d36a19b4ae5522bda40", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -143,11 +143,11 @@ X-Content-Type-Options: nosniff
         "procurementMethodType": "sellout.english", 
         "value": {
           "currency": "UAH", 
-          "amount": 1500.43, 
+          "amount": 1500.44, 
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "d65bb32996a342c0b315d02620e867e0", 
+        "id": "8086d12b6e3f4fbbaa49265006d77aac", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -171,7 +171,7 @@ X-Content-Type-Options: nosniff
         }, 
         "minimalStep": {
           "currency": "UAH", 
-          "amount": 0.0, 
+          "amount": 0, 
           "valueAddedTaxIncluded": true
         }, 
         "registrationFee": {
@@ -181,11 +181,11 @@ X-Content-Type-Options: nosniff
         "procurementMethodType": "sellout.insider", 
         "value": {
           "currency": "UAH", 
-          "amount": 1500.43, 
+          "amount": 1500.44, 
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "563cc466b652447d9aece93d0f7e0cb2", 
+        "id": "ed5031bd4abc4e2ab989d6fe2fe2b13a", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -197,15 +197,15 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-21T17:17:32.458998+03:00", 
+    "date": "2019-02-04T16:38:22.201551+02:00", 
     "relatedProcesses": [
       {
         "type": "asset", 
-        "id": "b393882bd1ca41ec8223224701b62b4b", 
-        "relatedProcessID": "1518815ca01e404da3aef9bb606d80d2"
+        "id": "94d56e09a8e847f4bbedbea1c6c0b159", 
+        "relatedProcessID": "e6dffe2398e64b54ae6fa6b1a581dfaa"
       }
     ], 
-    "id": "040cb2ec4a784abfa902a73171fbbe12"
+    "id": "7a664c41089f40e3836284db2f4ac963"
   }
 }
 

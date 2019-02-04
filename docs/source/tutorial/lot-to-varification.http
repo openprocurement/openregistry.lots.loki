@@ -1,8 +1,8 @@
-PATCH /api/2.5/lots/ea37278d119147d3bad3442da5f4c342?acc_token=2743b3ba5c844b4498ccb51233fc714b HTTP/1.0
+PATCH /api/2.5/lots/962fa6efd16d4d55acd4b1f88bb7cec9?acc_token=f3e126c1e7734b1b8887cfbf17478baa HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 36
 Content-Type: application/json
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
+Host: lb.api-sandbox.registry.ea.openprocurement.net
 DATA:
 {
   "data": {
@@ -16,24 +16,24 @@ X-Content-Type-Options: nosniff
 {
   "data": {
     "status": "verification", 
-    "lotID": "UA-LR-DGF-2018-08-21-000002", 
+    "lotID": "UA-LR-DGF-2019-02-04-000002", 
     "contracts": [
       {
         "status": "scheduled", 
         "type": "yoke", 
-        "id": "8ea3d00b129c48e792e2c7c2339a4870"
+        "id": "1f33640dca2f43b48787d5bceacb577a"
       }
     ], 
     "decisions": [
       {
-        "decisionDate": "2018-08-21T17:17:27.417194+03:00", 
+        "decisionDate": "2019-02-04T16:38:17.514327+02:00", 
         "decisionID": "initialDecisionID", 
-        "id": "02658077e8564589a6ee9ad258c7801d", 
+        "id": "5d1a237b9525459d9262153c5ae5cb5f", 
         "decisionOf": "lot"
       }
     ], 
     "lotType": "loki", 
-    "dateModified": "2018-08-21T17:17:27.823632+03:00", 
+    "dateModified": "2019-02-04T16:38:17.878755+02:00", 
     "owner": "broker", 
     "documents": [
       {
@@ -41,10 +41,10 @@ X-Content-Type-Options: nosniff
         "title": "Перелік та реквізити авторизованих електронних майданчиків", 
         "url": "https://prozorro.sale/info/elektronni-majdanchiki-ets-prozorroprodazhi-cbd2", 
         "documentOf": "lot", 
-        "datePublished": "2018-08-21T17:17:27.485162+03:00", 
+        "datePublished": "2019-02-04T16:38:17.586506+02:00", 
         "documentType": "x_PlatformLegalDetails", 
-        "dateModified": "2018-08-21T17:17:27.485189+03:00", 
-        "id": "abc3a975dcf844deb027d02785a1aff5"
+        "dateModified": "2019-02-04T16:38:17.586543+02:00", 
+        "id": "fa6b62b6f5e2400d963dd502d2d83623"
       }
     ], 
     "auctions": [
@@ -66,7 +66,7 @@ X-Content-Type-Options: nosniff
           "valueAddedTaxIncluded": true
         }, 
         "auctionPeriod": {
-          "startDate": "2018-08-29T17:22:26.797647+03:00"
+          "startDate": "2019-02-08T16:43:16.610865+02:00"
         }, 
         "registrationFee": {
           "currency": "UAH", 
@@ -78,7 +78,7 @@ X-Content-Type-Options: nosniff
           "amount": 3000.87, 
           "valueAddedTaxIncluded": true
         }, 
-        "id": "d61da6b1dcd64c4d83ebdc841190ece3", 
+        "id": "11f0bee4cf814e36b91ede32155fce67", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -112,11 +112,11 @@ X-Content-Type-Options: nosniff
         "procurementMethodType": "sellout.english", 
         "value": {
           "currency": "UAH", 
-          "amount": 1500.43, 
+          "amount": 1500.44, 
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "f2da3d4a5020423997f4ea91adf0c74a", 
+        "id": "ec32cd417be24997af164a661733756d", 
         "auctionParameters": {
           "type": "english"
         }, 
@@ -140,7 +140,7 @@ X-Content-Type-Options: nosniff
         }, 
         "minimalStep": {
           "currency": "UAH", 
-          "amount": 0.0, 
+          "amount": 0, 
           "valueAddedTaxIncluded": true
         }, 
         "registrationFee": {
@@ -150,11 +150,11 @@ X-Content-Type-Options: nosniff
         "procurementMethodType": "sellout.insider", 
         "value": {
           "currency": "UAH", 
-          "amount": 1500.43, 
+          "amount": 1500.44, 
           "valueAddedTaxIncluded": true
         }, 
         "tenderingDuration": "P25DT12H", 
-        "id": "80e86d8af7754472b017a05619822cc4", 
+        "id": "fe87453d392845819b75c11d66cc414d", 
         "auctionParameters": {
           "type": "insider", 
           "dutchSteps": 99
@@ -166,15 +166,15 @@ X-Content-Type-Options: nosniff
         }
       }
     ], 
-    "date": "2018-08-21T17:17:27.823451+03:00", 
+    "date": "2019-02-04T16:38:17.878582+02:00", 
     "relatedProcesses": [
       {
         "type": "asset", 
-        "id": "614bbcf886284589a76666f8e7210771", 
-        "relatedProcessID": "2d7b237ee4774feba1fb3092e20ba396"
+        "id": "c9dd31ba70cf485fa30231f3a19a81dc", 
+        "relatedProcessID": "a9cbac9550db413284dcfbbf9f9cd028"
       }
     ], 
-    "id": "ea37278d119147d3bad3442da5f4c342"
+    "id": "962fa6efd16d4d55acd4b1f88bb7cec9"
   }
 }
 

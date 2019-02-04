@@ -1,24 +1,24 @@
 GET /api/2.5/lots?opt_pretty=1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Host: lb.api-sandbox.registry.ea2.openprocurement.net
+Host: lb.api-sandbox.registry.ea.openprocurement.net
 
 Response: 200 OK
 Content-Type: application/json
 X-Content-Type-Options: nosniff
 {
   "next_page": {
-    "path": "/api/2.5/lots?offset=2018-08-21T17%3A17%3A27.950335%2B03%3A00", 
-    "uri": "http://lb.api-sandbox.registry.ea2.openprocurement.net/api/2.5/lots?offset=2018-08-21T17%3A17%3A27.950335%2B03%3A00", 
-    "offset": "2018-08-21T17:17:27.950335+03:00"
+    "path": "/api/2.5/lots?offset=2019-02-04T16%3A38%3A17.995548%2B02%3A00", 
+    "uri": "http://lb.api-sandbox.registry.ea.openprocurement.net/api/2.5/lots?offset=2019-02-04T16%3A38%3A17.995548%2B02%3A00", 
+    "offset": "2019-02-04T16:38:17.995548+02:00"
   }, 
   "data": [
     {
-      "id": "ea37278d119147d3bad3442da5f4c342", 
-      "dateModified": "2018-08-21T17:17:27.823632+03:00"
+      "id": "962fa6efd16d4d55acd4b1f88bb7cec9", 
+      "dateModified": "2019-02-04T16:38:17.878755+02:00"
     }, 
     {
-      "id": "9d44d47e1beb4f1d95ea663f9f69274b", 
-      "dateModified": "2018-08-21T17:17:27.950335+03:00"
+      "id": "29375080d5f3421fb11090fe1ca95c0c", 
+      "dateModified": "2019-02-04T16:38:17.995548+02:00"
     }
   ]
 }
