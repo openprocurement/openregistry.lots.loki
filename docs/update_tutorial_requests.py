@@ -4,25 +4,32 @@ from requests import Session
 from datetime import timedelta
 from uuid import uuid4
 
-from openregistry.lots.core.tests.base import PrefixedRequestClass, DumpsTestAppwebtest
-from openregistry.lots.loki.tests.base import BaseLotWebTest
+from openprocurement.api.config import DS
+from openprocurement.api.tests.base import (
+    PrefixedRequestClass,
+    test_config_data,
+)
+
+from openregistry.lots.loki.tests.base import BaseLotWebTest, MOCK_CONFIG
 from openregistry.lots.loki.tests.json_data import (
     test_loki_lot_data,
     test_loki_item_data,
     auction_english_data,
-    auction_second_english_data
+    auction_second_english_data,
 )
 from openregistry.lots.loki.models import Lot, Period
 from openregistry.lots.loki.tests.blanks.lot_blanks import add_decisions, add_cancellationDetails_document
 from openregistry.lots.core.utils import get_now, calculate_business_date
-from openprocurement.api.config import DS
-from openprocurement.api.tests.base import test_config_data
-DumpsTestAppwebtest.hostname = "lb.api-sandbox.registry.ea2.openprocurement.net"
+
+
 SESSION = Session()
 
 
 class LotResourceTest(BaseLotWebTest):
+
+    mock_config = MOCK_CONFIG
     record_http = True
+    docservice = True
 
     def setUp(self):
         super(LotResourceTest, self).setUp()
