@@ -165,20 +165,20 @@ def validate_auction_data(request, error_handler, **kwargs):
 def validate_update_auction_in_not_allowed_status(request, error_handler, **kwargs):
     is_convoy_or_concierge = bool(request.authenticated_role in ['convoy', 'concierge'])
     if not is_convoy_or_concierge and request.validated['lot_status'] not in ['draft', 'composing', 'pending']:
-            raise_operation_error(
-                request,
-                error_handler,
-                'Can\'t update auction in current ({}) lot status'.format(request.validated['lot_status'])
-            )
+        raise_operation_error(
+            request,
+            error_handler,
+            'Can\'t update auction in current ({}) lot status'.format(request.validated['lot_status'])
+        )
 
 
 def validate_update_auction_document_in_not_allowed_status(request, error_handler, **kwargs):
     if request.validated['lot_status'] not in ['draft', 'composing', 'pending']:
-            raise_operation_error(
-                request,
-                error_handler,
-                'Can\'t update document of auction in current ({}) lot status'.format(request.validated['lot_status'])
-            )
+        raise_operation_error(
+            request,
+            error_handler,
+            'Can\'t update document of auction in current ({}) lot status'.format(request.validated['lot_status'])
+        )
 
 
 # Contract validation
