@@ -24,6 +24,7 @@ install:
   - bin/buildout -N
 script:
   - flake8 --config .flake8
+  - bin/nosetests -sv docs/update_tutorial_requests.py
   - bin/nosetests
 after_success:
   - bin/coveralls
