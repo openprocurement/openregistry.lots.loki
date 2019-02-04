@@ -12,7 +12,6 @@ from openprocurement.api.tests.base import (
 
 from openregistry.lots.loki.tests.base import BaseLotWebTest, MOCK_CONFIG
 from openregistry.lots.loki.tests.json_data import (
-    test_loki_lot_data,
     test_loki_item_data,
     auction_english_data,
     auction_second_english_data,
@@ -43,7 +42,7 @@ class LotResourceTest(BaseLotWebTest):
         self.app.app.registry.docservice_key = dockey = docserv.signer
         self.app.app.registry.keyring = docserv.init_keyring(dockey)
         self._srequest = SESSION.request
-        self.app.app.registry.use_docservice=True
+        self.app.app.registry.use_docservice = True
         self.lot_model = Lot
 
     def from_initial_to_decisions(self):
@@ -98,7 +97,6 @@ class LotResourceTest(BaseLotWebTest):
             '/{}/related_processes'.format(lot_id),
             params={'data': related_process}, headers=access_header)
         self.assertEqual(response.status, '201 Created')
-
 
         # Switch to 'verification'
         response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
@@ -204,7 +202,6 @@ class LotResourceTest(BaseLotWebTest):
                 params={'data': related_process}, headers=access_header)
             self.assertEqual(response.status, '201 Created')
 
-
         # Switch to 'verification'
         #
         with open('docs/source/tutorial/lot-to-varification.http', 'w') as self.app.file_obj:
@@ -232,7 +229,6 @@ class LotResourceTest(BaseLotWebTest):
         auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
         english = auctions[0]
         second_english = auctions[1]
-        second_access_header = {'X-Access-Token': str(second_owner_token)}
 
         # Switch to 'composing'
         #
@@ -253,11 +249,15 @@ class LotResourceTest(BaseLotWebTest):
         # Modifying lot
         #
         with open('docs/source/tutorial/patch-lot.http', 'w') as self.app.file_obj:
-            response = self.app.patch_json('/{}?acc_token={}'.format(second_lot_id, second_owner_token), {'data':
+            response = self.app.patch_json(
+                '/{}?acc_token={}'.format(second_lot_id, second_owner_token),
                 {
-                    "description": "Lot description modified"
+                    'data':
+                        {
+                            "description": "Lot description modified"
+                        }
                 }
-            })
+            )
             self.assertEqual(response.status, '200 OK')
 
         self.app.get(request_path)
@@ -269,7 +269,7 @@ class LotResourceTest(BaseLotWebTest):
         self.app.authorization = ('Basic', ('concierge', ''))
 
         add_decisions(self, lot)
- 
+
         # Switch first lot to 'pending'
         #
         asset_items = [test_loki_item_data]
@@ -311,7 +311,7 @@ class LotResourceTest(BaseLotWebTest):
         access_header = {'X-Access-Token': str(owner_token)}
         with open('docs/source/tutorial/add_cancellation_docs.hhtp', 'w') as self.app.file_obj:
             add_cancellationDetails_document(self, lot, access_header)
-            
+
         with open('docs/source/tutorial/lot-delete-2pc.http', 'w') as self.app.file_obj:
             response = self.app.patch_json('/{}?acc_token={}'.format(lot_id, owner_token),
                                            {'data': {"status": 'pending.deleted'}})
@@ -319,7 +319,6 @@ class LotResourceTest(BaseLotWebTest):
 
         self.app.authorization = ('Basic', ('broker', ''))
 
- 
     def test_docs_tutorial_with_concierge(self):
 
         ### Switch to invalid workflow ###
@@ -341,7 +340,7 @@ class LotResourceTest(BaseLotWebTest):
         lot, lot_id, owner_token = self.from_initial_to_decisions()
         access_header = {'X-Access-Token': str(owner_token)}
 
-          # switch lot to 'pending'
+        # switch lot to 'pending'
         asset_items = [test_loki_item_data]
 
         lot = self.app.get('/{}'.format(lot_id)).json['data']
@@ -598,7 +597,6 @@ class LotResourceTest(BaseLotWebTest):
         with open('docs/source/tutorial/lot-after-caravan-patch-contract-complete.http', 'w') as self.app.file_obj:
             response = self.app.get('/{}'.format(lot_id))
             self.assertEqual(response.status, '200 OK')
-
 
         # switch to 'sold'
         self.app.authorization = ('Basic', ('concierge', ''))
