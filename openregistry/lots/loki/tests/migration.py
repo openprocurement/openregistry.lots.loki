@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+from openregistry.lots.core.tests.base import MigrationResourcesDTO_mock
 from openregistry.lots.loki.tests.base import BaseLotWebTest
 from openregistry.lots.loki.tests.json_data import test_loki_lot_data
 from openregistry.lots.loki.migration import (
@@ -16,7 +17,8 @@ class MigrateTest(BaseLotWebTest):
 
     def setUp(self):
         super(MigrateTest, self).setUp()
-        self.migration_runner = LokiMigrationsRunner(self.db)
+        migration_resources = MigrationResourcesDTO_mock(self.db)
+        self.migration_runner = LokiMigrationsRunner(migration_resources)
 
     def test_migrate_draft_lot(self):
         # Create situation when we need migration for lot in status draft

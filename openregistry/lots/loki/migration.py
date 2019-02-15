@@ -40,7 +40,7 @@ class AddRelatedProcessesStep(BaseMigrationStep):
                     'type': 'asset'
                 }
             if lot['status'] not in ['draft', 'composing', 'verification', 'invalid']:
-                asset = self.db.get(asset_id)
+                asset = self.resources.db.get(asset_id)
                 related_process['identifier'] = asset['assetID']
 
             lot['relatedProcesses'].append(related_process)
@@ -53,6 +53,6 @@ MIGRATION_STEPS = (
 )
 
 
-def migrate(db):
-    runner = LokiMigrationsRunner(db)
+def migrate(resources):
+    runner = LokiMigrationsRunner(resources)
     runner.migrate(MIGRATION_STEPS)
