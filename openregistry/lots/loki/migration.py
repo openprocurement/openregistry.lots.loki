@@ -25,7 +25,7 @@ class AddRelatedProcessesStep(BaseMigrationStep):
 
     def _skip_predicate(self, lot):
         has_rp = lot.get('relatedProcesses')
-        target_lot_types = ('loki', )
+        target_lot_types = self.resources.aliases_info.get_package_aliases('openregistry.lots.loki')
         lot_type_is_suitable = lot['lotType'] in target_lot_types
 
         if has_rp or not lot_type_is_suitable:

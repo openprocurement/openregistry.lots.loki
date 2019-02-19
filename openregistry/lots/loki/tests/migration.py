@@ -17,7 +17,8 @@ class MigrateTest(BaseLotWebTest):
 
     def setUp(self):
         super(MigrateTest, self).setUp()
-        migration_resources = MigrationResourcesDTO_mock(self.db)
+        aliases_info_dict = {'openregistry.lots.loki': ('loki', )}
+        migration_resources = MigrationResourcesDTO_mock(self.db, aliases_info_dict)
         self.migration_runner = LokiMigrationsRunner(migration_resources)
 
     def test_migrate_draft_lot(self):
