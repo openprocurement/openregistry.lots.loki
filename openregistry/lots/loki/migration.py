@@ -23,8 +23,17 @@ class AddRelatedProcessesStep(BaseMigrationStep):
     def setUp(self):
         self.view = 'lot/all'
 
+    def _skip_predicate(self, lot):
+        has_rp = lot.get('relatedProcesses')
+        target_lot_types = ('loki', )
+        lot_type_is_suitable = lot['lotType'] in target_lot_types
+
+        if has_rp or not lot_type_is_suitable:
+            return True
+        return False
+
     def migrate_document(self, lot):
-        if lot.get('relatedProcesses'):
+        if self._skip_predicate(lot):
             return
 
         self._migrate_assets_to_related_processes(lot)
