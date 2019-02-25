@@ -1,8 +1,7 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import unittest
 
 from copy import deepcopy
-from uuid import uuid4
 from datetime import timedelta
 from isodate import parse_datetime
 
@@ -137,7 +136,6 @@ def check_change_to_verification(self):
 
     first_english_data = deepcopy(auction_english_data)
     first_english_data['auctionPeriod']['startDate'] = get_now().isoformat()
-
 
     response = self.app.get('/{}'.format(lot['id']))
     self.assertEqual(response.status, '200 OK')
@@ -451,7 +449,6 @@ def rectificationPeriod_workflow(self):
 
     add_cancellationDetails_document(self, lot, access_header)
     check_patch_status_200(self, '/{}'.format(lot['id']), 'pending.deleted', access_header)
-
 
     # Check chronograph action
     self.app.authorization = ('Basic', ('broker', ''))
@@ -1819,3 +1816,29 @@ def adding_platformLegalDetails_doc(self):
     )
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.json['data']['title'], 'another')
+
+
+def create_lot_check_auctions_registrationFee(test_case):
+    response = test_case.app.post_json('/', {'data': test_case.initial_data})
+    lot = response.json['data']
+    token = response.json['access']['token']
+    auctions_ids = [auction['id'] for auction in lot['auctions']]
+
+    for auction_id in auctions_ids:
+
+        # check auction.registrationFee
+        entrypoint = '/{}/auctions/{}'.format(lot['id'], auction_id)
+        response = test_case.app.get(entrypoint)
+        auction = response.json['data']
+        test_case.assertNotIn('registrationFee', auction.keys())
+
+        # try to patch auction.registrationFee
+        data = {'registrationFee': {'amount': 100}}
+        entrypoint = '/{}/auctions/{}?acc_token={}'.format(lot['id'], auction_id, token)
+        response = test_case.app.patch_json(entrypoint, {'data': data})
+
+        # check if patch change auction.registrationFee
+        entrypoint = '/{}/auctions/{}'.format(lot['id'], auction_id)
+        response = test_case.app.get(entrypoint)
+        auction = response.json['data']
+        test_case.assertNotIn('registrationFee', auction.keys())

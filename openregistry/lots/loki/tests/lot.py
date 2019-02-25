@@ -38,14 +38,16 @@ from openregistry.lots.loki.tests.blanks.lot_blanks import (
     # LotTest
     simple_add_lot,
     simple_patch,
+    create_lot_check_auctions_registrationFee
 )
 from openregistry.lots.loki.models import Lot
 
 
-class LotTest(BaseWebTest):
+class LotTest(BaseLotWebTest):
     initial_data = test_loki_lot_data
     relative_to = os.path.dirname(__file__)
     test_simple_add_lot = snitch(simple_add_lot)
+    test_create_lot_check_auctions_registrationFee = snitch(create_lot_check_auctions_registrationFee)
 
 
 class LotResourceTest(BaseLotWebTest, ResourceTestMixin):

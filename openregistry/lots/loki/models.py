@@ -136,7 +136,7 @@ class Auction(Model):
     value = ModelType(LokiValue)
     minimalStep = ModelType(LokiValue)
     guarantee = ModelType(LokiGuarantee)
-    registrationFee = ModelType(RegistrationFee, default={})
+    registrationFee = ModelType(RegistrationFee)
     bankAccount = ModelType(BankAccount)
     documents = ListType(ModelType(AuctionDocument), default=list())
     auctionParameters = ModelType(AuctionParameters)

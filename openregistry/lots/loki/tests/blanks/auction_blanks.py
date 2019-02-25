@@ -108,11 +108,10 @@ def patch_auction_by_concierge(self):
     self.assertEqual(response.json['data']['minimalStep'], data['english']['minimalStep'])
     self.assertEqual(response.json['data']['auctionPeriod'], data['english']['auctionPeriod'])
     self.assertEqual(response.json['data']['guarantee'], data['english']['guarantee'])
-    self.assertEqual(response.json['data']['registrationFee'], data['english']['registrationFee'])
     self.assertNotIn('dutchSteps', response.json['data']['auctionParameters'])
 
     self.app.authorization = ('Basic', ('concierge', ''))
-    
+
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
         headers=self.access_header, params={
             'data': {
@@ -150,7 +149,6 @@ def patch_english_auction(self):
     self.assertEqual(response.json['data']['minimalStep'], data['english']['minimalStep'])
     self.assertEqual(response.json['data']['auctionPeriod'], data['english']['auctionPeriod'])
     self.assertEqual(response.json['data']['guarantee'], data['english']['guarantee'])
-    self.assertEqual(response.json['data']['registrationFee'], data['english']['registrationFee'])
     self.assertNotIn('dutchSteps', response.json['data']['auctionParameters'])
     default_type = response.json['data']['auctionParameters']['type']
 
@@ -163,7 +161,6 @@ def patch_english_auction(self):
     # Test first sellout.english
     self.assertEqual(english['procurementMethodType'], 'sellout.english')
     self.assertEqual(english['value']['amount'], data['english']['value']['amount'])
-    self.assertEqual(english['registrationFee']['amount'], data['english']['registrationFee']['amount'])
     self.assertEqual(english['minimalStep']['amount'], data['english']['minimalStep']['amount'])
     self.assertEqual(english['guarantee']['amount'], data['english']['guarantee']['amount'])
     self.assertEqual(english['auctionParameters']['type'], 'english')
@@ -173,7 +170,6 @@ def patch_english_auction(self):
     # Test second sellout.english(half values)
     self.assertEqual(second_english['procurementMethodType'], 'sellout.english')
     self.assertEqual(second_english['value']['amount'], round_to_two_decimal_places(english['value']['amount'] / 2))
-    self.assertEqual(second_english['registrationFee']['amount'], english['registrationFee']['amount'])
     self.assertEqual(
         second_english['minimalStep']['amount'],
         round_to_two_decimal_places(float(english['minimalStep']['amount']) / 2)
@@ -183,7 +179,6 @@ def patch_english_auction(self):
         round_to_two_decimal_places(english['guarantee']['amount'] / 2)
     )
     self.assertEqual(second_english['bankAccount'], english['bankAccount'])
-    self.assertEqual(second_english['registrationFee'], english['registrationFee'])
     self.assertEqual(second_english['auctionParameters']['type'], 'english')
     self.assertNotIn('dutchSteps', second_english['auctionParameters'])
 
@@ -193,14 +188,12 @@ def patch_english_auction(self):
         insider['value']['amount'],
         round_to_two_decimal_places(english['value']['amount'] / 2)
     )
-    self.assertEqual(insider['registrationFee']['amount'], english['registrationFee']['amount'])
     self.assertEqual(insider['minimalStep']['amount'], 0)
     self.assertEqual(
         insider['guarantee']['amount'],
         round_to_two_decimal_places(english['guarantee']['amount'] / 2)
     )
     self.assertEqual(insider['bankAccount'], english['bankAccount'])
-    self.assertEqual(insider['registrationFee'], english['registrationFee'])
     self.assertEqual(insider['auctionParameters']['type'], 'insider')
     self.assertEqual(insider['auctionParameters']['dutchSteps'], DEFAULT_DUTCH_STEPS)
 
@@ -225,7 +218,6 @@ def patch_english_auction(self):
     # Test first sellout.english
     self.assertEqual(english['procurementMethodType'], 'sellout.english')
     self.assertEqual(english['value']['amount'], data['english']['value']['amount'])
-    self.assertEqual(english['registrationFee']['amount'], data['english']['registrationFee']['amount'])
     self.assertEqual(english['minimalStep']['amount'], data['english']['minimalStep']['amount'])
     self.assertEqual(english['guarantee']['amount'], data['english']['guarantee']['amount'])
     self.assertEqual(english['auctionParameters']['type'], 'english')
@@ -238,7 +230,6 @@ def patch_english_auction(self):
         second_english['value']['amount'],
         round_to_two_decimal_places(english['value']['amount'] / 2)
     )
-    self.assertEqual(second_english['registrationFee']['amount'], english['registrationFee']['amount'])
     self.assertEqual(second_english['minimalStep']['amount'], english['minimalStep']['amount'] / 2)
     self.assertEqual(
         second_english['guarantee']['amount'],
@@ -250,7 +241,6 @@ def patch_english_auction(self):
     # Test second sellout.insider(half values)
     self.assertEqual(insider['procurementMethodType'], 'sellout.insider')
     self.assertEqual(insider['value']['amount'], round_to_two_decimal_places(english['value']['amount'] / 2))
-    self.assertEqual(insider['registrationFee']['amount'], english['registrationFee']['amount'])
     self.assertEqual(insider['minimalStep']['amount'], 0)
     self.assertEqual(
         insider['guarantee']['amount'],
@@ -719,7 +709,6 @@ def auctionPeriod_endDate_blacklisted(self):
         }
     }
 
-
     response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
         headers=self.access_header, params={
             'data': data
@@ -729,88 +718,3 @@ def auctionPeriod_endDate_blacklisted(self):
         data['auctionPeriod']['startDate']
     )
     self.assertNotIn('endDate', response.json['data']['auctionPeriod'])
-
-
-def registrationFee_default(self):
-
-    # Need to mock get_now
-    def get_now_2018():
-        now = datetime.now(TZ)
-        return now.replace(year=2018)
-
-    def get_now_2019():
-        now = datetime.now(TZ)
-        return now.replace(year=2019)
-
-    self.set_status('composing')
-    response = self.app.get('/{}/auctions'.format(self.resource_id))
-    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
-    english = auctions[0]
-
-    # Check default registrationFee.amount before 2019
-    data = {
-        'registrationFee': None
-    }
-    with mock.patch('openprocurement.api.utils.timestuff.get_now', get_now_2018):
-        self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
-            headers=self.access_header, params={
-                'data': data
-                })
-
-    response = self.app.get('/{}/auctions'.format(self.resource_id))
-    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
-    english = auctions[0]
-    second_english = auctions[1]
-    insider = auctions[2]
-
-    self.assertEqual(english['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE_BEFORE_2019)
-    self.assertEqual(second_english['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE_BEFORE_2019)
-    self.assertEqual(insider['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE_BEFORE_2019)
-
-    # Change registrationFee
-    data = {
-        'registrationFee': {'amount': 100}
-    }
-    response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
-        headers=self.access_header, params={
-            'data': data
-            })
-    self.assertEqual(response.status, '200 OK')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(
-        response.json['data']['registrationFee']['amount'],
-        data['registrationFee']['amount']
-    )
-
-    response = self.app.get('/{}/auctions'.format(self.resource_id))
-    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
-    english = auctions[0]
-    second_english = auctions[1]
-    insider = auctions[2]
-
-    self.assertEqual(english['registrationFee']['amount'], data['registrationFee']['amount'])
-    self.assertEqual(second_english['registrationFee']['amount'], data['registrationFee']['amount'])
-    self.assertEqual(insider['registrationFee']['amount'], data['registrationFee']['amount'])
-
-    # Check default registrationFee.amount after 2019
-    data = {
-        'registrationFee': None
-    }
-    with mock.patch('openprocurement.api.utils.common.get_now', get_now_2019):
-        response = self.app.patch_json('/{}/auctions/{}'.format(self.resource_id, english['id']),
-            headers=self.access_header, params={
-                'data': data
-                })
-    self.assertEqual(response.status, '200 OK')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['data']['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE_AFTER_2019)
-
-    response = self.app.get('/{}/auctions'.format(self.resource_id))
-    auctions = sorted(response.json['data'], key=lambda a: a['tenderAttempts'])
-    english = auctions[0]
-    second_english = auctions[1]
-    insider = auctions[2]
-
-    self.assertEqual(english['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE_AFTER_2019)
-    self.assertEqual(second_english['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE_AFTER_2019)
-    self.assertEqual(insider['registrationFee']['amount'], DEFAULT_REGISTRATION_FEE_AFTER_2019)
