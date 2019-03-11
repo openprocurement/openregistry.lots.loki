@@ -65,7 +65,7 @@ lot_create_role = (whitelist(
     'decisions', 'relatedProcesses')
 )
 lot_edit_role = (blacklist(
-    'owner_token', 'owner', '_attachments', 'contracts',
+    'owner_token', 'owner', '_attachments', 'contracts', 'lotType',
     'revisions', 'date', 'dateModified', 'documents', 'auctions', 'relatedProcesses',
     'lotID', 'mode', 'doc_id', 'rectificationPeriod', 'decisions') + lots_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + lots_embedded_role)
